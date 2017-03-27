@@ -14,11 +14,19 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.ide.eclipse.core.Util;
+import com.contrastsecurity.models.Trace;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -75,6 +83,16 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 	
+	public static Image getImage(String path) {
+		ImageRegistry registry = getDefault().getImageRegistry();
+		Image image = registry.get(path);
+		if (image == null) {
+			image = getImageDescriptor(path).createImage();
+			registry.put(path, image);
+		}
+		return image;
+	}
+	
 	public static void log(Throwable e) {
 		plugin.getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, e.getMessage(), e ));
 	}
@@ -88,4 +106,41 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 	public static void logWarning(String message) {
 		plugin.getLog().log(new Status(IStatus.WARNING, PLUGIN_ID, message));
 	}
+	
+	public static Image getSeverityImage(Trace element) {
+		switch (element.getSeverity()) {
+		case "Note":
+			return ContrastUIActivator.getImage("/icons/note.png");
+		case "High":
+			return ContrastUIActivator.getImage("/icons/high.png");
+		case "Medium":
+			return ContrastUIActivator.getImage("/icons/medium.png");
+		case "Low":
+			return ContrastUIActivator.getImage("/icons/low.png");
+		case "Critical":
+			return ContrastUIActivator.getImage("/icons/critical.png");
+		}
+		return null;
+	}
+	
+	public static String getOrgUuid() {
+		String orgUuid = null;
+		try {
+			orgUuid = Util.getDefaultOrganizationUuid();
+		} catch (IOException | UnauthorizedException e) {
+			log(e);
+		}
+		return orgUuid;
+	}
+	
+	public static String removeHtmlMarkup(String html) {
+		html = html.replace("<span class='normal-code'>", "");
+		html = html.replace("<span class='code-string'>", "");
+		html = html.replace("<span class='taint'>", "");
+		html = html.replace("<i>", "");
+		html = html.replace("</i>", "");
+		html = html.replaceAll("</span>", "");
+		return html;
+	}
+
 }
