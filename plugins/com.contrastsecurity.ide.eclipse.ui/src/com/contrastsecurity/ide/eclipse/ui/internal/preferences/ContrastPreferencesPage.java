@@ -138,7 +138,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String url = teamServerText.getText();
+				final String url = teamServerText.getText();
 				URL u;
 		        try {
 		            u = new URL(url);

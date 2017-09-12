@@ -40,7 +40,7 @@ public class ContrastTab extends Composite {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		setLayoutData(gd);
 		
-		ScrolledComposite sc = new ScrolledComposite(this, SWT.V_SCROLL | SWT.H_SCROLL);
+		final ScrolledComposite sc = new ScrolledComposite(this, SWT.V_SCROLL | SWT.H_SCROLL);
 		sc.setLayout(new GridLayout());
 		sc.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		sc.setAlwaysShowScrollBars(false);  

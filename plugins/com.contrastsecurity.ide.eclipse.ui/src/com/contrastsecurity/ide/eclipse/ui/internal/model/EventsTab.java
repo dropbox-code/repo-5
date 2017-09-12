@@ -94,8 +94,8 @@ public class EventsTab extends AbstractTab {
 						EventItem eventItem = (EventItem) selected;
 						if (eventItem.isStacktrace()) {
 							String str = eventItem.getValue();
-							String typeName;
-							int lineNumber;
+							final String typeName;
+							final int lineNumber;
 							try {
 								typeName = getTypeName(str);
 								lineNumber = getLineNumber(str);
