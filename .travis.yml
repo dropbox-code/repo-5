@@ -1,3 +1,5 @@
 language: java
 sudo: false # faster builds
-script: "mvn clean compile package"
+script: "mvn clean install compile package"
+jdk:
+  - oraclejdk8
