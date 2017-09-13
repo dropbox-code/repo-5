@@ -510,7 +510,6 @@ public class VulnerabilitiesView extends ViewPart {
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
 			TraceFilterForm form = getServerTraceForm(serverId);
 			traces = sdk.getTracesInOrg(orgUuid, form);
-			//TODO Fix condition. CONTRAST-14460 & CONTRAST-14653
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
 			TraceFilterForm form = getServerTraceForm(serverId);
 			traces = sdk.getTraces(orgUuid, appId, form);
