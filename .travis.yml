@@ -1,5 +1,5 @@
 language: java
 sudo: false # faster builds
-script: "mvn clean install compile package"
+script: "mvn -f targets/pom.xml install && mvn clean compile package"
 jdk:
   - oraclejdk8
