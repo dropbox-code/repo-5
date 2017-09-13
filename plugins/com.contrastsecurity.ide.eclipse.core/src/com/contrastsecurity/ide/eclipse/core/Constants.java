@@ -34,8 +34,12 @@ public interface Constants {
 	static final String ALL_APPLICATIONS = "All applications";
 	static final String BLANK = "";
 	static final String MUSTACHE_NL = "{{{nl}}}";
+	static final String UNLICENSED = "{{#unlicensed}}";
+	
 	// #0DA1A9
 	static final Color LINK_COLOR = new Color(Display.getDefault(), 13, 161, 169);
+	// #969494
+	static final Color UNLICENSED_COLOR = new Color(Display.getDefault(), 150, 148, 148);
 	// #bfbfbf
 	static final Color RULE_COLOR = new Color(Display.getDefault(), 191, 191, 191);
 
@@ -57,5 +61,15 @@ public interface Constants {
 	static final Color CODE_COLOR = new Color(Display.getDefault(), 27,126,177);
 	// #e0f2ef
 	static final Color ITEM_BACKGROUND_COLOR = new Color(Display.getDefault(), 224,242,239);
+	public String TAINT = "{{#taint}}";
+	public String TAINT_CLOSED = "{{/taint}}";
+	public String SPAN_OPENED = "<span";
+	public String SPAN_CLOSED = "</span>";
+	public String ITALIC_OPENED = "<i>";
+	public String ITALIC_CLOSED = "</i>";
+	public String SPAN_CLASS_CODE_STRING = "<span class='code-string'>";
+	public String SPAN_CLASS_NORMAL_CODE = "<span class='normal-code'>";
+	public String SPAN_CLASS_TAINT = "<span class='taint'>";
+	public int MAX_WIDTH = 400;
 	
 }
