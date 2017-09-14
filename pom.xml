@@ -30,6 +30,7 @@
 	</properties>
 
 	<modules>
+		<module>targets</module>
 		<module>plugins</module>
 		<module>features</module>
 		<module>updatesite</module>
