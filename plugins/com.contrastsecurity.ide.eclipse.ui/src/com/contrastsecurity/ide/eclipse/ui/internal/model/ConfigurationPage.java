@@ -31,7 +31,7 @@ import com.contrastsecurity.ide.eclipse.ui.internal.views.VulnerabilitiesView;
 
 public class ConfigurationPage extends AbstractPage {
 
-	public ConfigurationPage(Composite parent, int style, VulnerabilitiesView vulnerabilitiesView) {
+	public ConfigurationPage(final Composite parent, final int style, final VulnerabilitiesView vulnerabilitiesView) {
 		super(parent, style, vulnerabilitiesView);
 		setLayout(new GridLayout());
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -46,7 +46,7 @@ public class ConfigurationPage extends AbstractPage {
 		textLabel.setLayoutData(gd);
 		textLabel.setText("Contrast is not configured to report to a Team Server");
 		
-		Label preferencesLink = new Label(comboComposite, SWT.NONE);
+		final Label preferencesLink = new Label(comboComposite, SWT.NONE);
 		gd = new GridData(SWT.END, SWT.FILL, false, false);
 		preferencesLink.setLayoutData(gd);
 		preferencesLink.setText("Contrast Preferences");

@@ -249,7 +249,7 @@ public class VulnerabilitiesView extends ViewPart {
 				if (sel instanceof IStructuredSelection) {
 					Object selected = ((IStructuredSelection) sel).getFirstElement();
 					if (selected instanceof Trace) {
-						Trace trace = (Trace) selected;
+						final Trace trace = (Trace) selected;
 						boolean unlicensed = trace.getTitle().contains(Constants.UNLICENSED);
 						if (cell != null && cell.getColumnIndex() == 2 && !unlicensed) {
 							BusyIndicator.showWhile(Display.getCurrent(), new Runnable() {
@@ -354,7 +354,7 @@ public class VulnerabilitiesView extends ViewPart {
 		String orgUuid;
 		try {
 			orgUuid = Util.getDefaultOrganizationUuid();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			ContrastUIActivator.log(e);
 			Display.getDefault().syncExec(new Runnable() {
 
@@ -386,7 +386,7 @@ public class VulnerabilitiesView extends ViewPart {
 					}
 				});
 
-				Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0]);
+				final Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0]);
 				Display.getDefault().syncExec(new Runnable() {
 
 					@Override
@@ -398,7 +398,7 @@ public class VulnerabilitiesView extends ViewPart {
 						}
 					}
 				});
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				ContrastUIActivator.log(e);
 				Display.getDefault().syncExec(new Runnable() {
 
@@ -510,7 +510,7 @@ public class VulnerabilitiesView extends ViewPart {
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
 			TraceFilterForm form = getServerTraceForm(serverId);
 			traces = sdk.getTracesInOrg(orgUuid, form);
-		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
 			TraceFilterForm form = getServerTraceForm(serverId);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		}
