@@ -22,14 +22,16 @@ public class EventResource {
 	public static final String CONTENT = "CONTENT";
 	public static final String CODE = "CODE";
 	public static final String BOLD = "BOLD";
+	
+	//JSON Fields
 	private int id;
 	private boolean important;
 	private String type;
-	private String typeDescription;
-	private String codeRecreation;
-	private String rawCodeRecreation;
-	private String probableStartLocation;
-	private String htmlDataSnapshot;
+	private String description;
+	private int dupes;
+	private String extraDetails;
+	
+	//Internal use
 	private Event event;
 	private EventItem[] items;
 
@@ -57,44 +59,28 @@ public class EventResource {
 		return this.type;
 	}
 
-	public void setTypeDescription(String typeDescription) {
-		this.typeDescription = typeDescription;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public String getTypeDescription() {
-		return this.typeDescription;
+	public String getDescription() {
+		return this.description;
 	}
 
-	public void setCodeRecreation(String codeRecreation) {
-		this.codeRecreation = codeRecreation;
+	public int getDupes() {
+		return dupes;
 	}
 
-	public String getCodeRecreation() {
-		return this.codeRecreation;
+	public void setDupes(int dupes) {
+		this.dupes = dupes;
 	}
 
-	public void setRawCodeRecreation(String rawCodeRecreation) {
-		this.rawCodeRecreation = rawCodeRecreation;
+	public String getExtraDetails() {
+		return extraDetails;
 	}
 
-	public String getRawCodeRecreation() {
-		return this.rawCodeRecreation;
-	}
-
-	public void setProbableStartLocation(String probableStartLocation) {
-		this.probableStartLocation = probableStartLocation;
-	}
-
-	public String getProbableStartLocation() {
-		return this.probableStartLocation;
-	}
-
-	public void setHtmlDataSnapshot(String htmlDataSnapshot) {
-		this.htmlDataSnapshot = htmlDataSnapshot;
-	}
-
-	public String getHtmlDataSnapshot() {
-		return this.htmlDataSnapshot;
+	public void setExtraDetails(String extraDetails) {
+		this.extraDetails = extraDetails;
 	}
 
 	@Override

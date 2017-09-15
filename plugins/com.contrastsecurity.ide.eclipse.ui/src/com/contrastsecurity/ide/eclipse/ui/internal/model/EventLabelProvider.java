@@ -14,7 +14,6 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jface.viewers.OwnerDrawLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -115,7 +114,7 @@ public class EventLabelProvider extends OwnerDrawLabelProvider {
 				EventResource eventResource = (EventResource) element;
 				Color background = event.gc.getBackground();
 				Color foreground = event.gc.getForeground();
-				Rectangle clipping = event.gc.getClipping();
+				//Rectangle clipping = event.gc.getClipping(); //TODO Remove if not used
 				// event.gc.setLineWidth(1);
 				Point size = event.gc.stringExtent(INTERESTING_SECURITY_EVENT_OCCURED_ON_DATA);
 				Color color = getColor(eventResource.getType());
@@ -131,86 +130,14 @@ public class EventLabelProvider extends OwnerDrawLabelProvider {
 //				} else {
 //					event.gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 //				}
-				String type = eventResource.getTypeDescription().toUpperCase();
+				String type = eventResource.getDescription().toUpperCase();
 				event.gc.drawString(type, event.x + 30, event.y + 2);
 				size = event.gc.stringExtent(INTERESTING_SECURITY_EVENT_OCCURED_ON_DATA);
 				event.gc.setBackground(background);
 				event.gc.setForeground(foreground);
-				Font oldFont = event.gc.getFont();
-				FontData[] fontData = oldFont.getFontData();
-				for (int i = 0; i < fontData.length; i++) {
-					fontData[i].setStyle(SWT.BOLD);
-				}
-				FontData[] fontDataItalic = oldFont.getFontData();
-				for (int i = 0; i < fontDataItalic.length; i++) {
-					fontDataItalic[i].setStyle(SWT.ITALIC);
-				}
-				//Font boldFont = null;
-				Font italicFont = null;
-				int x = event.x + 45 + size.x;
-				int startX = x;
-				try {
-					//boldFont = new Font(Display.getCurrent(), fontData);
-					italicFont = new Font(Display.getCurrent(), fontDataItalic);
-					int maxWidth = getMaxWidth(event, oldFont);
-					if (clipping.width > x + maxWidth) {
-						event.gc.setClipping(clipping.x, clipping.y, x + maxWidth, clipping.height);
-					}
-					String currentString = eventResource.getRawCodeRecreation();
-					if (currentString != null) {
-						//currentString = StringEscapeUtils.unescapeHtml(currentString);
-						currentString = HtmlEscape.unescapeHtml(currentString);
-					}
-					Helper helper = new Helper();
-					helper.currentString = currentString;
-					helper.x = x;
-					while (helper != null && !helper.currentString.isEmpty()) {
-						helper = parseString(event, helper, /*boldFont ,*/ oldFont, italicFont, foreground);
-					}
-					x = startX + maxWidth + 45;
-					event.gc.setClipping(clipping.x, clipping.y, clipping.width, clipping.height);
-					helper.currentString = eventResource.getHtmlDataSnapshot();
-					helper.x = x;
-					while (helper != null && !helper.currentString.isEmpty()) {
-						helper = parseString(event, helper, /*boldFont,*/ oldFont, italicFont, foreground);
-					}
-				} finally {
-					//if (boldFont != null) {
-					//	boldFont.dispose();
-					//}
-					if (italicFont != null) {
-						italicFont.dispose();
-					}
-					event.gc.setClipping(clipping.x, clipping.y, clipping.width, clipping.height);
-				}
-
 			}
 
 		}
-	}
-
-	private int getMaxWidth(Event event, Font boldFont) {
-		int maxWidth = Constants.MAX_WIDTH;
-		EventResource[] input = (EventResource[]) viewer.getInput();
-		if (input != null) {
-			Font font = event.gc.getFont();
-			event.gc.setFont(boldFont);
-			for (EventResource eventResource:input) {
-				String str = eventResource.getRawCodeRecreation();
-				str = str.replace(Constants.SPAN_CLASS_CODE_STRING, "");
-				str = str.replace(Constants.SPAN_CLASS_NORMAL_CODE, "");
-				str = str.replace(Constants.SPAN_CLASS_TAINT, "");
-				str = str.replace(Constants.SPAN_CLOSED, "");
-				str = str.replace(Constants.ITALIC_OPENED, "");
-				str = str.replace(Constants.ITALIC_CLOSED, "");
-				Point extent = event.gc.stringExtent(str);
-				maxWidth = Math.max(maxWidth, extent.x);
-			}
-			event.gc.setFont(font);
-		}
-		
-		
-		return maxWidth;
 	}
 
 	private Color getColor(String type) {
@@ -231,123 +158,6 @@ public class EventLabelProvider extends OwnerDrawLabelProvider {
 		return null;
 	}
 
-	private Helper parseString(Event event, Helper helper, /*Font boldFont, */ Font oldFont, Font italicFont,
-			Color foreground) {
-		if (helper == null) {
-			return helper;
-		}
-		String currentString = helper.currentString;
-		int x = helper.x;
-		if (currentString == null || currentString.isEmpty()) {
-			return null;
-		}
-		if (currentString.startsWith(Constants.TAINT)) {
-			currentString = currentString.substring(Constants.TAINT.length());
-			int index = currentString.indexOf(Constants.TAINT_CLOSED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				event.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				event.gc.setForeground(foreground);
-				currentString = currentString.substring(str.length() + Constants.TAINT_CLOSED.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		}
-		if (currentString.startsWith(Constants.SPAN_CLASS_NORMAL_CODE)) {
-			currentString = currentString.substring(Constants.SPAN_CLASS_NORMAL_CODE.length());
-			int index = currentString.indexOf(Constants.SPAN_CLOSED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				//event.gc.setFont(oldFont);
-				currentString = currentString.substring(str.length() + Constants.SPAN_CLOSED.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		} else if (currentString.startsWith(Constants.SPAN_CLASS_CODE_STRING)) {
-			currentString = currentString.substring(Constants.SPAN_CLASS_CODE_STRING.length());
-			int index = currentString.indexOf(Constants.SPAN_CLOSED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				event.gc.setForeground(Constants.LINK_COLOR2);
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				event.gc.setForeground(foreground);
-				currentString = currentString.substring(str.length() + Constants.SPAN_CLOSED.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		} else if (currentString.startsWith(Constants.SPAN_CLASS_TAINT)) {
-			currentString = currentString.substring(Constants.SPAN_CLASS_TAINT.length());
-			int index = currentString.indexOf(Constants.SPAN_CLOSED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				event.gc.setForeground(Constants.CREATION_COLOR);
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				event.gc.setForeground(foreground);
-				currentString = currentString.substring(str.length() + Constants.SPAN_CLOSED.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		} else if (currentString.startsWith(Constants.ITALIC_OPENED)) {
-			currentString = currentString.substring(Constants.ITALIC_OPENED.length());
-			int index = currentString.indexOf(Constants.ITALIC_CLOSED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				event.gc.setFont(italicFont);
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				event.gc.setFont(oldFont);
-				currentString = currentString.substring(str.length() + Constants.ITALIC_CLOSED.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		} else if (currentString.contains(Constants.SPAN_OPENED)) {
-			int index = currentString.indexOf(Constants.SPAN_OPENED);
-			if (index > -1) {
-				String str = currentString.substring(0, index);
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(str, x, event.y);
-				x = x + event.gc.stringExtent(str).x;
-				//event.gc.setFont(oldFont);
-				currentString = currentString.substring(str.length());
-			} else {
-				//event.gc.setFont(boldFont);
-				event.gc.drawString(currentString, x, event.y);
-				//event.gc.setFont(oldFont);
-				return null;
-			}
-		} else {
-			//event.gc.setFont(boldFont);
-			event.gc.drawString(currentString, x, event.y);
-			//event.gc.setFont(oldFont);
-			return null;
-		}
-		helper.currentString = currentString;
-		helper.x = x;
-		return helper;
-	}
-
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -356,11 +166,6 @@ public class EventLabelProvider extends OwnerDrawLabelProvider {
 	@Override
 	protected void erase(Event event, Object element) {
 		event.detail &= ~SWT.FOREGROUND;
-	}
-
-	private static class Helper {
-		String currentString;
-		int x;
 	}
 
 }
