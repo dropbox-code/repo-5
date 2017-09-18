@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -89,6 +90,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		return InstanceScope.INSTANCE.getNode(PLUGIN_ID);
 	}
 
+	@Deprecated
 	public static ExtendedContrastSDK getContrastSDK() {
 		IEclipsePreferences prefs = getPreferences();
 		String username = prefs.get(Constants.USERNAME, null);
@@ -100,6 +102,54 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			return null;
 		}
 		String apiKey = prefs.get(Constants.API_KEY, null);
+		if (apiKey == null || apiKey.isEmpty()) {
+			return null;
+		}
+		String url = prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE);
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDK(final String organizationName) {
+		IEclipsePreferences prefs = getPreferences();
+		String username = prefs.get(Constants.USERNAME, null);
+		if (username == null || username.isEmpty()) {
+			return null;
+		}
+		
+		if(StringUtils.isBlank(organizationName))
+			return null;
+		
+		String orgConfig[] = Util.getListFromString(prefs.get(organizationName, null));
+		if(orgConfig == null || orgConfig.length == 0)
+			return null;
+		
+		String serviceKey = orgConfig[1];
+		if (serviceKey == null || serviceKey.isEmpty()) {
+			return null;
+		}
+		String apiKey = orgConfig[0];
+		if (apiKey == null || apiKey.isEmpty()) {
+			return null;
+		}
+		String url = prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE);
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDK(final String apiKey, final String serviceKey) {
+		IEclipsePreferences prefs = getPreferences();
+		String username = prefs.get(Constants.USERNAME, null);
+		if (username == null || username.isEmpty()) {
+			return null;
+		}
+		if (serviceKey == null || serviceKey.isEmpty()) {
+			return null;
+		}
 		if (apiKey == null || apiKey.isEmpty()) {
 			return null;
 		}

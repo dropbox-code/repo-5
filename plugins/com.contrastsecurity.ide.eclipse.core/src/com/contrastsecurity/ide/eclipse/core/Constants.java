@@ -36,6 +36,8 @@ public interface Constants {
 	static final String MUSTACHE_NL = "{{{nl}}}";
 	static final String UNLICENSED = "{{#unlicensed}}";
 	
+	static final String ORGANIZATION_LIST = "organizationList";
+	
 	// #0DA1A9
 	static final Color LINK_COLOR = new Color(Display.getDefault(), 13, 161, 169);
 	// #969494
