@@ -27,7 +27,7 @@ public class EventsTest {
 	/**
 	 * Team server username. Required to run any events test.
 	 */
-	private final static String USERNAME = "$user_name";
+	private final static String USERNAME = "$username";
 	/**
 	 * Team server organization API key. Required to run any events test.
 	 */
@@ -39,16 +39,16 @@ public class EventsTest {
 	/**
 	 * Team server API URL. Required to run any events test.
 	 */
-	private final static String REST_API_URL = "https://$domain/Contrast/api";
+	private final static String REST_API_URL = "$api_url";
 	
 	/**
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String ORGANIZATION_UUID = "$org_UUID";
+	private final static String ORGANIZATION_UUID = "$organization_uuid";
 	/**
 	 * Trace (vulnerability) UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String TRACE_ID = "$trace_UUID";
+	private final static String TRACE_ID = "$trace_id";
 	
 	ExtendedContrastSDK sdk;
 	
@@ -73,7 +73,17 @@ public class EventsTest {
 			assertNotNull(event.getDescription());
 			assertNotNull(event.getId());
 			assertNotNull(event.getType());
-			assertNotEquals(0, event.getItems().length);
+			
+			if(event.getCollapsedEvents() != null && !event.getCollapsedEvents().isEmpty()) {
+				for(EventResource childEvent : event.getCollapsedEvents()) {
+					assertNotNull(childEvent.getDescription());
+					assertNotNull(childEvent.getId());
+					assertNotNull(childEvent.getType());
+					assertNotEquals(0, childEvent.getItems().length);
+				}
+			}
+			else
+				assertNotEquals(0, event.getItems().length);
 		}
 	}
 

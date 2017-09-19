@@ -14,12 +14,11 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.core.extended;
 
-public class EventItem {
+public class EventItem extends EventModel {
 
 	private String type;
 	private String value;
 	private boolean isStacktrace;
-	private EventResource parent;
 
 	public EventItem() {
 	}
@@ -29,14 +28,6 @@ public class EventItem {
 		this.type = type;
 		this.value = value;
 		this.isStacktrace = isStacktrace;
-		this.parent = parent;
-	}
-
-	public EventResource getParent() {
-		return parent;
-	}
-
-	public void setParent(EventResource parent) {
 		this.parent = parent;
 	}
 

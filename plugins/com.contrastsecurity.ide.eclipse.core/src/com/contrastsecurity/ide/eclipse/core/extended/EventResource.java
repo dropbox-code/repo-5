@@ -17,29 +17,31 @@ package com.contrastsecurity.ide.eclipse.core.extended;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventResource {
+public class EventResource extends EventModel {
 	public static final String RED = "RED";
 	public static final String CONTENT = "CONTENT";
 	public static final String CODE = "CODE";
 	public static final String BOLD = "BOLD";
 	
 	//JSON Fields
-	private int id;
+	private String id;
 	private boolean important;
 	private String type;
 	private String description;
 	private int dupes;
 	private String extraDetails;
 	
+	private List<EventResource> collapsedEvents;
+	
 	//Internal use
 	private Event event;
 	private EventItem[] items;
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public String getId() {
 		return this.id;
 	}
 
@@ -83,11 +85,19 @@ public class EventResource {
 		this.extraDetails = extraDetails;
 	}
 
+	public List<EventResource> getCollapsedEvents() {
+		return collapsedEvents;
+	}
+
+	public void setCollapsedEvents(List<EventResource> collapsedEvents) {
+		this.collapsedEvents = collapsedEvents;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result + id.hashCode();
 		return result;
 	}
 
