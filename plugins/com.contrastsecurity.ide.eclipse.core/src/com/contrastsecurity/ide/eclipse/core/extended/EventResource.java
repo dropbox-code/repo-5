@@ -17,27 +17,31 @@ package com.contrastsecurity.ide.eclipse.core.extended;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventResource {
+public class EventResource extends EventModel {
 	public static final String RED = "RED";
 	public static final String CONTENT = "CONTENT";
 	public static final String CODE = "CODE";
 	public static final String BOLD = "BOLD";
-	private int id;
+	
+	//JSON Fields
+	private String id;
 	private boolean important;
 	private String type;
-	private String typeDescription;
-	private String codeRecreation;
-	private String rawCodeRecreation;
-	private String probableStartLocation;
-	private String htmlDataSnapshot;
+	private String description;
+	private int dupes;
+	private String extraDetails;
+	
+	private List<EventResource> collapsedEvents;
+	
+	//Internal use
 	private Event event;
 	private EventItem[] items;
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public String getId() {
 		return this.id;
 	}
 
@@ -57,51 +61,43 @@ public class EventResource {
 		return this.type;
 	}
 
-	public void setTypeDescription(String typeDescription) {
-		this.typeDescription = typeDescription;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public String getTypeDescription() {
-		return this.typeDescription;
+	public String getDescription() {
+		return this.description;
 	}
 
-	public void setCodeRecreation(String codeRecreation) {
-		this.codeRecreation = codeRecreation;
+	public int getDupes() {
+		return dupes;
 	}
 
-	public String getCodeRecreation() {
-		return this.codeRecreation;
+	public void setDupes(int dupes) {
+		this.dupes = dupes;
 	}
 
-	public void setRawCodeRecreation(String rawCodeRecreation) {
-		this.rawCodeRecreation = rawCodeRecreation;
+	public String getExtraDetails() {
+		return extraDetails;
 	}
 
-	public String getRawCodeRecreation() {
-		return this.rawCodeRecreation;
+	public void setExtraDetails(String extraDetails) {
+		this.extraDetails = extraDetails;
 	}
 
-	public void setProbableStartLocation(String probableStartLocation) {
-		this.probableStartLocation = probableStartLocation;
+	public List<EventResource> getCollapsedEvents() {
+		return collapsedEvents;
 	}
 
-	public String getProbableStartLocation() {
-		return this.probableStartLocation;
-	}
-
-	public void setHtmlDataSnapshot(String htmlDataSnapshot) {
-		this.htmlDataSnapshot = htmlDataSnapshot;
-	}
-
-	public String getHtmlDataSnapshot() {
-		return this.htmlDataSnapshot;
+	public void setCollapsedEvents(List<EventResource> collapsedEvents) {
+		this.collapsedEvents = collapsedEvents;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
+		result = prime * result + id.hashCode();
 		return result;
 	}
 
