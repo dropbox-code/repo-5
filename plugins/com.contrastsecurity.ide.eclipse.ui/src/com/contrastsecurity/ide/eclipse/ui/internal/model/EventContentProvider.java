@@ -37,6 +37,10 @@ public class EventContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof EventResource) {
 			EventResource eventResource = (EventResource) parentElement;
+			
+			if(eventResource.getCollapsedEvents() != null && !eventResource.getCollapsedEvents().isEmpty())
+				return eventResource.getCollapsedEvents().toArray();
+				
 			return eventResource.getItems();
 		}
 		return new Object[0];
@@ -47,6 +51,9 @@ public class EventContentProvider implements ITreeContentProvider {
 		if (element instanceof EventItem) {
 			return ((EventItem) element).getParent();
 		}
+		else if(element instanceof EventResource)
+			return ((EventResource) element).getParent();
+		
 		return null;
 	}
 
