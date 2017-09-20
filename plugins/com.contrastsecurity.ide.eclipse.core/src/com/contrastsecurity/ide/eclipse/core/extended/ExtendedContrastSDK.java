@@ -61,13 +61,26 @@ public class ExtendedContrastSDK extends ContrastSDK {
 			reader = new InputStreamReader(is);
 			EventSummaryResource resource = gson.fromJson(reader, EventSummaryResource.class);
 			for (EventResource event:resource.getEvents()) {
-				EventDetails eventDetails = getEventDetails(orgUuid, traceId, event);
-				event.setEvent(eventDetails.getEvent());
+				if(event.getCollapsedEvents() != null && !event.getCollapsedEvents().isEmpty()) {
+					getCollapsedEventsDetails(event, orgUuid, traceId);
+				}
+				else {
+					EventDetails eventDetails = getEventDetails(orgUuid, traceId, event);
+					event.setEvent(eventDetails.getEvent());
+				}
 			}
 			return resource;
 		} finally {
 			IOUtils.closeQuietly(is);
 			IOUtils.closeQuietly(reader);
+		}
+	}
+	
+	private void getCollapsedEventsDetails(EventResource parentEvent, final String orgUuid, final String traceId) throws IOException, UnauthorizedException {
+		for(EventResource event : parentEvent.getCollapsedEvents()) {
+			EventDetails eventDetails = getEventDetails(orgUuid, traceId, event);
+			event.setEvent(eventDetails.getEvent());
+			event.setParent(parentEvent);
 		}
 	}
 
@@ -87,7 +100,7 @@ public class ExtendedContrastSDK extends ContrastSDK {
 		}
 	}
 
-	private String getEventDetailsUrl(String orgUuid, String traceId, EventResource event) {
+	private String getEventDetailsUrl(String orgUuid, String traceId, final EventResource event) {
 		return String.format("/ng/%s/traces/%s/events/%s/details?expand=skip_links", orgUuid, traceId, event.getId());
 	}
 
