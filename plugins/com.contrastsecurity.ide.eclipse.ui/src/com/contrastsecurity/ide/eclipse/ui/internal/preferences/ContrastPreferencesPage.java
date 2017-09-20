@@ -48,6 +48,7 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -65,9 +66,12 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Text defaultOrganizationNameText;
 	private Text defaultOrganizationUuidText;
 	
+	private Label organizationLabel;
 	private Combo organizationCombo;
+	
 	private Button addOrganizationBtn;
 	private Button editOrganizationBtn;
+	private Button deleteOrganizationBtn;
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -207,8 +211,9 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 		});
 		//TODO Test
-		createOrganizationButtons(composite);
+		createLabel(composite, "Organization: ");
 		createOrganizationCombo(composite);
+		createOrganizationButtons(composite);
 		
 		testConnectionLabel = new Label(composite, SWT.NONE);
 		gd = new GridData(SWT.CENTER, SWT.FILL, false, false);
@@ -267,7 +272,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	
 	private void createOrganizationCombo(final Composite parent) {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.horizontalSpan = 1;
+		gd.horizontalSpan = 2;
 		
 		organizationCombo = new Combo(parent, SWT.READ_ONLY);
 		organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
@@ -276,7 +281,9 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				teamServerText.setText(organizationCombo.getText());
+				OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(organizationCombo.getText());
+				apiKeyText.setText(config.getApiKey());
+				serviceKeyText.setText(config.getServiceKey());
 			}
 			
 			@Override
@@ -302,6 +309,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 				dialog.create();
 				if(dialog.open() == Window.OK) {
 					organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+					enableDeleteOrganization();
 				}
 			}
 			
@@ -317,12 +325,40 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				OrganizationPreferencesDialog dialog = new OrganizationPreferencesDialog(parent.getShell());
+				dialog.setOrganizationName(organizationCombo.getText());
 				dialog.create();
+				if(dialog.open() == Window.OK) {
+					//TODO Do something....LOL
+				}
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
 		});
+		
+		deleteOrganizationBtn = new Button(parent, SWT.PUSH);
+		deleteOrganizationBtn.setText("Delete");
+		deleteOrganizationBtn.setLayoutData(gd);
+		deleteOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				ContrastCoreActivator.removeOrganization(organizationCombo.getSelectionIndex());
+				organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+				enableDeleteOrganization();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
+		});
+		enableDeleteOrganization();
+	}
+	
+	private void enableDeleteOrganization() {
+		if(organizationCombo.getItemCount() > 0)
+			deleteOrganizationBtn.setEnabled(true);
+		else
+			deleteOrganizationBtn.setEnabled(false);
 	}
 	
 	private void enableTestConnection() {

@@ -15,6 +15,8 @@
 package com.contrastsecurity.ide.eclipse.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -64,7 +66,7 @@ public class Util {
 		String[] orgList;
 		
 		if(StringUtils.isNotBlank(list))
-			orgList = StringUtils.split(LIST_DELIMITATOR);
+			orgList = StringUtils.split(list, LIST_DELIMITATOR);
 		else
 			return new String[0];
 		

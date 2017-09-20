@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -24,6 +25,7 @@ import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.models.Organizations;
 
 public class OrganizationPreferencesDialog extends TitleAreaDialog {
@@ -59,6 +61,14 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		createApiKeyText(container);
 		createServiceKeyText(container);
 		createOrganizationNameText(container);
+		
+		if(StringUtils.isNotBlank(organizationName)) {
+			OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(organizationName);
+			if(config != null) {
+				apiKeyText.setText(config.getApiKey());
+				serviceKeyText.setText(config.getServiceKey());
+			}
+		}
 		
 		return area;
 	}
@@ -122,7 +132,12 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 				e.printStackTrace();
 			}
 		}
-		saveOrganizationConfig();
+		if(!saveOrganizationConfig()) {
+			//TODO Show error dialog and close
+			
+			cancelPressed();
+			return;
+		}
 		
 		super.okPressed();
 	}
@@ -140,32 +155,14 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 			return null;
 	}
 	
-	private void saveOrganizationConfig() {
-		//TODO Move prefs handling to ContrastCoreActivator
+	private boolean saveOrganizationConfig() {
 		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 		if(StringUtils.isBlank(organizationName)) {
-			String[] orgArray = ContrastCoreActivator.getOrganizationList();
-			List<String> orgList;
-			if(orgArray.length > 0)
-				orgList = Arrays.asList(orgArray);
-			else
-				orgList = new ArrayList<>();
-			
-			orgList.add(organizationNameText.getText());
-			
-			ContrastCoreActivator.saveOrganizationList(orgList.toArray(new String[orgList.size()]));
-			
-			organizationName = organizationNameText.getText();
+			return ContrastCoreActivator.saveNewOrganization(organizationNameText.getText(), apiKeyText.getText(), serviceKeyText.getText());
 		}
+		else if(!ContrastCoreActivator.editOrganization(organizationName, apiKeyText.getText(), serviceKeyText.getText()))
+			return ContrastCoreActivator.saveNewOrganization(organizationName, apiKeyText.getText(), serviceKeyText.getText());
 		
-		String[] orgConfig = new String[] {apiKeyText.getText(), serviceKeyText.getText()};
-		prefs.put(organizationName, Util.getStringFromList(orgConfig));
-		
-		try {
-			prefs.flush();
-		}
-		catch(BackingStoreException e) {
-			e.printStackTrace();
-		}
+		return true;
 	}
 }

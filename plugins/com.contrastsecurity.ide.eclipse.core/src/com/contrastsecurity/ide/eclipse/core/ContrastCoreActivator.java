@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.core;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -24,6 +25,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -102,6 +104,10 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 	
 	public static boolean saveOrganizationList(String[] list) {
+		return saveOrganizationList(list, true);
+	}
+	
+	public static boolean saveOrganizationList(String[] list, boolean shouldFlush) {
 		if(prefs == null)
 			prefs = getPreferences();
 		
@@ -110,15 +116,75 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			return false;
 		
 		prefs.put(Constants.ORGANIZATION_LIST, stringList);
-		try {
-			prefs.flush();
-		}
-		catch(BackingStoreException e) {
-			e.printStackTrace();
-			return false;
-		}
+		
+		if(shouldFlush)
+			return flushPrefs();
 		
 		return true;
+	}
+	
+	public static void removeOrganization(final int position) {
+		String[] orgArray = getOrganizationList();
+		String organization = orgArray[position];
+		orgArray = (String[]) ArrayUtils.remove(orgArray, position);
+		saveOrganizationList(orgArray, false);
+		
+		prefs.remove(organization);
+		
+		flushPrefs();
+	}
+	
+	public static boolean saveNewOrganization(final String organization, final String apiKey, final String serviceKey) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String[] list = getOrganizationList();
+		list = (String[]) ArrayUtils.add(list, organization);
+		saveOrganizationList(list, false);
+		
+		prefs.put(organization, apiKey + ";" + serviceKey);
+		
+		return flushPrefs();
+	}
+	
+	public static OrganizationConfig getOrganizationConfiguration(final String organization) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String config = prefs.get(organization, "");
+		
+		if(StringUtils.isBlank(config))
+			return null;
+		
+		String[] configArray = Util.getListFromString(config);
+		
+		return new OrganizationConfig(configArray[0], configArray[1]);
+	}
+	
+	public static boolean editOrganization(final String organization, final String apiKey, final String serviceKey) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		if(prefs.get(organization, null) == null)
+			return false;
+		
+		prefs.put(organization, apiKey + ";" + serviceKey);
+		
+		return flushPrefs();
+	}
+	
+	public static boolean flushPrefs() {
+		if(prefs == null)
+			return false;
+		
+			try {
+				prefs.flush();
+				return true;
+			}
+			catch(BackingStoreException e) {
+				e.printStackTrace();
+				return false;
+			}
 	}
 
 	@Deprecated
