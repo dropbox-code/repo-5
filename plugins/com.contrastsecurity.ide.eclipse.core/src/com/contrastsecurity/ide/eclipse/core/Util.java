@@ -66,7 +66,7 @@ public class Util {
 		if(StringUtils.isNotBlank(list))
 			orgList = StringUtils.split(LIST_DELIMITATOR);
 		else
-			orgList = new String[0];
+			return new String[0];
 		
 		return orgList;
 	}

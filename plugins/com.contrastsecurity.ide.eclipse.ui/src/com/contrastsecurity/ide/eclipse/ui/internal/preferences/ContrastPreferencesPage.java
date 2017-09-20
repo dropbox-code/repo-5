@@ -21,14 +21,17 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -61,6 +64,10 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Label testConnectionLabel;
 	private Text defaultOrganizationNameText;
 	private Text defaultOrganizationUuidText;
+	
+	private Combo organizationCombo;
+	private Button addOrganizationBtn;
+	private Button editOrganizationBtn;
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -199,6 +206,10 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			}
 
 		});
+		//TODO Test
+		createOrganizationButtons(composite);
+		createOrganizationCombo(composite);
+		
 		testConnectionLabel = new Label(composite, SWT.NONE);
 		gd = new GridData(SWT.CENTER, SWT.FILL, false, false);
 		gd.horizontalSpan = 3;
@@ -253,7 +264,67 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		});
 		return composite;
 	}
+	
+	private void createOrganizationCombo(final Composite parent) {
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 1;
+		
+		organizationCombo = new Combo(parent, SWT.READ_ONLY);
+		organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+		organizationCombo.setLayoutData(gd);
+		organizationCombo.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				teamServerText.setText(organizationCombo.getText());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				teamServerText.setText(organizationCombo.getText());
+			}
+		});
+	}
 
+	private void createOrganizationButtons(final Composite parent) {
+		GridData gd = new GridData(SWT.RIGHT, SWT.FILL, false, false);
+		gd.horizontalSpan = 1;
+		
+		addOrganizationBtn = new Button(parent, SWT.PUSH);
+		addOrganizationBtn.setText("Add");
+		addOrganizationBtn.setLayoutData(gd);
+		addOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				OrganizationPreferencesDialog dialog = new OrganizationPreferencesDialog(parent.getShell());
+				dialog.create();
+				if(dialog.open() == Window.OK) {
+					organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing*/ }
+		});
+		
+		editOrganizationBtn = new Button(parent, SWT.PUSH);
+		editOrganizationBtn.setText("Edit");
+		editOrganizationBtn.setLayoutData(gd);
+		editOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				OrganizationPreferencesDialog dialog = new OrganizationPreferencesDialog(parent.getShell());
+				dialog.create();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
+		});
+	}
+	
 	private void enableTestConnection() {
 		testConnection.setEnabled(!usernameText.getText().isEmpty() && !teamServerText.getText().isEmpty()
 				&& !apiKeyText.getText().isEmpty() && !serviceKeyText.getText().isEmpty());

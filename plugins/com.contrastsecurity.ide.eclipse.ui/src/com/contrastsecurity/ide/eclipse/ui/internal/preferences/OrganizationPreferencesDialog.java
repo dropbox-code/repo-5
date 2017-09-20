@@ -1,6 +1,7 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.preferences;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		grid.grabExcessHorizontalSpace = true;
 		grid.horizontalAlignment = GridData.FILL;
 		
-		organizationNameText = new Text(container, SWT.BORDER);
+		organizationNameText = new Text(container, SWT.BORDER | SWT.READ_ONLY);
 		organizationNameText.setLayoutData(grid);
 		
 		if(StringUtils.isNotBlank(organizationName))
@@ -106,27 +107,53 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		return true;
 	}
 	
+	@Override
+	protected void okPressed() {
+		if(StringUtils.isBlank(organizationName)) {
+			try {
+				organizationNameText.setText(retrieveOrganizationName());
+			}
+			catch(IOException e) {
+				//TODO Add handling process
+				e.printStackTrace();
+			}
+			catch(UnauthorizedException e) {
+				//TODO Add handling process
+				e.printStackTrace();
+			}
+		}
+		saveOrganizationConfig();
+		
+		super.okPressed();
+	}
+	
 	public void setOrganizationName(final String organizationName) {
 		this.organizationName = organizationName;
 	}
 	
 	private String retrieveOrganizationName() throws IOException, UnauthorizedException {
 		ExtendedContrastSDK sdk = ContrastCoreActivator.getContrastSDK(apiKeyText.getText(), serviceKeyText.getText());
-		Organizations organizations = sdk.getProfileOrganizations();
-		if(organizations.getCount() != 0)
+		Organizations organizations = sdk.getProfileDefaultOrganizations();
+		if(organizations.getOrganization() != null)
 			return organizations.getOrganization().getName();
 		else
 			return null;
 	}
 	
 	private void saveOrganizationConfig() {
+		//TODO Move prefs handling to ContrastCoreActivator
 		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 		if(StringUtils.isBlank(organizationName)) {
-			String[] orgArray = Util.getListFromString(prefs.get(Constants.ORGANIZATION_LIST, ""));
-			List<String> orgList = Arrays.asList(orgArray);
+			String[] orgArray = ContrastCoreActivator.getOrganizationList();
+			List<String> orgList;
+			if(orgArray.length > 0)
+				orgList = Arrays.asList(orgArray);
+			else
+				orgList = new ArrayList<>();
+			
 			orgList.add(organizationNameText.getText());
-			String prefList = Util.getStringFromList(orgList.toArray(new String[orgList.size()]));
-			prefs.put(Constants.ORGANIZATION_LIST, prefList);
+			
+			ContrastCoreActivator.saveOrganizationList(orgList.toArray(new String[orgList.size()]));
 			
 			organizationName = organizationNameText.getText();
 		}

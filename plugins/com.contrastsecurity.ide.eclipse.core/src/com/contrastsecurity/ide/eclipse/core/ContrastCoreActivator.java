@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 
@@ -34,6 +35,8 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static ContrastCoreActivator plugin;
+	
+	private static IEclipsePreferences prefs;
 
 	/**
 	 * The constructor
@@ -88,6 +91,34 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 
 	public static IEclipsePreferences getPreferences() {
 		return InstanceScope.INSTANCE.getNode(PLUGIN_ID);
+	}
+	
+	public static String[] getOrganizationList() {
+		if(prefs == null)
+			prefs = getPreferences();
+		String orgListString = prefs.get(Constants.ORGANIZATION_LIST, "");
+		
+		return Util.getListFromString(orgListString);
+	}
+	
+	public static boolean saveOrganizationList(String[] list) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String stringList = Util.getStringFromList(list);
+		if(StringUtils.isBlank(stringList))
+			return false;
+		
+		prefs.put(Constants.ORGANIZATION_LIST, stringList);
+		try {
+			prefs.flush();
+		}
+		catch(BackingStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 
 	@Deprecated
