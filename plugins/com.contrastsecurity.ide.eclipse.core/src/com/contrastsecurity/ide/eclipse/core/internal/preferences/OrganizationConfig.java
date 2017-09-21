@@ -3,11 +3,11 @@ package com.contrastsecurity.ide.eclipse.core.internal.preferences;
 public class OrganizationConfig {
 	
 	private String apiKey;
-	private String serviceKey;
+	private String organizationUUID;
 	
 	public OrganizationConfig(final String apiKey, final String serviceKey) {
 		this.apiKey = apiKey;
-		this.serviceKey = serviceKey;
+		this.organizationUUID = serviceKey;
 	}
 
 	public String getApiKey() {
@@ -18,12 +18,12 @@ public class OrganizationConfig {
 		this.apiKey = apiKey;
 	}
 
-	public String getServiceKey() {
-		return serviceKey;
+	public String getOrganizationUUIDKey() {
+		return organizationUUID;
 	}
 
-	public void setServiceKey(String serviceKey) {
-		this.serviceKey = serviceKey;
+	public void setOrganizationUUIDKey(String organizationUUIDKey) {
+		this.organizationUUID = organizationUUIDKey;
 	}
 
 }

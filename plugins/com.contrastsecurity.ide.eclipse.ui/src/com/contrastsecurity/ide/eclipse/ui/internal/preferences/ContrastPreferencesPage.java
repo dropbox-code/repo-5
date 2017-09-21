@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -66,7 +67,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Text defaultOrganizationNameText;
 	private Text defaultOrganizationUuidText;
 	
-	private Label organizationLabel;
 	private Combo organizationCombo;
 	
 	private Button addOrganizationBtn;
@@ -275,15 +275,20 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		gd.horizontalSpan = 2;
 		
 		organizationCombo = new Combo(parent, SWT.READ_ONLY);
+		//TODO Initialize with last chosen value if there is any.
 		organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+		
 		organizationCombo.setLayoutData(gd);
 		organizationCombo.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(organizationCombo.getText());
-				apiKeyText.setText(config.getApiKey());
-				serviceKeyText.setText(config.getServiceKey());
+				String orgName = organizationCombo.getText();
+				if(StringUtils.isNotBlank(orgName)) {
+					OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(orgName);
+					apiKeyText.setText(config.getApiKey());
+					serviceKeyText.setText(config.getOrganizationUUIDKey());
+				}
 			}
 			
 			@Override
@@ -295,7 +300,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	}
 
 	private void createOrganizationButtons(final Composite parent) {
-		GridData gd = new GridData(SWT.RIGHT, SWT.FILL, false, false);
+		GridData gd = new GridData(SWT.RIGHT_TO_LEFT, SWT.FILL, false, false);
 		gd.horizontalSpan = 1;
 		
 		addOrganizationBtn = new Button(parent, SWT.PUSH);
@@ -343,9 +348,10 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				ContrastCoreActivator.removeOrganization(organizationCombo.getSelectionIndex());
+				teamServerText.setText(String.valueOf(organizationCombo.getSelectionIndex()));
+				/*ContrastCoreActivator.removeOrganization(organizationCombo.getSelectionIndex());
 				organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
-				enableDeleteOrganization();
+				enableDeleteOrganization();*/
 			}
 			
 			@Override

@@ -18,7 +18,7 @@ public class ContrastCoreActivatorTest {
 	
 	private final static String EXTRA_ORGANIZATION = "extra org";
 	private final static String API_KEY = "myDummyApiKey12421D";
-	private final static String SERVICE_KEY = "notReallyAServ1c3K3y234D";
+	private final static String ORGANIZATION_UUID = "notReallyAServ1c3K3y234D";
 	private final static String[] ALTERED_ORGANIZATION_ARRAY = {"org1", "org2", "org3", "extra org"};
 	
 	private final static String ORGANIZATION_TO_DELETE = "org2";
@@ -46,21 +46,21 @@ public class ContrastCoreActivatorTest {
 	@Test
 	public void addOrganizationConfigTest() {
 		assertTrue(ContrastCoreActivator.saveOrganizationList(ORGANIZATION_ARRAY));
-		assertTrue(ContrastCoreActivator.saveNewOrganization(EXTRA_ORGANIZATION, API_KEY, SERVICE_KEY));
+		assertTrue(ContrastCoreActivator.saveNewOrganization(EXTRA_ORGANIZATION, API_KEY, ORGANIZATION_UUID));
 		
 		String[] newList = ContrastCoreActivator.getOrganizationList();
 		assertArrayEquals(ALTERED_ORGANIZATION_ARRAY, newList);
 		
 		OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(EXTRA_ORGANIZATION);
 		assertEquals(config.getApiKey(), API_KEY);
-		assertEquals(config.getServiceKey(), SERVICE_KEY);
+		assertEquals(config.getOrganizationUUIDKey(), ORGANIZATION_UUID);
 	}
 	
 	@Test
 	public void removeOrganizationTest() throws BackingStoreException {
 		assertTrue(ContrastCoreActivator.saveOrganizationList(ORGANIZATION_ARRAY));
 		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-		prefs.put(ORGANIZATION_TO_DELETE, API_KEY + ";" + SERVICE_KEY);
+		prefs.put(ORGANIZATION_TO_DELETE, API_KEY + ";" + ORGANIZATION_UUID);
 		prefs.flush();
 		
 		ContrastCoreActivator.removeOrganization(1);
