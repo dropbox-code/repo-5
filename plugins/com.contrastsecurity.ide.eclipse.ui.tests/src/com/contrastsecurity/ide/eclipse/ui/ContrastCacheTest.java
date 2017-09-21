@@ -1,4 +1,4 @@
-package com.contrastsecurity.ide.eclipse.core;
+package com.contrastsecurity.ide.eclipse.ui;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -9,7 +9,6 @@ import org.junit.Test;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
-import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
 import com.contrastsecurity.ide.eclipse.ui.cache.Key;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
