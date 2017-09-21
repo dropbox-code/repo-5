@@ -27,7 +27,7 @@ import com.contrastsecurity.models.Servers;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
 
-public class VulnerabilityTest {
+public class SdkTest {
 	/**
 	 * Team server username. Required to run any events test.
 	 */
