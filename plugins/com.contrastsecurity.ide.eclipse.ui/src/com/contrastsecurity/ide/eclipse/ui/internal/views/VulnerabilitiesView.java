@@ -392,7 +392,7 @@ public class VulnerabilitiesView extends ViewPart {
 					@Override
 					public void run() {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
-							refreshUI(traces, selectedServer[0], selectedApp[0]);
+							refreshUI(orgUuid, traces, selectedServer[0], selectedApp[0]);
 						} else {
 							refreshJob.cancel();
 						}
@@ -443,7 +443,8 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 	}
 
-	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp) {
+	//TODO Add refresh to update filters
+	private void refreshUI(final String orgUuid, Traces traces, ISelection selectedServer, ISelection selectedApp) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
 			viewer.setInput(traceArray);
@@ -454,8 +455,14 @@ public class VulnerabilitiesView extends ViewPart {
 				activePage = mainPage;
 				currentPage = mainPage;
 			}
+			
+			//TODO Test behavior FIRST!!
+			/*currentPage.updateServerCombo(orgUuid, false);
+			currentPage.updateApplicationCombo(orgUuid, false);*/
+			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
+			
 			addListeners(mainPage);
 			refreshAction.setEnabled(true);
 			currentPage.getLabel().setText(traces.getTraces().size() + " Vulnerabilities");
@@ -465,6 +472,11 @@ public class VulnerabilitiesView extends ViewPart {
 				activePage = noVulnerabilitiesPage;
 				currentPage = noVulnerabilitiesPage;
 			}
+			
+			//TODO Test behavior FIRST!!
+			/*currentPage.updateServerCombo(orgUuid, false);
+			currentPage.updateApplicationCombo(orgUuid, false);*/
+			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
 			refreshAction.setEnabled(true);
