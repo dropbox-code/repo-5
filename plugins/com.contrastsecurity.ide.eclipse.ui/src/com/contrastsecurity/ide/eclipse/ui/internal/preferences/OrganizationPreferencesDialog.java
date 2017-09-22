@@ -1,6 +1,7 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.preferences;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -13,6 +14,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -22,20 +24,25 @@ import org.eclipse.swt.widgets.Text;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.OrganizationNotFoundException;
+import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
+import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 
 public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	
-	private final static String DIALOG_TITLE = "Add new Organization";
-	private final static String DIALOG_INFO = "In order to add a new organization for this user, its required to add"
-			+ " its API key.";
+	private final static String NEW_DIALOG_TITLE = "Add new Organization";
+	private final static String NEW_DIALOG_INFO = "In order to add a new organization for this user, its required to add"
+			+ " its API key to retrieve orgnizations data.";
+	
+	private final static String EDIT_DIALOG_TITLE = "Edit organization";
+	private final static String EDIT_DIALOG_INFO = "To edit an organization, you require API key to retrieve its data.";
 	
 	private final static String API_KEY_LABEL_TEXT = "API Key: ";
 	private final static String ORGANIZATION_NAME_LABEL_TEXT = "Organization name: ";
 	private final static String ORGANIZATION_ID_LABEL_TEXT = "Organization UUID: ";
-	private final static String VERIFY_CONNECTION_BTN_TEXT = "Verify connection";
+	private final static String VERIFY_CONNECTION_BTN_TEXT = "Retrieve organizations";
 	
 	private final static int SAVE_SUCCESSFUL = 1;
 	private final static int ORG_ALREADY_EXISTS = 2;
@@ -43,7 +50,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	private final static int SAVE_REJECTED = 4;
 	
 	private Text apiKeyText;
-	private Text organizationNameText;
+	private Combo organizationCombo;
 	private Text organizationIdText;
 	private Button verifyConnectionButton;
 	private Label verifyConnectionLabel;
@@ -56,6 +63,10 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	private final String teamServerUrl;
 	private final String username;
 	private final String serviceKey;
+	
+	private boolean isOrganizationCreated;
+	
+	private List<Organization> orgList;
 	
 	public OrganizationPreferencesDialog(Shell parentShell, String username, String serviceKey, String teamServerUrl) {
 		super(parentShell);
@@ -80,8 +91,14 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	@Override
 	public void create() {
 		super.create();
-		setTitle(DIALOG_TITLE);
-		setMessage(DIALOG_INFO, IMessageProvider.INFORMATION);
+		if(isNewOrganization) {
+			setTitle(NEW_DIALOG_TITLE);
+			setMessage(NEW_DIALOG_INFO, IMessageProvider.INFORMATION);
+		}
+		else {
+			setTitle(EDIT_DIALOG_TITLE);
+			setMessage(EDIT_DIALOG_INFO, IMessageProvider.INFORMATION);
+		}
 		
 		okButton = getButton(IDialogConstants.OK_ID);
 		okButton.setEnabled(false);
@@ -96,7 +113,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		container.setLayout(layout);
 		
 		createApiKeyText(container);
-		createOrganizationNameText(container);
+		createOrganizationCombo(container);
 		createOrganizationIdText(container);
 		createVerifyConnectionButton(container);
 		
@@ -124,7 +141,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		apiKeyText.setLayoutData(gd);
 	}
 	
-	private void createOrganizationNameText(Composite container) {
+	private void createOrganizationCombo(Composite container) {
 		Label organizationNameLabel = new Label(container, SWT.NONE);
 		organizationNameLabel.setText(ORGANIZATION_NAME_LABEL_TEXT);
 		
@@ -133,11 +150,24 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		gd.horizontalAlignment = GridData.FILL;
 		gd.horizontalSpan = 2;
 		
-		organizationNameText = new Text(container, SWT.BORDER | SWT.READ_ONLY);
-		organizationNameText.setLayoutData(gd);
-		
-		if(!isNewOrganization)
-			organizationNameText.setText(organizationName);
+		organizationCombo = new Combo(container, SWT.READ_ONLY);
+		organizationCombo.setLayoutData(gd);
+		organizationCombo.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				organizationIdText.setText(orgList.get(organizationCombo.getSelectionIndex()).getOrgUuid());
+				okButton.setEnabled(true);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
+		});
+		organizationCombo.setEnabled(false);
+		if(!isNewOrganization) {
+			organizationCombo.setItems(new String[]{organizationName});
+			organizationCombo.select(0);
+		}
 	}
 	
 	private void createOrganizationIdText(Composite container) {
@@ -165,10 +195,8 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
-					if(retrieveOrganizationName()) {
-						verifyConnectionLabel.setText("Connection success!");
-						okButton.setEnabled(true);
-					}
+					if(retrieveOrganizationName())
+						organizationCombo.setEnabled(true);
 					else
 						verifyConnectionLabel.setText("No organization found!");
 				}
@@ -184,11 +212,10 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
 		});
 		
-		//TODO Fix label visibility, its currently invisible
 		verifyConnectionLabel = new Label(container, SWT.NONE);
 		verifyConnectionLabel.setText("");
-		gd = new GridData(SWT.CENTER, SWT.FILL, false, false);
-		gd.horizontalSpan = 1;
+		gd = new GridData(SWT.CENTER, SWT.FILL, true, false);
+		gd.horizontalSpan = 3;
 		verifyConnectionLabel.setLayoutData(gd);
 	}
 	
@@ -219,6 +246,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		else {
 			switch(editOrganizationConfig()) {
 				case SAVE_SUCCESSFUL:
+					isOrganizationCreated = true;
 					break;
 				case SAVE_REJECTED:
 					cancelPressed();
@@ -235,12 +263,22 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		super.okPressed();
 	}
 	
+	public boolean getIsOrganizationCreated() {
+		return isOrganizationCreated;
+	}
+	
 	private boolean retrieveOrganizationName() throws IOException, UnauthorizedException {
 		ExtendedContrastSDK sdk = ContrastCoreActivator.getContrastSDK(username, apiKeyText.getText(), serviceKey, teamServerUrl);
-		Organizations organizations = sdk.getProfileDefaultOrganizations();
-		if(organizations.getOrganization() != null) {
-			organizationNameText.setText(organizations.getOrganization().getName());
-			organizationIdText.setText(organizations.getOrganization().getOrgUuid());
+
+		Organizations organizations = sdk.getProfileOrganizations();
+		if(organizations.getOrganizations() != null && !organizations.getOrganizations().isEmpty()) {
+			orgList = organizations.getOrganizations();
+			String[] orgArray = Util.extractOrganizationNames(orgList);
+			organizationCombo.setItems(orgArray);
+			
+			int position = ArrayUtils.indexOf(orgArray, organizationName);
+			if(position != ArrayUtils.INDEX_NOT_FOUND)
+				organizationCombo.select(position);
 			
 			return true;
 		}
@@ -249,8 +287,8 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	}
 	
 	private int createOrganizationConfig() {
-		if(!ArrayUtils.contains(ContrastCoreActivator.getOrganizationList(), organizationNameText.getText())) {
-			if(ContrastCoreActivator.saveNewOrganization(organizationNameText.getText(), apiKeyText.getText(), organizationIdText.getText()))
+		if(!ArrayUtils.contains(ContrastCoreActivator.getOrganizationList(), organizationCombo.getText())) {
+			if(ContrastCoreActivator.saveNewOrganization(organizationCombo.getText(), apiKeyText.getText(), organizationIdText.getText()))
 				return SAVE_SUCCESSFUL;
 			
 			return SAVE_FAILED;
@@ -261,14 +299,14 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 	
 	private int editOrganizationConfig() {
 		try {
-			if(ContrastCoreActivator.editOrganization(organizationName, apiKeyText.getText(), organizationIdText.getText()))
+			if(ContrastCoreActivator.editOrganization(organizationCombo.getText(), apiKeyText.getText(), organizationIdText.getText()))
 				return SAVE_SUCCESSFUL;
 			else
 				return SAVE_FAILED;
 		}
 		catch(OrganizationNotFoundException e) {
 			if(MessageDialog.openConfirm(getShell(), "Organization not found", "Do you wish to save a new configuration?")) {
-				if(ContrastCoreActivator.saveNewOrganization(organizationName, apiKeyText.getText(), organizationIdText.getText()))
+				if(ContrastCoreActivator.saveNewOrganization(organizationCombo.getText(), apiKeyText.getText(), organizationIdText.getText()))
 					return SAVE_SUCCESSFUL;
 				else
 					return SAVE_FAILED;

@@ -62,6 +62,15 @@ public class Util {
 				&& !username.isEmpty();
 	}
 	
+	public static String[] extractOrganizationNames(List<Organization> orgList) {
+		String[] orgArray = new String[orgList.size()];
+		
+		for(int i = 0; i < orgList.size(); i++)
+			orgArray[i] = orgList.get(i).getName();
+		
+		return orgArray;
+	}
+	
 	public static String[] getListFromString(String list) {
 		String[] orgList;
 		

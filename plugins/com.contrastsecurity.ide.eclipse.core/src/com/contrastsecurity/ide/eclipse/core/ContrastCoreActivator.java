@@ -192,7 +192,6 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			}
 	}
 
-	@Deprecated
 	public static ExtendedContrastSDK getContrastSDK() {
 		IEclipsePreferences prefs = getPreferences();
 		String username = prefs.get(Constants.USERNAME, null);
