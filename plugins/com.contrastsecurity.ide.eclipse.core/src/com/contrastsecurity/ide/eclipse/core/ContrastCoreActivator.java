@@ -103,6 +103,13 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		return Util.getListFromString(orgListString);
 	}
 	
+	public static String getDefaultOrganization() {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		return prefs.get(Constants.ORGNAME, null);
+	}
+	
 	public static boolean saveOrganizationList(String[] list) {
 		return saveOrganizationList(list, true);
 	}
@@ -112,8 +119,6 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			prefs = getPreferences();
 		
 		String stringList = Util.getStringFromList(list);
-		if(StringUtils.isBlank(stringList))
-			return false;
 		
 		prefs.put(Constants.ORGANIZATION_LIST, stringList);
 		
@@ -161,12 +166,12 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		return new OrganizationConfig(configArray[0], configArray[1]);
 	}
 	
-	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) {
+	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) throws OrganizationNotFoundException {
 		if(prefs == null)
 			prefs = getPreferences();
 		
 		if(prefs.get(organization, null) == null)
-			return false;
+			throw new OrganizationNotFoundException("Organization does not exists");
 		
 		prefs.put(organization, apiKey + ";" + organizationUuid);
 		
@@ -256,6 +261,12 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			return null;
 		}
 		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDK(final String username, final String apiKey, 
+			final String serviceKey, final String teamServerUrl) {
+		
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
 	}
 
 }

@@ -69,5 +69,11 @@ public class ContrastCoreActivatorTest {
 		
 		assertNull(ContrastCoreActivator.getOrganizationConfiguration(ORGANIZATION_TO_DELETE));
 	}
+	
+	@Test public void clearOrganizationListTest() {
+		assertTrue(ContrastCoreActivator.saveNewOrganization(EXTRA_ORGANIZATION, API_KEY, ORGANIZATION_UUID));
+		ContrastCoreActivator.removeOrganization(0);
+		assertEquals(0, ContrastCoreActivator.getOrganizationList().length);
+	}
 
 }
