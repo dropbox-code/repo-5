@@ -22,6 +22,7 @@ import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
+import com.contrastsecurity.models.AgentType;
 import com.contrastsecurity.models.Application;
 import com.contrastsecurity.models.Applications;
 import com.contrastsecurity.models.Coverage;
@@ -29,33 +30,37 @@ import com.contrastsecurity.models.Libraries;
 import com.contrastsecurity.models.Library;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
+import com.contrastsecurity.models.Rules;
+import com.contrastsecurity.models.Rules.Rule;
 import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.contrastsecurity.models.Trace;
+import com.contrastsecurity.models.TraceFilter;
+import com.contrastsecurity.models.TraceListing;
 import com.contrastsecurity.models.Traces;
 
 public class SdkTest {
 	/**
 	 * Team server username. Required to run any events test.
 	 */
-	private final static String USERNAME = "sborsuk@iwaconsolti.com";
+	private final static String USERNAME = "$user_name";
 	/**
 	 * Team server organization API key. Required to run any events test.
 	 */
-	private final static String API_KEY = "lN4uaDiS68Xtw2pAT37zNniPywDdBBNR";
+	private final static String API_KEY = "$api_key";
 	/**
 	 * Team server organization service key. Required to run any events test.
 	 */
-	private final static String SERVICE_KEY = "6TQUS1BLCMGPY4EZ";
+	private final static String SERVICE_KEY = "$service_key";
 	/**
 	 * Team server API URL. Required to run any events test.
 	 */
-	private final static String REST_API_URL = "https://teamserver-344.internal.contsec.com/Contrast/api";
+	private final static String REST_API_URL = "https://$domain/Contrast/api";
 
 	/**
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String ORGANIZATION_UUID = "58e5b91e-a5ed-42d1-a66f-8ab73a4cc25a";
+	private final static String ORGANIZATION_UUID = "$org_UUID";
 
 	ExtendedContrastSDK sdk;
 
@@ -105,7 +110,7 @@ public class SdkTest {
 	}
 
 	@Test
-	public void getTracesWithFilter() throws IOException, UnauthorizedException {
+	public void getTracesInOrg() throws IOException, UnauthorizedException {
 		Servers servers = sdk.getServers(ORGANIZATION_UUID, null);
 
 		if (!servers.getServers().isEmpty()) {
@@ -391,7 +396,6 @@ public class SdkTest {
 						assertTrue(app.getId().length() > 0);
 						assertTrue(app.getLanguage().length() > 0);
 						assertTrue(app.getPath().length() > 0);
-						System.out.println(app.getName());
 					}
 				}
 
@@ -407,38 +411,106 @@ public class SdkTest {
 		if (!applications.getApplications().isEmpty()) {
 			for (Application app : applications.getApplications()) {
 				Traces traces = sdk.getTraces(ORGANIZATION_UUID, app.getId(), null);
+				assertTrue(!traces.getTraces().isEmpty());
+				for (Trace trace : traces.getTraces()) {
+					assertTrue(trace.getCategory().length() > 0);
+					assertTrue(trace.getConfidence().length() > 0);
+					assertTrue(trace.getImpact().length() > 0);
+					assertTrue(trace.getLanguage().length() > 0);
+					assertTrue(trace.getLikelihood().length() > 0);
+					assertTrue(trace.getPlatform().length() > 0);
+					assertTrue(trace.getRule().length() > 0);
+					assertTrue(trace.getSeverity().length() > 0);
+					assertTrue(trace.getStatus().length() > 0);
+					assertTrue(trace.getTitle().length() > 0);
+					assertTrue(trace.getTitle().length() > 0);
+					assertTrue(trace.getUuid().length() > 0);
+				}
 			}
 		}
 	}
 
 	@Test
 	public void getTracesInOrgTest() throws IOException, UnauthorizedException {
-
+		Traces traces = sdk.getTracesInOrg(ORGANIZATION_UUID, null);
+		if (!traces.getTraces().isEmpty()) {
+			for (Trace trace : traces.getTraces()) {
+				assertTrue(trace.getCategory().length() > 0);
+				assertTrue(trace.getConfidence().length() > 0);
+				assertTrue(trace.getImpact().length() > 0);
+				assertTrue(trace.getLanguage().length() > 0);
+				assertTrue(trace.getLikelihood().length() > 0);
+				assertTrue(trace.getPlatform().length() > 0);
+				assertTrue(trace.getRule().length() > 0);
+				assertTrue(trace.getSeverity().length() > 0);
+				assertTrue(trace.getStatus().length() > 0);
+				assertTrue(trace.getTitle().length() > 0);
+				assertTrue(trace.getTitle().length() > 0);
+				assertTrue(trace.getUuid().length() > 0);
+			}
+		}
 	}
 
 	@Test
 	public void getTraceFiltersTest() throws IOException, UnauthorizedException {
 
+		Applications applications = sdk.getApplications(ORGANIZATION_UUID);
+		if (!applications.getApplications().isEmpty()) {
+			for (Application app : applications.getApplications()) {
+				TraceListing traceListing = sdk.getTraceFilters(ORGANIZATION_UUID, app.getId());
+				List<TraceFilter> traceFilters = traceListing.getFilters();
+				for (TraceFilter traceFilter : traceFilters) {
+					assertTrue(traceFilter.getKeycode().length() > 0);
+					assertTrue(traceFilter.getLabel().length() > 0);
+				}
+			}
+		}
 	}
 
-	@Test
-	public void getTracesWithFilterTest() throws IOException, UnauthorizedException {
-
-	}
+	// @Test
+	// public void getTracesWithFilterTest() throws IOException,
+	// UnauthorizedException {
+	//
+	// Applications applications = sdk.getApplications(ORGANIZATION_UUID);
+	// if (!applications.getApplications().isEmpty()) {
+	// for (Application app : applications.getApplications()) {
+	//
+	// Traces traces = sdk.getTracesWithFilter(ORGANIZATION_UUID, app.getId(),
+	// TraceFilterType.MODULES,
+	// TraceFilterKeycode.ALL_ISSUES, new TraceFilterForm());
+	//
+	// for (Trace trace : traces.getTraces()) {
+	// System.out.println(trace.getCategory());
+	// }
+	// }
+	// }
+	// }
 
 	@Test
 	public void getRulesTest() throws IOException, UnauthorizedException {
-
+		Rules rules = sdk.getRules(ORGANIZATION_UUID);
+		if (!rules.getRules().isEmpty()) {
+			for (Rule rule : rules.getRules()) {
+				assertTrue(rule.getCategory().length() > 0);
+				assertTrue(rule.getConfidence().length() > 0);
+				assertTrue(rule.getCwe().length() > 0);
+				assertTrue(rule.getDescription().length() > 0);
+				assertTrue(rule.getImpact().length() > 0);
+				assertTrue(rule.getLikelihood().length() > 0);
+				assertTrue(rule.getName().length() > 0);
+				assertTrue(rule.getOwasp().length() > 0);
+				assertTrue(rule.getServiceLevel().length() > 0);
+				assertTrue(rule.getSeverity().length() > 0);
+				assertTrue(rule.getTitle().length() > 0);
+			}
+		}
 	}
 
 	@Test
 	public void getAgentTest() throws IOException, UnauthorizedException {
 
-	}
-
-	@Test
-	public void getAgentSecondTest() throws IOException, UnauthorizedException {
+		byte[] agent = sdk.getAgent(AgentType.JAVA, ORGANIZATION_UUID);
+		assertNotNull(agent);
 
 	}
-
 }
