@@ -1,5 +1,12 @@
 language: java
 sudo: false # faster builds
-script: "mvn clean integration-test compile package"
+script: "mvn clean integration-test compile package -Dusername=USERNAME -DapiKey=API_KEY -DserviceKey=SERVICE_KEY -DrestApiUrl=REST_API_URL -DorganizationId=ORGANIZATION_ID -DtraceId=TRACE_ID"
 jdk:
   - oraclejdk8
+env:
+  - USERNAME=none
+  - API_KEY=none
+  - SERVICE_KEY=none
+  - REST_API_URL=none
+  - ORGANIZATION_ID=none
+  - TRACE_ID=none
