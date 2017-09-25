@@ -71,6 +71,7 @@ public class ContrastCoreActivatorTest {
 	}
 	
 	@Test public void clearOrganizationListTest() {
+		assertTrue(ContrastCoreActivator.saveOrganizationList(new String[0]));
 		assertTrue(ContrastCoreActivator.saveNewOrganization(EXTRA_ORGANIZATION, API_KEY, ORGANIZATION_UUID));
 		ContrastCoreActivator.removeOrganization(0);
 		assertEquals(0, ContrastCoreActivator.getOrganizationList().length);
