@@ -1,4 +1,4 @@
-package com.contrastsecurity.ide.eclipse.core;
+package com.contrastsecurity.ide.eclipse.core.integration;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

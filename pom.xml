@@ -105,8 +105,10 @@
 						<include>**/*AllTests*.class</include>
 						<include>**/*AllBotTests*.class</include>
 						<include>**/*TestSuite*.class</include>
-						<include>**/*Test.class</include>
 					</includes>
+					<excludes>
+						<exclude>**/integration/**Test.class</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
