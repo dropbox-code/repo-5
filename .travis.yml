@@ -4,9 +4,4 @@ script: "mvn clean integration-test compile package -Dusername=USERNAME -DapiKey
 jdk:
   - oraclejdk8
 env:
-  - USERNAME=none
-  - API_KEY=none
-  - SERVICE_KEY=none
-  - REST_API_URL=none
-  - ORGANIZATION_ID=none
-  - TRACE_ID=none
+  - USERNAME=none API_KEY=none SERVICE_KEY=none REST_API_URL=none ORGANIZATION_ID=none TRACE_ID=none
