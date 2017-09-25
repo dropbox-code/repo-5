@@ -92,15 +92,14 @@
 							<version>0.0.0</version>
 						</dependency>
 					</dependencies>
-					<!-- TODO Uncomment once integration tests are needed -->
-					<!-- <systemProperties>
+					<systemProperties>
 						<username>${username}</username>	
 						<apiKey>${apiKey}</apiKey>
 						<serviceKey>${serviceKey}</serviceKey>
 						<restApiUrl>${restApiUrl}</restApiUrl>
 						<organizationId>${organizationId}</organizationId>
 						<traceId>${traceId}</traceId>
-					</systemProperties> -->
+					</systemProperties>
 					<includes>
 						<include>**/AllTests.class</include>
 						<include>**/*AllTests*.class</include>
