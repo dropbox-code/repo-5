@@ -13,23 +13,16 @@
  * Contributors:
  *     Contrast Security - initial API and implementation
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<artifactId>com.contrastsecurity.ide.eclipse.core.tests</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-test-plugin</packaging>
 	<parent>
 		<groupId>com.contrastsecurity.ide.eclipse</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>plugins</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<groupId>com.contrastsecurity.ide.eclipse</groupId>
-	<artifactId>plugins</artifactId>
-	
-	<name>contrastide.plugins</name>	
-	<packaging>pom</packaging>
-	<modules>
-		<module>com.contrastsecurity.ide.eclipse.core</module>
-		<module>com.contrastsecurity.ide.eclipse.core.tests</module>
-		<module>com.contrastsecurity.ide.eclipse.ui</module>
-		<module>com.contrastsecurity.ide.rest.sdk</module>
-	</modules>
 </project>
