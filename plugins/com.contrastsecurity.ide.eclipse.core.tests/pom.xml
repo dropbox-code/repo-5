@@ -18,7 +18,6 @@
 		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>com.contrastsecurity.ide.eclipse.core.tests</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 	<parent>
 		<groupId>com.contrastsecurity.ide.eclipse</groupId>
