@@ -1,6 +1,7 @@
 language: java
 sudo: false # faster builds
 script:
-  - mvn clean integration-test compile package
+  - mvn clean integration-test
+  - mvn clean compile package
 jdk:
   - oraclejdk8
