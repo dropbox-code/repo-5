@@ -17,6 +17,8 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.FilterForm;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
+import com.contrastsecurity.ide.eclipse.core.Constants;
+import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.extended.EventDetails;
 import com.contrastsecurity.ide.eclipse.core.extended.EventResource;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
@@ -64,7 +66,7 @@ public class SdkTest {
 	private static String ORGANIZATION_UUID;
 
 	ExtendedContrastSDK sdk;
-	
+
 	@BeforeClass
 	public static void initRequiredParams() {
 		USERNAME = System.getProperty("username");
