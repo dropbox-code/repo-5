@@ -83,7 +83,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	 */
 	@Override
 	protected void performDefaults() {
-		IEclipsePreferences prefs = getPreferences();
+		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 		prefs.put(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE);
 		initPreferences();
 		super.performDefaults();
@@ -94,13 +94,14 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	 */
 	@Override
 	public boolean performOk() {
-		IEclipsePreferences prefs = getPreferences();
-		prefs.put(Constants.TEAM_SERVER_URL, teamServerText.getText());
-		prefs.put(Constants.SERVICE_KEY, serviceKeyText.getText());
-		prefs.put(Constants.API_KEY, apiKeyText.getText());
-		prefs.put(Constants.USERNAME, usernameText.getText());
-		prefs.put(Constants.ORGNAME, organizationCombo.getText());
-		prefs.put(Constants.ORGUUID, organizationUuidText.getText());
+		ContrastCoreActivator.saveSelectedPreferences(
+				teamServerText.getText(), 
+				serviceKeyText.getText(), 
+				apiKeyText.getText(), 
+				usernameText.getText(), 
+				organizationCombo.getText(), 
+				organizationUuidText.getText());
+		
 		return super.performOk();
 	}
 
@@ -439,17 +440,20 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	}
 
 	private void initPreferences() {
-		IEclipsePreferences prefs = getPreferences();
+		/*IEclipsePreferences prefs = getPreferences();
 		teamServerText.setText(prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE));
 		serviceKeyText.setText(prefs.get(Constants.SERVICE_KEY, BLANK));
 		apiKeyText.setText(prefs.get(Constants.API_KEY, BLANK));
 		usernameText.setText(prefs.get(Constants.USERNAME, BLANK));
 		
-		organizationUuidText.setText(prefs.get(Constants.ORGUUID, BLANK));
-	}
-
-	private IEclipsePreferences getPreferences() {
-		return ContrastCoreActivator.getPreferences();
+		organizationUuidText.setText(prefs.get(Constants.ORGUUID, BLANK));*/
+		
+		teamServerText.setText(ContrastCoreActivator.getTeamServerUrl());
+		serviceKeyText.setText(ContrastCoreActivator.getServiceKey());
+		apiKeyText.setText(ContrastCoreActivator.getSelectedApiKey());
+		usernameText.setText(ContrastCoreActivator.getUsername());
+		
+		organizationUuidText.setText(ContrastCoreActivator.getSelectedOrganizationUuid());
 	}
 
 	@Override
