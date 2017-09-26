@@ -1,14 +1,16 @@
-package com.contrastsecurity.ide.eclipse.ui;
+package com.contrastsecurity.ide.eclipse.ui.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
+import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
 import com.contrastsecurity.ide.eclipse.ui.cache.Key;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
@@ -18,16 +20,22 @@ public class ContrastCacheTest {
 	/**
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String ORGANIZATION_UUID = "orgUuid";
+	private static String ORGANIZATION_UUID;
 	/**
 	 * Trace (vulnerability) UUID. Required to run when testing retrieval of an
 	 * event.
 	 */
-	private final static String TRACE_ID = "traceId";
+	private static String TRACE_ID;
 
 	Key key;
 
 	private ContrastCache contrastCache;
+	
+	@BeforeClass
+	public static void initRequiredParams() {
+		ORGANIZATION_UUID = System.getProperty("organizationId");
+		TRACE_ID = System.getProperty("traceId");
+	}
 
 	@Before
 	public void init() {
