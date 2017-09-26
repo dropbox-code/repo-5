@@ -15,7 +15,6 @@
 package com.contrastsecurity.ide.eclipse.core;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +37,7 @@ public class Util {
 		return organizations.getOrganization();
 	}
 
+	@Deprecated
 	public static String getDefaultOrganizationUuid() throws IOException, UnauthorizedException {
 		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 		String uuid = prefs.get(Constants.ORGUUID, null);

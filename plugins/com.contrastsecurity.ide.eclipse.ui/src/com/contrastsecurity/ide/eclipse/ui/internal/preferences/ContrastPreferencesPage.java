@@ -440,14 +440,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	}
 
 	private void initPreferences() {
-		/*IEclipsePreferences prefs = getPreferences();
-		teamServerText.setText(prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE));
-		serviceKeyText.setText(prefs.get(Constants.SERVICE_KEY, BLANK));
-		apiKeyText.setText(prefs.get(Constants.API_KEY, BLANK));
-		usernameText.setText(prefs.get(Constants.USERNAME, BLANK));
-		
-		organizationUuidText.setText(prefs.get(Constants.ORGUUID, BLANK));*/
-		
 		teamServerText.setText(ContrastCoreActivator.getTeamServerUrl());
 		serviceKeyText.setText(ContrastCoreActivator.getServiceKey());
 		apiKeyText.setText(ContrastCoreActivator.getSelectedApiKey());
