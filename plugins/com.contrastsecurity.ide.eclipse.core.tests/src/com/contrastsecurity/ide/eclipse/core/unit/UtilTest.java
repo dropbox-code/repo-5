@@ -1,6 +1,8 @@
-package com.contrastsecurity.ide.eclipse.core;
+package com.contrastsecurity.ide.eclipse.core.unit;
 
 import org.junit.Test;
+
+import com.contrastsecurity.ide.eclipse.core.Util;
 
 import static org.junit.Assert.assertEquals;
 

@@ -4,11 +4,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.contrastsecurity.ide.eclipse.core.unit.SampleTest;
+import com.contrastsecurity.ide.eclipse.core.unit.ContrastCoreActivatorTest;
+import com.contrastsecurity.ide.eclipse.core.unit.UtilTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	SampleTest.class//TODO Add your test and delete sample please.
+	ContrastCoreActivatorTest.class,
+	UtilTest.class
 })
 public class UnitTestSuite {
 }

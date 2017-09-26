@@ -1,10 +1,11 @@
-package com.contrastsecurity.ide.eclipse.core;
+package com.contrastsecurity.ide.eclipse.core.unit;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.junit.Test;
 import org.osgi.service.prefs.BackingStoreException;
 
+import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 
 import static org.junit.Assert.assertArrayEquals;
