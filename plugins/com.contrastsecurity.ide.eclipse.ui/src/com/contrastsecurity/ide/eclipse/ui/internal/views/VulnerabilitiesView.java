@@ -392,9 +392,11 @@ public class VulnerabilitiesView extends ViewPart {
 					@Override
 					public void run() {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
+							//Refresh filters
 							currentPage.updateApplicationCombo(orgUuid, true);
 							currentPage.updateServerCombo(orgUuid, true);
-							refreshUI(orgUuid, traces, selectedServer[0], selectedApp[0]);
+							//Refresh traces and selections
+							refreshUI(traces, selectedServer[0], selectedApp[0]);
 						} else {
 							refreshJob.cancel();
 						}
@@ -451,7 +453,7 @@ public class VulnerabilitiesView extends ViewPart {
 	 * @param selectedServer Combo selection for server list.
 	 * @param selectedApp Combo selection for application list.
 	 */
-	private void refreshUI(String orgUuid, Traces traces, ISelection selectedServer, ISelection selectedApp) {
+	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
 			viewer.setInput(traceArray);

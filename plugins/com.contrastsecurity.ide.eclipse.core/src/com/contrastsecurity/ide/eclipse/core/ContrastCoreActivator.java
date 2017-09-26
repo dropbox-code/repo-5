@@ -259,7 +259,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDKByOrganization(final String organizationName) {
@@ -288,7 +288,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDK(final String apiKey) {
@@ -308,13 +308,17 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDK(final String username, final String apiKey, 
 			final String serviceKey, final String teamServerUrl) {
+		initPrefs();
 		
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
+		ExtendedContrastSDK sdk = new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
+		sdk.setReadTimeout(5000);
+		
+		return sdk;
 	}
 
 }
