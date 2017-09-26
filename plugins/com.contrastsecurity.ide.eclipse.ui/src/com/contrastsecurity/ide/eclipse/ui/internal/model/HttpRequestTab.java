@@ -31,8 +31,8 @@ import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 
 public class HttpRequestTab extends Composite {
 
-		private StyledText area;
-		private HttpRequestResource httpRequest;
+	private StyledText area;
+	private HttpRequestResource httpRequest;
 
 	public HttpRequestTab(Composite parent, int style) {
 		super(parent, style);
@@ -60,13 +60,14 @@ public class HttpRequestTab extends Composite {
 	public void setHttpRequest(HttpRequestResource httpRequest) {
 		this.httpRequest = httpRequest;
 		area.setText(Constants.BLANK);
-		if (httpRequest != null && httpRequest.getHttpRequest() != null && httpRequest.getHttpRequest().getFormattedText() != null) {
-			area.setText(httpRequest.getHttpRequest().getFormattedText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
+		if (httpRequest != null && httpRequest.getHttpRequest() != null
+				&& httpRequest.getHttpRequest().getFormattedText() != null) {
+			area.setText(httpRequest.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
 		} else if (httpRequest != null && httpRequest.getReason() != null) {
 			area.setText(httpRequest.getReason());
 		}
 		String text = area.getText();
-		//text = StringEscapeUtils.unescapeHtml(text);
+		// text = StringEscapeUtils.unescapeHtml(text);
 		text = HtmlEscape.unescapeHtml(text);
 		try {
 			text = URLDecoder.decode(text, "UTF-8");
@@ -77,6 +78,7 @@ public class HttpRequestTab extends Composite {
 			}
 		}
 		if (text.contains(Constants.TAINT) && text.contains(Constants.TAINT_CLOSED)) {
+
 			String currentString = text;
 			int start = text.indexOf(Constants.TAINT);
 			currentString = currentString.replace(Constants.TAINT, "");
@@ -92,5 +94,5 @@ public class HttpRequestTab extends Composite {
 			}
 		}
 	}
-	
+
 }
