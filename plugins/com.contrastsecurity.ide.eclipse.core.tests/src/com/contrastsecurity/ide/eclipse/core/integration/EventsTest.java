@@ -1,4 +1,4 @@
-package com.contrastsecurity.ide.eclipse.core;
+package com.contrastsecurity.ide.eclipse.core.integration;
 
 import java.io.IOException;
 
@@ -8,9 +8,12 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.ide.eclipse.core.Constants;
+import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.extended.EventResource;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
@@ -27,30 +30,42 @@ public class EventsTest {
 	/**
 	 * Team server username. Required to run any events test.
 	 */
-	private final static String USERNAME = "$username";
+	private static String USERNAME;
 	/**
 	 * Team server organization API key. Required to run any events test.
 	 */
-	private final static String API_KEY = "$api_key";
+	private static String API_KEY;
 	/**
 	 * Team server organization service key. Required to run any events test.
 	 */
-	private final static String SERVICE_KEY = "$service_key";
+	private static String SERVICE_KEY;
 	/**
 	 * Team server API URL. Required to run any events test.
 	 */
-	private final static String REST_API_URL = "$api_url";
+	private static String REST_API_URL;
 	
 	/**
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String ORGANIZATION_UUID = "$organization_uuid";
+	private static String ORGANIZATION_UUID;
 	/**
 	 * Trace (vulnerability) UUID. Required to run when testing retrieval of an event.
 	 */
-	private final static String TRACE_ID = "$trace_id";
+	private static String TRACE_ID;
 	
 	ExtendedContrastSDK sdk;
+	
+	@BeforeClass
+	public static void initRequiredParams() throws Exception {
+		USERNAME = System.getProperty("username");
+		API_KEY = System.getProperty("apiKey");
+		SERVICE_KEY = System.getProperty("serviceKey");
+		REST_API_URL = System.getProperty("restApiUrl");
+		ORGANIZATION_UUID = System.getProperty("organizationId");
+		TRACE_ID = System.getProperty("traceId");
+		
+		System.out.print("TraceId: " + TRACE_ID);
+	}
 	
 	@Before
 	public void init() {
