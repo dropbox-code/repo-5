@@ -14,14 +14,18 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.core;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -33,6 +37,8 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static ContrastCoreActivator plugin;
+	
+	private static IEclipsePreferences prefs;
 
 	/**
 	 * The constructor
@@ -88,6 +94,103 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	public static IEclipsePreferences getPreferences() {
 		return InstanceScope.INSTANCE.getNode(PLUGIN_ID);
 	}
+	
+	public static String[] getOrganizationList() {
+		if(prefs == null)
+			prefs = getPreferences();
+		String orgListString = prefs.get(Constants.ORGANIZATION_LIST, "");
+		
+		return Util.getListFromString(orgListString);
+	}
+	
+	public static String getDefaultOrganization() {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		return prefs.get(Constants.ORGNAME, null);
+	}
+	
+	public static boolean saveOrganizationList(String[] list) {
+		return saveOrganizationList(list, true);
+	}
+	
+	public static boolean saveOrganizationList(String[] list, boolean shouldFlush) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String stringList = Util.getStringFromList(list);
+		
+		prefs.put(Constants.ORGANIZATION_LIST, stringList);
+		
+		if(shouldFlush)
+			return flushPrefs();
+		
+		return true;
+	}
+	
+	public static void removeOrganization(final int position) {
+		String[] orgArray = getOrganizationList();
+		String organization = orgArray[position];
+		orgArray = (String[]) ArrayUtils.remove(orgArray, position);
+		saveOrganizationList(orgArray, false);
+		
+		prefs.remove(organization);
+		
+		flushPrefs();
+	}
+	
+	public static boolean saveNewOrganization(final String organization, final String apiKey, final String organizationUuid) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String[] list = getOrganizationList();
+		list = (String[]) ArrayUtils.add(list, organization);
+		saveOrganizationList(list, false);
+		
+		prefs.put(organization, apiKey + ";" + organizationUuid);
+		
+		return flushPrefs();
+	}
+	
+	public static OrganizationConfig getOrganizationConfiguration(final String organization) {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		String config = prefs.get(organization, "");
+		
+		if(StringUtils.isBlank(config))
+			return null;
+		
+		String[] configArray = Util.getListFromString(config);
+		
+		return new OrganizationConfig(configArray[0], configArray[1]);
+	}
+	
+	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) throws OrganizationNotFoundException {
+		if(prefs == null)
+			prefs = getPreferences();
+		
+		if(prefs.get(organization, null) == null)
+			throw new OrganizationNotFoundException("Organization does not exists");
+		
+		prefs.put(organization, apiKey + ";" + organizationUuid);
+		
+		return flushPrefs();
+	}
+	
+	public static boolean flushPrefs() {
+		if(prefs == null)
+			return false;
+		
+			try {
+				prefs.flush();
+				return true;
+			}
+			catch(BackingStoreException e) {
+				e.printStackTrace();
+				return false;
+			}
+	}
 
 	public static ExtendedContrastSDK getContrastSDK() {
 		IEclipsePreferences prefs = getPreferences();
@@ -108,6 +211,61 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			return null;
 		}
 		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDKByOrganization(final String organizationName) {
+		IEclipsePreferences prefs = getPreferences();
+		String username = prefs.get(Constants.USERNAME, null);
+		if (username == null || username.isEmpty()) {
+			return null;
+		}
+		
+		if(StringUtils.isBlank(organizationName))
+			return null;
+		
+		OrganizationConfig config = getOrganizationConfiguration(organizationName);
+		if(config == null)
+			return null;
+		
+		String serviceKey = prefs.get(Constants.SERVICE_KEY, null);
+		if (serviceKey == null || serviceKey.isEmpty()) {
+			return null;
+		}
+		String apiKey = config.getApiKey();
+		if (apiKey == null || apiKey.isEmpty()) {
+			return null;
+		}
+		String url = prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE);
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDK(final String apiKey) {
+		IEclipsePreferences prefs = getPreferences();
+		String username = prefs.get(Constants.USERNAME, null);
+		if (username == null || username.isEmpty()) {
+			return null;
+		}
+		String serviceKey = prefs.get(Constants.SERVICE_KEY, null);
+		if (serviceKey == null || serviceKey.isEmpty()) {
+			return null;
+		}
+		if (apiKey == null || apiKey.isEmpty()) {
+			return null;
+		}
+		String url = prefs.get(Constants.TEAM_SERVER_URL, Constants.TEAM_SERVER_URL_VALUE);
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+	}
+	
+	public static ExtendedContrastSDK getContrastSDK(final String username, final String apiKey, 
+			final String serviceKey, final String teamServerUrl) {
+		
+		return new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
 	}
 
 }
