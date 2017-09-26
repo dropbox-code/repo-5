@@ -15,20 +15,25 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -45,6 +50,7 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -59,8 +65,13 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Text usernameText;
 	private Button testConnection;
 	private Label testConnectionLabel;
-	private Text defaultOrganizationNameText;
-	private Text defaultOrganizationUuidText;
+	private Text organizationUuidText;
+	
+	private Combo organizationCombo;
+	
+	private Button addOrganizationBtn;
+	private Button editOrganizationBtn;
+	private Button deleteOrganizationBtn;
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -88,8 +99,8 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		prefs.put(Constants.SERVICE_KEY, serviceKeyText.getText());
 		prefs.put(Constants.API_KEY, apiKeyText.getText());
 		prefs.put(Constants.USERNAME, usernameText.getText());
-		prefs.put(Constants.ORGNAME, defaultOrganizationNameText.getText());
-		prefs.put(Constants.ORGUUID, defaultOrganizationUuidText.getText());
+		prefs.put(Constants.ORGNAME, organizationCombo.getText());
+		prefs.put(Constants.ORGUUID, organizationUuidText.getText());
 		return super.performOk();
 	}
 
@@ -116,18 +127,20 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalSpan = 2;
 		usernameText.setLayoutData(gd);
-		createLabel(composite, "API Key:");
-		apiKeyText = new Text(composite, SWT.BORDER);
-		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
-		gd.horizontalSpan = 2;
-		apiKeyText.setLayoutData(gd);
+		
 		createLabel(composite, "Service Key:");
 		serviceKeyText = new Text(composite, SWT.BORDER);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalSpan = 2;
 		serviceKeyText.setLayoutData(gd);
+		
+		createLabel(composite, "Organization: ");
+		createOrganizationCombo(composite);
+		createOrganizationButtons(composite);
+		
 		addWarn(composite, "Your Service Key and API key are available by logging into your TeamServer using");
 		addWarn(composite, "your regular account credentials. Go \"My Account\", then \"API Key\".");
+		
 		createLabel(composite, BLANK);
 		testConnection = new Button(composite, SWT.PUSH);
 		testConnection.setText("Test Connection");
@@ -166,8 +179,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 										testConnectionLabel.setText("Connection is correct, but no default organizations found.");
 									} else {
 										testConnectionLabel.setText("Connection confirmed!");
-										defaultOrganizationNameText.setText(organization.getName() == null ? "" : organization.getName());
-										defaultOrganizationUuidText.setText(organization.getOrgUuid() == null ? "" : organization.getOrgUuid());
 									}
 								} catch (IOException | UnauthorizedException e1) {
 									ContrastUIActivator.log(e1);
@@ -199,6 +210,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			}
 
 		});
+		
 		testConnectionLabel = new Label(composite, SWT.NONE);
 		gd = new GridData(SWT.CENTER, SWT.FILL, false, false);
 		gd.horizontalSpan = 3;
@@ -206,28 +218,32 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 		Group defaultOrganizationGroup = new Group(composite, SWT.NONE);
 		defaultOrganizationGroup.setLayout(new GridLayout(2, false));
-		defaultOrganizationGroup.setText("Default Organization");
+		defaultOrganizationGroup.setText("Selected Organization");
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalSpan = 3;
 		defaultOrganizationGroup.setLayoutData(gd);
 
-		createLabel(defaultOrganizationGroup, "Name:");
-		defaultOrganizationNameText = new Text(defaultOrganizationGroup, SWT.BORDER);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		defaultOrganizationNameText.setLayoutData(gd);
-		defaultOrganizationNameText.setEditable(false);
+		createLabel(defaultOrganizationGroup, "API Key:");
+		apiKeyText = new Text(defaultOrganizationGroup, SWT.BORDER);
+		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+		apiKeyText.setLayoutData(gd);
+		apiKeyText.setEditable(false);
+		
 		createLabel(defaultOrganizationGroup, "Uuid:");
-		defaultOrganizationUuidText = new Text(defaultOrganizationGroup, SWT.BORDER);
+		organizationUuidText = new Text(defaultOrganizationGroup, SWT.BORDER);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		defaultOrganizationUuidText.setLayoutData(gd);
-		defaultOrganizationUuidText.setEditable(false);
+		organizationUuidText.setLayoutData(gd);
+		organizationUuidText.setEditable(false);
+		
 		initPreferences();
 		enableTestConnection();
+		enableOrganizationViews();
 		teamServerText.addModifyListener(new ModifyListener() {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
 				enableTestConnection();
+				enableOrganizationViews();
 			}
 		});
 		usernameText.addModifyListener(new ModifyListener() {
@@ -235,6 +251,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			@Override
 			public void modifyText(ModifyEvent e) {
 				enableTestConnection();
+				enableOrganizationViews();
 			}
 		});
 		apiKeyText.addModifyListener(new ModifyListener() {
@@ -249,11 +266,156 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 			@Override
 			public void modifyText(ModifyEvent e) {
 				enableTestConnection();
+				enableOrganizationViews();
 			}
 		});
 		return composite;
 	}
+	
+	private void createOrganizationCombo(final Composite parent) {
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		
+		organizationCombo = new Combo(parent, SWT.READ_ONLY);
+		//Initialize combo with last chosen value
+		String[] list = ContrastCoreActivator.getOrganizationList();
+		if(list.length > 0) {
+			organizationCombo.setItems(list);
+			String orgName = ContrastCoreActivator.getDefaultOrganization();
+			if(orgName != null)
+				organizationCombo.select(ArrayUtils.indexOf(list, orgName));
+		}
+		
+		organizationCombo.setLayoutData(gd);
+		organizationCombo.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				String orgName = organizationCombo.getText();
+				if(StringUtils.isNotBlank(orgName)) {
+					OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(orgName);
+					apiKeyText.setText(config.getApiKey());
+					organizationUuidText.setText(config.getOrganizationUUIDKey());
+					
+					editOrganizationBtn.setEnabled(true);
+					deleteOrganizationBtn.setEnabled(true);
+				}
+				else {
+					editOrganizationBtn.setEnabled(false);
+					deleteOrganizationBtn.setEnabled(false);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nohing */ }
+		});
+	}
 
+	private void createOrganizationButtons(final Composite parent) {
+		GridData gd = new GridData(SWT.RIGHT_TO_LEFT, SWT.FILL, false, false);
+		gd.horizontalSpan = 1;
+		
+		addOrganizationBtn = new Button(parent, SWT.PUSH);
+		addOrganizationBtn.setText("Add");
+		addOrganizationBtn.setLayoutData(gd);
+		addOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				OrganizationPreferencesDialog dialog = new OrganizationPreferencesDialog(parent.getShell(), usernameText.getText(),
+						serviceKeyText.getText(), teamServerText.getText());
+				dialog.create();
+				if(dialog.open() == Window.OK) {
+					organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+					enableOrganizationViews();
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing*/ }
+		});
+		
+		editOrganizationBtn = new Button(parent, SWT.PUSH);
+		editOrganizationBtn.setText("Edit");
+		editOrganizationBtn.setLayoutData(gd);
+		editOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				OrganizationPreferencesDialog dialog = new OrganizationPreferencesDialog(parent.getShell(), usernameText.getText(), 
+						serviceKeyText.getText(), teamServerText.getText(), organizationCombo.getText());
+				dialog.create();
+				if(dialog.open() == Window.OK) {
+					if(!dialog.getIsOrganizationCreated()) {
+						OrganizationConfig config = ContrastCoreActivator.getOrganizationConfiguration(organizationCombo.getText());
+						apiKeyText.setText(config.getApiKey());
+						organizationUuidText.setText(config.getOrganizationUUIDKey());
+					}
+					else {
+						String orgName = organizationCombo.getText();
+						String[] list = ContrastCoreActivator.getOrganizationList();
+						organizationCombo.setItems(list);
+						organizationCombo.select(ArrayUtils.indexOf(list, orgName));
+					}
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
+		});
+		
+		deleteOrganizationBtn = new Button(parent, SWT.PUSH);
+		deleteOrganizationBtn.setText("Delete");
+		deleteOrganizationBtn.setLayoutData(gd);
+		deleteOrganizationBtn.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				ContrastCoreActivator.removeOrganization(organizationCombo.getSelectionIndex());
+				organizationCombo.removeAll();
+				organizationCombo.setItems(ContrastCoreActivator.getOrganizationList());
+				apiKeyText.setText("");
+				organizationUuidText.setText("");
+				enableOrganizationViews();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) { /* Does nothing */ }
+		});
+		enableOrganizationViews();
+	}
+	
+	private void enableOrganizationViews() {
+		if(StringUtils.isBlank(usernameText.getText()) 
+				|| StringUtils.isBlank(teamServerText.getText()) 
+				|| StringUtils.isBlank(serviceKeyText.getText())) {
+			
+			organizationCombo.setEnabled(false);
+			addOrganizationBtn.setEnabled(false);
+			editOrganizationBtn.setEnabled(false);
+			deleteOrganizationBtn.setEnabled(false);
+			organizationCombo.setEnabled(false);
+			
+			return;
+		}
+		else
+			addOrganizationBtn.setEnabled(true);
+		
+		if(organizationCombo.getItemCount() > 0) {
+			organizationCombo.setEnabled(true);
+			
+			if(StringUtils.isNotBlank(organizationCombo.getText())) {
+				editOrganizationBtn.setEnabled(true);
+				deleteOrganizationBtn.setEnabled(true);
+			}
+		}
+		else {
+			editOrganizationBtn.setEnabled(false);
+			deleteOrganizationBtn.setEnabled(false);
+			organizationCombo.setEnabled(false);
+		}
+	}
+	
 	private void enableTestConnection() {
 		testConnection.setEnabled(!usernameText.getText().isEmpty() && !teamServerText.getText().isEmpty()
 				&& !apiKeyText.getText().isEmpty() && !serviceKeyText.getText().isEmpty());
@@ -282,8 +444,8 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		serviceKeyText.setText(prefs.get(Constants.SERVICE_KEY, BLANK));
 		apiKeyText.setText(prefs.get(Constants.API_KEY, BLANK));
 		usernameText.setText(prefs.get(Constants.USERNAME, BLANK));
-		defaultOrganizationNameText.setText(prefs.get(Constants.ORGNAME, BLANK));
-		defaultOrganizationUuidText.setText(prefs.get(Constants.ORGUUID, BLANK));
+		
+		organizationUuidText.setText(prefs.get(Constants.ORGUUID, BLANK));
 	}
 
 	private IEclipsePreferences getPreferences() {
