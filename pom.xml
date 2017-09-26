@@ -80,10 +80,9 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
-					<useUIHarness>true</useUIHarness>
-					<useUIThread>true</useUIThread>
-					<argLine>-Xms512m -Xmx1024m -XX:MetaspaceSize=256m
-						-Dorg.eclipse.ui.testsDisableWorkbenchAutoSave=true</argLine>
+					<useUIHarness>false</useUIHarness>
+					<useUIThread>false</useUIThread>
+					<argLine>-Xms512m -Xmx1024m -XX:MaxMetaspaceSize=256m -Dorg.eclipse.ui.testsDisableWorkbenchAutoSave=true</argLine>
 					<product>org.eclipse.platform.ide</product>
 					<application>org.eclipse.ui.ide.workbench</application>
 					<dependencies>
@@ -93,12 +92,23 @@
 							<version>0.0.0</version>
 						</dependency>
 					</dependencies>
+					<systemProperties>
+						<username>${username}</username>	
+						<apiKey>${apiKey}</apiKey>
+						<serviceKey>${serviceKey}</serviceKey>
+						<restApiUrl>${restApiUrl}</restApiUrl>
+						<organizationId>${organizationId}</organizationId>
+						<traceId>${traceId}</traceId>
+					</systemProperties>
 					<includes>
 						<include>**/AllTests.class</include>
 						<include>**/*AllTests*.class</include>
 						<include>**/*AllBotTests*.class</include>
 						<include>**/*TestSuite*.class</include>
 					</includes>
+					<excludes>
+						<exclude>**/integration/**Test.class</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
