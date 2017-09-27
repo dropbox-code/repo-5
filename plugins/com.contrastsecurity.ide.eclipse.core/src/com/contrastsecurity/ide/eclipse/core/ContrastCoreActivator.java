@@ -169,37 +169,37 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	public static String getTeamServerUrl() {
 		initPrefs();
 		
-		return prefs.get(Constants.TEAM_SERVER_URL, null);
+		return prefs.get(Constants.TEAM_SERVER_URL, "");
 	}
 	
 	public static String getSelectedApiKey() {
 		initPrefs();
 		
-		return prefs.get(Constants.API_KEY, null);
+		return prefs.get(Constants.API_KEY, "");
 	}
 	
 	public static String getServiceKey() {
 		initPrefs();
 		
-		return prefs.get(Constants.SERVICE_KEY, null);
+		return prefs.get(Constants.SERVICE_KEY, "");
 	}
 	
 	public static String getUsername() {
 		initPrefs();
 		
-		return prefs.get(Constants.USERNAME, null);
+		return prefs.get(Constants.USERNAME, "");
 	}
 	
 	public static String getSelectedOrganization() {
 		initPrefs();
 		
-		return prefs.get(Constants.ORGNAME, null);
+		return prefs.get(Constants.ORGNAME, "");
 	}
 	
 	public static String getSelectedOrganizationUuid() {
 		initPrefs();
 		
-		return prefs.get(Constants.ORGUUID, null);
+		return prefs.get(Constants.ORGUUID, "");
 	}
 	
 	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) throws OrganizationNotFoundException {
