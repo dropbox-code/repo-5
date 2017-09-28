@@ -25,6 +25,10 @@ public class ContrastCoreActivatorTest {
 	private final static String ORGANIZATION_TO_DELETE = "org2";
 	private final static String[] SMALLER_ORGANIZATION_ARRAY = {"org1", "org3"};
 	
+	private final static String SERVICE_KEY = "thisIsAServiceKey";
+	private final static String USERNAME = "someUser";
+	private final static String TEAM_SERVER_URL = "http://somewhere.com/api";
+	
 	@Test
 	public void saveAndGetOrganizationsAsListTest() {
 		assertTrue(ContrastCoreActivator.saveOrganizationList(ORGANIZATION_ARRAY));
@@ -71,11 +75,24 @@ public class ContrastCoreActivatorTest {
 		assertNull(ContrastCoreActivator.getOrganizationConfiguration(ORGANIZATION_TO_DELETE));
 	}
 	
-	@Test public void clearOrganizationListTest() {
+	@Test
+	public void clearOrganizationListTest() {
 		assertTrue(ContrastCoreActivator.saveOrganizationList(new String[0]));
 		assertTrue(ContrastCoreActivator.saveNewOrganization(EXTRA_ORGANIZATION, API_KEY, ORGANIZATION_UUID));
 		ContrastCoreActivator.removeOrganization(0);
 		assertEquals(0, ContrastCoreActivator.getOrganizationList().length);
+	}
+	
+	@Test
+	public void saveAndRetrieveSelectedPrefs() {
+		assertTrue(ContrastCoreActivator.saveSelectedPreferences(TEAM_SERVER_URL, SERVICE_KEY, API_KEY, USERNAME, EXTRA_ORGANIZATION, ORGANIZATION_UUID));
+		
+		assertEquals(TEAM_SERVER_URL, ContrastCoreActivator.getTeamServerUrl());
+		assertEquals(API_KEY, ContrastCoreActivator.getSelectedApiKey());
+		assertEquals(SERVICE_KEY, ContrastCoreActivator.getServiceKey());
+		assertEquals(USERNAME, ContrastCoreActivator.getUsername());
+		assertEquals(EXTRA_ORGANIZATION, ContrastCoreActivator.getSelectedOrganization());
+		assertEquals(ORGANIZATION_UUID, ContrastCoreActivator.getSelectedOrganizationUuid());
 	}
 
 }

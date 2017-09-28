@@ -353,7 +353,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 		String orgUuid;
 		try {
-			orgUuid = Util.getDefaultOrganizationUuid();
+			orgUuid = ContrastCoreActivator.getSelectedOrganizationUuid();
 		} catch (final Exception e) {
 			ContrastUIActivator.log(e);
 			Display.getDefault().syncExec(new Runnable() {
@@ -392,6 +392,10 @@ public class VulnerabilitiesView extends ViewPart {
 					@Override
 					public void run() {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
+							//Refresh filters
+							currentPage.updateApplicationCombo(orgUuid, true);
+							currentPage.updateServerCombo(orgUuid, true);
+							//Refresh traces and selections
 							refreshUI(traces, selectedServer[0], selectedApp[0]);
 						} else {
 							refreshJob.cancel();
@@ -443,6 +447,12 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 	}
 
+	/**
+	 * Makes refresh of traces list, services and applications lists.
+	 * @param traces New traces list.
+	 * @param selectedServer Combo selection for server list.
+	 * @param selectedApp Combo selection for application list.
+	 */
 	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
@@ -454,8 +464,10 @@ public class VulnerabilitiesView extends ViewPart {
 				activePage = mainPage;
 				currentPage = mainPage;
 			}
+			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
+			
 			addListeners(mainPage);
 			refreshAction.setEnabled(true);
 			currentPage.getLabel().setText(traces.getTraces().size() + " Vulnerabilities");
@@ -465,8 +477,10 @@ public class VulnerabilitiesView extends ViewPart {
 				activePage = noVulnerabilitiesPage;
 				currentPage = noVulnerabilitiesPage;
 			}
+			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
+			
 			refreshAction.setEnabled(true);
 			addListeners(noVulnerabilitiesPage);
 		}

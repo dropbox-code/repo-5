@@ -95,17 +95,20 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		return InstanceScope.INSTANCE.getNode(PLUGIN_ID);
 	}
 	
-	public static String[] getOrganizationList() {
+	public static void initPrefs() {
 		if(prefs == null)
 			prefs = getPreferences();
+	}
+	
+	public static String[] getOrganizationList() {
+		initPrefs();
 		String orgListString = prefs.get(Constants.ORGANIZATION_LIST, "");
 		
 		return Util.getListFromString(orgListString);
 	}
 	
 	public static String getDefaultOrganization() {
-		if(prefs == null)
-			prefs = getPreferences();
+		initPrefs();
 		
 		return prefs.get(Constants.ORGNAME, null);
 	}
@@ -115,8 +118,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 	
 	public static boolean saveOrganizationList(String[] list, boolean shouldFlush) {
-		if(prefs == null)
-			prefs = getPreferences();
+		initPrefs();
 		
 		String stringList = Util.getStringFromList(list);
 		
@@ -140,8 +142,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 	
 	public static boolean saveNewOrganization(final String organization, final String apiKey, final String organizationUuid) {
-		if(prefs == null)
-			prefs = getPreferences();
+		initPrefs();
 		
 		String[] list = getOrganizationList();
 		list = (String[]) ArrayUtils.add(list, organization);
@@ -153,8 +154,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 	
 	public static OrganizationConfig getOrganizationConfiguration(final String organization) {
-		if(prefs == null)
-			prefs = getPreferences();
+		initPrefs();
 		
 		String config = prefs.get(organization, "");
 		
@@ -166,14 +166,63 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		return new OrganizationConfig(configArray[0], configArray[1]);
 	}
 	
+	public static String getTeamServerUrl() {
+		initPrefs();
+		
+		return prefs.get(Constants.TEAM_SERVER_URL, "");
+	}
+	
+	public static String getSelectedApiKey() {
+		initPrefs();
+		
+		return prefs.get(Constants.API_KEY, "");
+	}
+	
+	public static String getServiceKey() {
+		initPrefs();
+		
+		return prefs.get(Constants.SERVICE_KEY, "");
+	}
+	
+	public static String getUsername() {
+		initPrefs();
+		
+		return prefs.get(Constants.USERNAME, "");
+	}
+	
+	public static String getSelectedOrganization() {
+		initPrefs();
+		
+		return prefs.get(Constants.ORGNAME, "");
+	}
+	
+	public static String getSelectedOrganizationUuid() {
+		initPrefs();
+		
+		return prefs.get(Constants.ORGUUID, "");
+	}
+	
 	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) throws OrganizationNotFoundException {
-		if(prefs == null)
-			prefs = getPreferences();
+		initPrefs();
 		
 		if(prefs.get(organization, null) == null)
 			throw new OrganizationNotFoundException("Organization does not exists");
 		
 		prefs.put(organization, apiKey + ";" + organizationUuid);
+		
+		return flushPrefs();
+	}
+	
+	public static boolean saveSelectedPreferences(final String teamServerUrl, final String serviceKey, final String apiKey, 
+			final String username, final String orgName, final String orgUuid) {
+		initPrefs();
+		
+		prefs.put(Constants.TEAM_SERVER_URL, teamServerUrl);
+		prefs.put(Constants.SERVICE_KEY, serviceKey);
+		prefs.put(Constants.API_KEY, apiKey);
+		prefs.put(Constants.USERNAME, username);
+		prefs.put(Constants.ORGNAME, orgName);
+		prefs.put(Constants.ORGUUID, orgUuid);
 		
 		return flushPrefs();
 	}
@@ -210,7 +259,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDKByOrganization(final String organizationName) {
@@ -239,7 +288,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDK(final String apiKey) {
@@ -259,13 +308,17 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, url);
+		return getContrastSDK(username, apiKey, serviceKey, url);
 	}
 	
 	public static ExtendedContrastSDK getContrastSDK(final String username, final String apiKey, 
 			final String serviceKey, final String teamServerUrl) {
+		initPrefs();
 		
-		return new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
+		ExtendedContrastSDK sdk = new ExtendedContrastSDK(username, serviceKey, apiKey, teamServerUrl);
+		sdk.setReadTimeout(5000);
+		
+		return sdk;
 	}
 
 }

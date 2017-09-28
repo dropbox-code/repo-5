@@ -30,6 +30,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
 import com.contrastsecurity.models.Trace;
@@ -132,13 +133,14 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 	}
 	
 	public static String getOrgUuid() {
-		String orgUuid = null;
+		/*String orgUuid = null;
 		try {
 			orgUuid = Util.getDefaultOrganizationUuid();
 		} catch (IOException | UnauthorizedException e) {
 			log(e);
 		}
-		return orgUuid;
+		return orgUuid;*/
+		return ContrastCoreActivator.getSelectedOrganizationUuid();
 	}
 	
 	public static String removeHtmlMarkup(String html) {
