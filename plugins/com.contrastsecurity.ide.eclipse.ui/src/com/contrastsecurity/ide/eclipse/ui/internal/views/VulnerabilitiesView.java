@@ -43,8 +43,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -131,20 +129,6 @@ public class VulnerabilitiesView extends ViewPart {
 	};
 	
 	private IPageLoaderListener pageLoaderListener = new IPageLoaderListener() {
-		
-		@Override
-		public void onPreviousPageLoad() {
-			currentOffset -= PAGE_LIMIT;
-			//currentPage.refreshPaginationLabel(currentOffset, total);
-			refreshTraces(false);
-		}
-		
-		@Override
-		public void onNextPageLoad() {
-			currentOffset += PAGE_LIMIT;
-			//currentPage.refreshPaginationLabel(currentOffset, total);
-			refreshTraces(false);
-		}
 		
 		@Override
 		public void onPageLoad(int page) {
@@ -420,7 +404,7 @@ public class VulnerabilitiesView extends ViewPart {
 				});
 				
 				if(isFullRefresh)
-					currentOffset = 0;//TODO Verify if this fixes refresh
+					currentOffset = 0;
 
 				final Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0], currentOffset, PAGE_LIMIT);
 				if(traces != null)
@@ -498,15 +482,6 @@ public class VulnerabilitiesView extends ViewPart {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
 			viewer.setInput(traceArray);
-			
-			/*if(total <= PAGE_LIMIT)
-				currentPage.getPageCombo().setEnabled(false);
-			else
-				currentPage.getPageCombo().setEnabled(true);*/
-			
-			//Refresh page combo
-			/*if(isFullRefresh)
-				currentPage.initializePageCombo(PAGE_LIMIT, total);*/
 		}
 		if (traces != null && traces.getTraces() != null && traces.getTraces().size() > 0) {
 			if (activePage != mainPage) {
@@ -514,17 +489,6 @@ public class VulnerabilitiesView extends ViewPart {
 				activePage = mainPage;
 				currentPage = mainPage;
 			}
-			
-			/*currentPage.refreshPaginationLabel(Math.floorDiv(currentOffset + traces.getTraces().size(), PAGE_LIMIT), Math.floorDiv(total, PAGE_LIMIT));
-			
-			if(currentOffset + traces.getTraces().size() >= total)
-				currentPage.getNextButton().setEnabled(false);
-			else
-				currentPage.getNextButton().setEnabled(true);
-			if(currentOffset <= 0)
-				currentPage.getPreviousButton().setEnabled(false);
-			else
-				currentPage.getPreviousButton().setEnabled(true);*/
 			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
@@ -544,9 +508,6 @@ public class VulnerabilitiesView extends ViewPart {
 			
 			refreshAction.setEnabled(true);
 			addListeners(noVulnerabilitiesPage);
-			
-			/*if(isFullRefresh)
-				currentPage.initializePageCombo(PAGE_LIMIT, total);*/
 		}
 		
 		//Refresh page combo
