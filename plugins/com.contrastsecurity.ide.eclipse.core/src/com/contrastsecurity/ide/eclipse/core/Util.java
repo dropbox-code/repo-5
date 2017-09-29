@@ -15,12 +15,14 @@
 package com.contrastsecurity.ide.eclipse.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -69,6 +71,24 @@ public class Util {
 			orgArray[i] = orgList.get(i).getName();
 		
 		return orgArray;
+	}
+	
+	public static TraceFilterForm getTraceFilterForm(final int offset, final int limit) {
+		return getTraceFilterForm(null, offset, limit);
+	}
+	
+	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit) {
+		final TraceFilterForm form = new TraceFilterForm();
+		if(selectedServerId != null) {
+			final List<Long> serverIds = new ArrayList<>();
+			serverIds.add(selectedServerId);
+			form.setServerIds(serverIds);
+		}
+		
+		form.setOffset(offset);
+		form.setLimit(limit);
+		
+		return form;
 	}
 	
 	public static String[] getListFromString(String list) {

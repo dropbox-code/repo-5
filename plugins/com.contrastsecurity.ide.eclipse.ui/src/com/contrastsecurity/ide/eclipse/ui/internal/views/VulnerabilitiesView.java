@@ -17,8 +17,6 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -477,6 +475,8 @@ public class VulnerabilitiesView extends ViewPart {
 	 * @param traces New traces list.
 	 * @param selectedServer Combo selection for server list.
 	 * @param selectedApp Combo selection for application list.
+	 * @param isFullRefresh Indicates if this is just a page change or a UI refresh triggered by filters
+	 * or Refresh button which might change which views are initialized again.
 	 */
 	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp, final boolean isFullRefresh) {
 		if (traces != null && traces.getTraces() != null) {
@@ -548,37 +548,19 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		Traces traces = null;
 		if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getTraceFilterForm(offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getTraceFilterForm(offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getTraceFilterForm(serverId, offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getTraceFilterForm(serverId, offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		}
 		return traces;
-	}
-
-	private TraceFilterForm getTraceFilterForm(final int offset, final int limit) {
-		return getTraceFilterForm(null, offset, limit);
-	}
-	
-	private TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit) {
-		TraceFilterForm form = new TraceFilterForm();
-		if(selectedServerId != null) {
-			List<Long> serverIds = new ArrayList<>();
-			serverIds.add(selectedServerId);
-			form.setServerIds(serverIds);
-		}
-		
-		form.setOffset(offset);
-		form.setLimit(limit);
-		
-		return form;
 	}
 
 	@Override
