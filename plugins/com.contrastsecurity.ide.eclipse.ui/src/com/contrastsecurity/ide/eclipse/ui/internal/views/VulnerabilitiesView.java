@@ -43,6 +43,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -117,8 +119,7 @@ public class VulnerabilitiesView extends ViewPart {
 	private RefreshJob refreshJob;
 	
 	private int currentOffset = 0;
-	private int currentPageSize = 0;
-	private final int limit = 20;
+	private static final int PAGE_LIMIT = 20;
 	private int total = 0;
 
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
@@ -133,15 +134,21 @@ public class VulnerabilitiesView extends ViewPart {
 		
 		@Override
 		public void onPreviousPageLoad() {
-			currentOffset -= limit;
+			currentOffset -= PAGE_LIMIT;
 			//currentPage.refreshPaginationLabel(currentOffset, total);
 			refreshTraces(false);
 		}
 		
 		@Override
 		public void onNextPageLoad() {
-			currentOffset += limit;
+			currentOffset += PAGE_LIMIT;
 			//currentPage.refreshPaginationLabel(currentOffset, total);
+			refreshTraces(false);
+		}
+		
+		@Override
+		public void onPageLoad(int page) {
+			currentOffset = PAGE_LIMIT * (page - 1);
 			refreshTraces(false);
 		}
 	};
@@ -411,15 +418,13 @@ public class VulnerabilitiesView extends ViewPart {
 						selectedApp[0] = currentPage.getApplicationCombo().getSelection();
 					}
 				});
-
-				final Traces traces;
-				if(isFullRefresh) {
+				
+				if(isFullRefresh)
 					currentOffset = 0;//TODO Verify if this fixes refresh
-					traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0], 0, 20);
-				}
-				else {
-					traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0], currentOffset, 20);
-				}
+
+				final Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0], currentOffset, PAGE_LIMIT);
+				if(traces != null)
+					total = traces.getCount();
 				
 				Display.getDefault().syncExec(new Runnable() {
 
@@ -432,7 +437,7 @@ public class VulnerabilitiesView extends ViewPart {
 								currentPage.updateServerCombo(orgUuid, true);
 							}
 							//Refresh traces and selections
-							refreshUI(traces, selectedServer[0], selectedApp[0]);
+							refreshUI(traces, selectedServer[0], selectedApp[0], isFullRefresh);
 						} else {
 							refreshJob.cancel();
 						}
@@ -489,10 +494,19 @@ public class VulnerabilitiesView extends ViewPart {
 	 * @param selectedServer Combo selection for server list.
 	 * @param selectedApp Combo selection for application list.
 	 */
-	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp) {
+	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp, final boolean isFullRefresh) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
 			viewer.setInput(traceArray);
+			
+			/*if(total <= PAGE_LIMIT)
+				currentPage.getPageCombo().setEnabled(false);
+			else
+				currentPage.getPageCombo().setEnabled(true);*/
+			
+			//Refresh page combo
+			/*if(isFullRefresh)
+				currentPage.initializePageCombo(PAGE_LIMIT, total);*/
 		}
 		if (traces != null && traces.getTraces() != null && traces.getTraces().size() > 0) {
 			if (activePage != mainPage) {
@@ -501,18 +515,16 @@ public class VulnerabilitiesView extends ViewPart {
 				currentPage = mainPage;
 			}
 			
-			//Update pagination
-			total = traces.getCount();
-			currentPage.refreshPaginationLabel(currentOffset + traces.getTraces().size(), total);
+			/*currentPage.refreshPaginationLabel(Math.floorDiv(currentOffset + traces.getTraces().size(), PAGE_LIMIT), Math.floorDiv(total, PAGE_LIMIT));
 			
 			if(currentOffset + traces.getTraces().size() >= total)
 				currentPage.getNextButton().setEnabled(false);
 			else
 				currentPage.getNextButton().setEnabled(true);
-			if(currentOffset - traces.getTraces().size() <= 0)
+			if(currentOffset <= 0)
 				currentPage.getPreviousButton().setEnabled(false);
 			else
-				currentPage.getPreviousButton().setEnabled(true);
+				currentPage.getPreviousButton().setEnabled(true);*/
 			
 			currentPage.getServerCombo().setSelection(selectedServer);
 			currentPage.getApplicationCombo().setSelection(selectedApp);
@@ -532,7 +544,15 @@ public class VulnerabilitiesView extends ViewPart {
 			
 			refreshAction.setEnabled(true);
 			addListeners(noVulnerabilitiesPage);
+			
+			/*if(isFullRefresh)
+				currentPage.initializePageCombo(PAGE_LIMIT, total);*/
 		}
+		
+		//Refresh page combo
+		if(isFullRefresh)
+			currentPage.initializePageCombo(PAGE_LIMIT, total);
+		
 		viewer.getControl().getParent().layout(true, true);
 		viewer.getControl().getParent().redraw();
 	}
