@@ -126,6 +126,8 @@ public class VulnerabilitiesView extends ViewPart {
 			startRefreshJob();
 		}
 	};
+	
+	private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
 
 	/**
 	 * The constructor.
@@ -227,6 +229,23 @@ public class VulnerabilitiesView extends ViewPart {
 		TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(80);
 		column.setText("Severity");
+		
+		column.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (traceSort.startsWith(Constants.SORT_DESCENDING)) {
+					traceSort = Constants.SORT_BY_SEVERITY;
+				} else {
+					traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
+				}
+				refreshTraces();
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(600);
@@ -235,21 +254,7 @@ public class VulnerabilitiesView extends ViewPart {
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(400);
 		column.setText("Actions");
-		
-		column.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				System.out.println("widget selected");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				System.out.println("widget default selected");
-			}
-			
-		});
-		
+				
 		viewer.getTable().addMouseListener(new MouseListener() {
 
 			@Override
@@ -537,24 +542,33 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		Traces traces = null;
 		if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			traces = sdk.getTracesInOrg(orgUuid, null);
+			TraceFilterForm form = getServerTraceForm(traceSort);
+			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			traces = sdk.getTraces(orgUuid, appId, null);
+			TraceFilterForm form = getServerTraceForm(traceSort);
+			traces = sdk.getTraces(orgUuid, appId, form);
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getServerTraceForm(serverId);
+			TraceFilterForm form = getServerTraceForm(serverId, traceSort);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getServerTraceForm(serverId);
+			TraceFilterForm form = getServerTraceForm(serverId, traceSort);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		}
 		return traces;
 	}
 
-	private TraceFilterForm getServerTraceForm(Long selectedServerId) {
+	private TraceFilterForm getServerTraceForm(Long selectedServerId, String sort) {
 		TraceFilterForm form = new TraceFilterForm();
 		List<Long> serverIds = new ArrayList<>();
 		serverIds.add(selectedServerId);
 		form.setServerIds(serverIds);
+		form.setSort(sort);
+		return form;
+	}
+	
+	private TraceFilterForm getServerTraceForm(String sort) {
+		TraceFilterForm form = new TraceFilterForm();
+		form.setSort(sort);
 		return form;
 	}
 
