@@ -17,6 +17,13 @@ package com.contrastsecurity.ide.eclipse.ui.internal.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -93,7 +100,7 @@ public class EventsTab extends AbstractTab {
 					if (selected instanceof EventItem) {
 						EventItem eventItem = (EventItem) selected;
 						if (eventItem.isStacktrace()) {
-							String str = eventItem.getValue();
+							final String str = eventItem.getValue();
 							final String typeName;
 							final int lineNumber;
 							try {
@@ -109,8 +116,14 @@ public class EventsTab extends AbstractTab {
 								protected IStatus run(IProgressMonitor monitor) {
 									Set<IType> result = null;
 									try {
-										result = findTypeInWorkspace(typeName);
-										searchCompleted(result, typeName, lineNumber, null);
+										if(str.contains(".java")) {
+											result = findTypeInWorkspace(typeName);
+											searchCompleted(result, typeName, lineNumber, null);
+										}
+										else {
+											IFile resultFile = findFileInWorkspace(typeName);
+											searchCompleted(resultFile, typeName, lineNumber, null);
+										}
 									} catch (CoreException e) {
 										searchCompleted(null, typeName, lineNumber, e.getStatus());
 									}
@@ -126,12 +139,12 @@ public class EventsTab extends AbstractTab {
 		});
 	}
 
-	private void searchCompleted(final Set<IType> set, final String typeName, final int lineNumber,
+	private void searchCompleted(Object result, final String typeName, final int lineNumber,
 			final IStatus status) {
 		UIJob job = new UIJob("Search complete") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (set == null || set.size() <= 0) {
+				if (!validateSearchResult(result)) {
 					if (status == null) {
 						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(), "Information",
 								"Source not found for " + typeName);
@@ -139,7 +152,7 @@ public class EventsTab extends AbstractTab {
 						ContrastUIActivator.statusDialog("Source not found", status);
 					}
 				} else {
-					processSearchResult(set, typeName, lineNumber);
+					processSearchResult(result, typeName, lineNumber);
 				}
 				return Status.OK_STATUS;
 			}
@@ -148,13 +161,12 @@ public class EventsTab extends AbstractTab {
 		job.schedule();
 	}
 
-	private void processSearchResult(Set<IType> set, String typeName, int lineNumber) {
+	private void processSearchResult(Object result, String typeName, int lineNumber) {
 		// FIXME multiple result set.size > 1
-		if (set != null && set.size() >= 1) {
+		if (validateSearchResult(result)) {
 			IEditorPart editorPart;
 			try {
-				IType source = set.iterator().next();
-				editorPart = EditorUtility.openInEditor(source);
+				editorPart = getEditorPart(result);
 			} catch (PartInitException e1) {
 				ContrastUIActivator.statusDialog("Error", e1.getStatus());
 				return;
@@ -185,6 +197,23 @@ public class EventsTab extends AbstractTab {
 			MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(), "Information",
 					"Source not found for " + typeName);
 		}
+	}
+	
+	private boolean validateSearchResult(Object result) {
+		if(result instanceof Set<?>)
+			return (result != null && ((Set<?>)result).size() > 0);
+		else
+			return (result != null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private IEditorPart getEditorPart(Object result) throws PartInitException {
+		if(result instanceof Set<?>) {
+			IType source = ((Set<IType>)result).iterator().next();
+			return EditorUtility.openInEditor(source);
+		}
+		else
+			return EditorUtility.openInEditor((IFile) result, true);
 	}
 
 	private String getTypeName(String stacktrace) throws CoreException {
@@ -270,6 +299,61 @@ public class EventsTab extends AbstractTab {
 			set.add(e.fType);
 		}
 		return set;
+	}
+	
+	/**
+	 * Searches for file with a given name.
+	 * @param filename The file name with extension included.
+	 * @return IFile object or null if the file is not found.
+	 * @throws CoreException If the request fails.
+	 */
+	private static IFile findFileInWorkspace(String filename) throws CoreException {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		String[] name = StringUtils.split(filename, "(");
+		
+		for(IProject project : root.getProjects()) {
+			IResource result = findFile(name[name.length - 1], project);
+			if(result != null)
+				return (IFile) result;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Recursively searches for a file with a given name.
+	 * @param filename The file name with extension.
+	 * @param resource The resource to evaluate with the file name. Allowed types: IProject, IFolder and IFile.
+	 * @return An IFile object or null if the file is not found. 
+	 * @throws CoreException If the request fails.
+	 */
+	private static IFile findFile(final String filename, IResource resource) throws CoreException {
+		if(resource instanceof IFile) {
+			IFile file = (IFile) resource;
+			if(StringUtils.equals(filename, file.getName()))
+				return file;
+			else
+				return null;
+		}
+		else if(resource instanceof IFolder) {
+			IFolder folder = (IFolder) resource;
+			for(IResource res : folder.members()) {
+				IResource result = findFile(filename, res);
+				if(result != null)
+					return (IFile) result;
+			}
+		}
+		else if(resource instanceof IProject && ((IProject) resource).isOpen()) {
+			IProject project = (IProject) resource;
+			for(IResource res : project.members()) {
+				IResource result = findFile(filename, res);
+				if(result != null)
+					return (IFile) result;
+			}
+		}
+		
+		return null;
 	}
 
 	public void setEventSummary(EventSummaryResource eventSummary) {
