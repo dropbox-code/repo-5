@@ -14,8 +14,6 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -29,9 +27,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
-import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
 import com.contrastsecurity.models.Trace;
 
@@ -133,13 +129,6 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 	}
 	
 	public static String getOrgUuid() {
-		/*String orgUuid = null;
-		try {
-			orgUuid = Util.getDefaultOrganizationUuid();
-		} catch (IOException | UnauthorizedException e) {
-			log(e);
-		}
-		return orgUuid;*/
 		return ContrastCoreActivator.getSelectedOrganizationUuid();
 	}
 	
