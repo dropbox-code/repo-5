@@ -14,7 +14,9 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -121,7 +123,7 @@ public class EventsTab extends AbstractTab {
 											searchCompleted(result, typeName, lineNumber, null);
 										}
 										else {
-											IFile resultFile = findFileInWorkspace(typeName);
+											List<IFile> resultFile = findFileInWorkspace(typeName);
 											searchCompleted(resultFile, typeName, lineNumber, null);
 										}
 									} catch (CoreException e) {
@@ -161,41 +163,58 @@ public class EventsTab extends AbstractTab {
 		job.schedule();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void processSearchResult(Object result, String typeName, int lineNumber) {
-		// FIXME multiple result set.size > 1
-		if (validateSearchResult(result)) {
+		if(result instanceof Set<?>) {
 			IEditorPart editorPart;
 			try {
-				editorPart = getEditorPart(result);
+				IType file = ((Set<IType>)result).iterator().next();
+				editorPart = EditorUtility.openInEditor(file, true);
 			} catch (PartInitException e1) {
 				ContrastUIActivator.statusDialog("Error", e1.getStatus());
 				return;
 			}
-			if (editorPart != null) {
+			if(editorPart != null)
+				openEditor(editorPart, lineNumber, typeName);
+		}
+		else {
+			List<IFile> matches = (List<IFile>) result;
+			for(IFile file : matches) {
+				IEditorPart editorPart;
 				try {
-					if (editorPart instanceof ITextEditor && lineNumber >= 0) {
-						ITextEditor textEditor = (ITextEditor) editorPart;
-						IDocumentProvider provider = textEditor.getDocumentProvider();
-						IEditorInput editorInput = editorPart.getEditorInput();
-						provider.connect(editorInput);
-						IDocument document = provider.getDocument(editorInput);
-						try {
-							IRegion line = document.getLineInformation(lineNumber == 0 ? 0: lineNumber - 1);
-							textEditor.selectAndReveal(line.getOffset(), line.getLength());
-						} catch (BadLocationException e) {
-							MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(),
-									"Invalid line number",
-									(lineNumber + 1) + " is not valid line number in " + typeName);
-						}
-						provider.disconnect(editorInput);
-					}
-				} catch (CoreException e) {
-					ContrastUIActivator.statusDialog(e.getStatus().getMessage(), e.getStatus());
+					editorPart = EditorUtility.openInEditor(file, true);
+				} catch (PartInitException e1) {
+					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					return;
 				}
+				if(editorPart != null)
+					openEditor(editorPart, lineNumber, typeName);
 			}
-		} else {
-			MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(), "Information",
-					"Source not found for " + typeName);
+		}
+	}
+	
+	private void openEditor(IEditorPart editorPart, final int lineNumber, final String typeName) {
+		if (editorPart != null) {
+			try {
+				if (editorPart instanceof ITextEditor && lineNumber >= 0) {
+					ITextEditor textEditor = (ITextEditor) editorPart;
+					IDocumentProvider provider = textEditor.getDocumentProvider();
+					IEditorInput editorInput = editorPart.getEditorInput();
+					provider.connect(editorInput);
+					IDocument document = provider.getDocument(editorInput);
+					try {
+						IRegion line = document.getLineInformation(lineNumber == 0 ? 0: lineNumber - 1);
+						textEditor.selectAndReveal(line.getOffset(), line.getLength());
+					} catch (BadLocationException e) {
+						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(),
+								"Invalid line number",
+								(lineNumber + 1) + " is not valid line number in " + typeName);
+					}
+					provider.disconnect(editorInput);
+				}
+			} catch (CoreException e) {
+				ContrastUIActivator.statusDialog(e.getStatus().getMessage(), e.getStatus());
+			}
 		}
 	}
 	
@@ -203,17 +222,7 @@ public class EventsTab extends AbstractTab {
 		if(result instanceof Set<?>)
 			return (result != null && ((Set<?>)result).size() > 0);
 		else
-			return (result != null);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private IEditorPart getEditorPart(Object result) throws PartInitException {
-		if(result instanceof Set<?>) {
-			IType source = ((Set<IType>)result).iterator().next();
-			return EditorUtility.openInEditor(source);
-		}
-		else
-			return EditorUtility.openInEditor((IFile) result, true);
+			return (result != null && ((List<?>)result).size() > 0);
 	}
 
 	private String getTypeName(String stacktrace) throws CoreException {
@@ -307,18 +316,16 @@ public class EventsTab extends AbstractTab {
 	 * @return IFile object or null if the file is not found.
 	 * @throws CoreException If the request fails.
 	 */
-	private static IFile findFileInWorkspace(String filename) throws CoreException {
+	private static List<IFile> findFileInWorkspace(String filename) throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
 		String[] name = StringUtils.split(filename, "(");
+		List<IFile> matches = new ArrayList<>();
 		
-		for(IProject project : root.getProjects()) {
-			IResource result = findFile(name[name.length - 1], project);
-			if(result != null)
-				return (IFile) result;
-		}
+		for(IProject project : root.getProjects())
+			findFile(name[name.length - 1], project, matches);
 		
-		return null;
+		return matches;
 	}
 	
 	/**
@@ -328,32 +335,28 @@ public class EventsTab extends AbstractTab {
 	 * @return An IFile object or null if the file is not found. 
 	 * @throws CoreException If the request fails.
 	 */
-	private static IFile findFile(final String filename, IResource resource) throws CoreException {
+	private static List<IFile> findFile(final String filename, IResource resource, List<IFile> matches) throws CoreException {
 		if(resource instanceof IFile) {
 			IFile file = (IFile) resource;
 			if(StringUtils.equals(filename, file.getName()))
-				return file;
-			else
-				return null;
+				matches.add(file);
+			
+			return matches;
 		}
-		else if(resource instanceof IFolder) {
+		else if(resource instanceof IFolder /*&& !((IFolder) resource).getName().equals("target")*/) {
 			IFolder folder = (IFolder) resource;
-			for(IResource res : folder.members()) {
-				IResource result = findFile(filename, res);
-				if(result != null)
-					return (IFile) result;
-			}
+			
+			for(IResource res : folder.members())
+				findFile(filename, res, matches);
 		}
 		else if(resource instanceof IProject && ((IProject) resource).isOpen()) {
 			IProject project = (IProject) resource;
-			for(IResource res : project.members()) {
-				IResource result = findFile(filename, res);
-				if(result != null)
-					return (IFile) result;
-			}
+			
+			for(IResource res : project.members())
+				findFile(filename, res, matches);
 		}
 		
-		return null;
+		return matches;
 	}
 
 	public void setEventSummary(EventSummaryResource eventSummary) {
