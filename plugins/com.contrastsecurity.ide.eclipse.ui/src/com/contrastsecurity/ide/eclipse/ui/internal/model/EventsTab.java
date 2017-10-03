@@ -343,7 +343,7 @@ public class EventsTab extends AbstractTab {
 			
 			return matches;
 		}
-		else if(resource instanceof IFolder /*&& !((IFolder) resource).getName().equals("target")*/) {
+		else if(resource instanceof IFolder && !((IFolder) resource).getName().equals("target")) {
 			IFolder folder = (IFolder) resource;
 			
 			for(IResource res : folder.members())
