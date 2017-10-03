@@ -17,8 +17,6 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -76,6 +74,7 @@ import com.contrastsecurity.ide.eclipse.ui.internal.job.RefreshJob;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.AbstractPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ApplicationUIAdapter;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ConfigurationPage;
+import com.contrastsecurity.ide.eclipse.ui.internal.model.IPageLoaderListener;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.LoadingPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.MainPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ServerUIAdapter;
@@ -114,12 +113,25 @@ public class VulnerabilitiesView extends ViewPart {
 	private AbstractPage loadingPage;
 	private AbstractPage configurationPage;
 	private RefreshJob refreshJob;
+	
+	private int currentOffset = 0;
+	private static final int PAGE_LIMIT = 20;
+	private int total = 0;
 
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
 
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			startRefreshJob();
+		}
+	};
+	
+	private IPageLoaderListener pageLoaderListener = new IPageLoaderListener() {
+		
+		@Override
+		public void onPageLoad(int page) {
+			currentOffset = PAGE_LIMIT * (page - 1);
+			refreshTraces(false);
 		}
 	};
 
@@ -133,6 +145,7 @@ public class VulnerabilitiesView extends ViewPart {
 	 * This is a callback that will allow us to create the viewer and initialize
 	 * it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		createList(parent);
 		// refreshTraces();
@@ -208,6 +221,8 @@ public class VulnerabilitiesView extends ViewPart {
 	private void addListeners(VulnerabilityPage page) {
 		page.getServerCombo().addSelectionChangedListener(listener);
 		page.getApplicationCombo().addSelectionChangedListener(listener);
+		
+		page.setPageLoaderListener(pageLoaderListener);
 	}
 
 	private void removeListeners(VulnerabilityPage page) {
@@ -334,7 +349,7 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		return httpRequest;
 	}
-	public void refreshTraces() {
+	public void refreshTraces(final boolean isFullRefresh) {
 		if (activePage != mainPage && activePage != noVulnerabilitiesPage && activePage != configurationPage) {
 			return;
 		}
@@ -385,18 +400,26 @@ public class VulnerabilitiesView extends ViewPart {
 						selectedApp[0] = currentPage.getApplicationCombo().getSelection();
 					}
 				});
+				
+				if(isFullRefresh)
+					currentOffset = 0;
 
-				final Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0]);
+				final Traces traces = getTraces(orgUuid, selectedServerId[0], selectedAppId[0], currentOffset, PAGE_LIMIT);
+				if(traces != null)
+					total = traces.getCount();
+				
 				Display.getDefault().syncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
 							//Refresh filters
-							currentPage.updateApplicationCombo(orgUuid, true);
-							currentPage.updateServerCombo(orgUuid, true);
+							if(isFullRefresh) {
+								currentPage.updateApplicationCombo(orgUuid, true);
+								currentPage.updateServerCombo(orgUuid, true);
+							}
 							//Refresh traces and selections
-							refreshUI(traces, selectedServer[0], selectedApp[0]);
+							refreshUI(traces, selectedServer[0], selectedApp[0], isFullRefresh);
 						} else {
 							refreshJob.cancel();
 						}
@@ -452,8 +475,10 @@ public class VulnerabilitiesView extends ViewPart {
 	 * @param traces New traces list.
 	 * @param selectedServer Combo selection for server list.
 	 * @param selectedApp Combo selection for application list.
+	 * @param isFullRefresh Indicates if this is just a page change or a UI refresh triggered by filters
+	 * or Refresh button which might change which views are initialized again.
 	 */
-	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp) {
+	private void refreshUI(Traces traces, ISelection selectedServer, ISelection selectedApp, final boolean isFullRefresh) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
 			viewer.setInput(traceArray);
@@ -484,6 +509,11 @@ public class VulnerabilitiesView extends ViewPart {
 			refreshAction.setEnabled(true);
 			addListeners(noVulnerabilitiesPage);
 		}
+		
+		//Refresh page combo
+		if(isFullRefresh)
+			currentPage.initializePageCombo(PAGE_LIMIT, total);
+		
 		viewer.getControl().getParent().layout(true, true);
 		viewer.getControl().getParent().redraw();
 	}
@@ -506,7 +536,7 @@ public class VulnerabilitiesView extends ViewPart {
 		contrastCache.clear();
 	}
 
-	private Traces getTraces(String orgUuid, Long serverId, String appId) throws IOException, UnauthorizedException {
+	private Traces getTraces(String orgUuid, Long serverId, String appId, int offset, int limit) throws IOException, UnauthorizedException {
 		if (orgUuid == null) {
 			return null;
 		}
@@ -518,25 +548,19 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		Traces traces = null;
 		if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			traces = sdk.getTracesInOrg(orgUuid, null);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
+			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			traces = sdk.getTraces(orgUuid, appId, null);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
+			traces = sdk.getTraces(orgUuid, appId, form);
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getServerTraceForm(serverId);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = getServerTraceForm(serverId);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		}
 		return traces;
-	}
-
-	private TraceFilterForm getServerTraceForm(Long selectedServerId) {
-		TraceFilterForm form = new TraceFilterForm();
-		List<Long> serverIds = new ArrayList<>();
-		serverIds.add(selectedServerId);
-		form.setServerIds(serverIds);
-		return form;
 	}
 
 	@Override

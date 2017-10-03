@@ -36,7 +36,7 @@ public class RefreshJob extends Job {
 		if (monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
 		}
-		vulnerabilitiesView.refreshTraces();
+		vulnerabilitiesView.refreshTraces(true);
 		if (monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
 		}
