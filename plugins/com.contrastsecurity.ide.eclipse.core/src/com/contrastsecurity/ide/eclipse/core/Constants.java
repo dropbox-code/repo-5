@@ -76,5 +76,6 @@ public interface Constants {
 	
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
+	static final String SORT_BY_TITLE = "title";
 	
 }

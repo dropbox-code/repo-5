@@ -250,6 +250,23 @@ public class VulnerabilitiesView extends ViewPart {
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(600);
 		column.setText("Vulnerability");
+		
+		column.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (traceSort.startsWith(Constants.SORT_DESCENDING)) {
+					traceSort = Constants.SORT_BY_TITLE;
+				} else {
+					traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE;
+				}
+				refreshTraces();
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(400);
