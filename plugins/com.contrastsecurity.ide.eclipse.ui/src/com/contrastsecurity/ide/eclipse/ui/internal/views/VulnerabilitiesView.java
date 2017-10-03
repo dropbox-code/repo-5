@@ -17,6 +17,8 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -41,12 +43,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
@@ -126,6 +132,9 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 	};
 	
+
+	private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
+
 	private IPageLoaderListener pageLoaderListener = new IPageLoaderListener() {
 		
 		@Override
@@ -238,14 +247,49 @@ public class VulnerabilitiesView extends ViewPart {
 		TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(80);
 		column.setText("Severity");
+		
+		column.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (traceSort.startsWith(Constants.SORT_DESCENDING)) {
+					traceSort = Constants.SORT_BY_SEVERITY;
+				} else {
+					traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
+				}
+				refreshTraces(false);
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(600);
 		column.setText("Vulnerability");
+		
+		column.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (traceSort.startsWith(Constants.SORT_DESCENDING)) {
+					traceSort = Constants.SORT_BY_TITLE;
+				} else {
+					traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_TITLE;
+				}
+				refreshTraces(false);
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
 
 		column = new TableColumn(viewer.getTable(), SWT.NONE);
 		column.setWidth(400);
 		column.setText("Actions");
+				
 		viewer.getTable().addMouseListener(new MouseListener() {
 
 			@Override
@@ -548,16 +592,16 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		Traces traces = null;
 		if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit, traceSort);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = Util.getTraceFilterForm(offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(offset, limit, traceSort);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit, traceSort);
 			traces = sdk.getTracesInOrg(orgUuid, form);
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
-			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit);
+			TraceFilterForm form = Util.getTraceFilterForm(serverId, offset, limit, traceSort);
 			traces = sdk.getTraces(orgUuid, appId, form);
 		}
 		return traces;

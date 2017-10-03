@@ -73,11 +73,11 @@ public class Util {
 		return orgArray;
 	}
 	
-	public static TraceFilterForm getTraceFilterForm(final int offset, final int limit) {
-		return getTraceFilterForm(null, offset, limit);
+	public static TraceFilterForm getTraceFilterForm(final int offset, final int limit, String sort) {
+		return getTraceFilterForm(null, offset, limit, sort);
 	}
 	
-	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit) {
+	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit, String sort) {
 		final TraceFilterForm form = new TraceFilterForm();
 		if(selectedServerId != null) {
 			final List<Long> serverIds = new ArrayList<>();
@@ -87,6 +87,7 @@ public class Util {
 		
 		form.setOffset(offset);
 		form.setLimit(limit);
+		form.setSort(sort);
 		
 		return form;
 	}
