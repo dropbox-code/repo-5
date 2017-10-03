@@ -76,7 +76,7 @@ public class ConfigurationPage extends AbstractPage {
 						getVulnerabilitiesView().getSite().getShell(), ContrastPreferencesPage.ID, null, null);
 				dialog.open();
 				vulnerabilitiesView.refreshSdk();
-				vulnerabilitiesView.refreshTraces();
+				vulnerabilitiesView.refreshTraces(true);
 			}
 
 			@Override

@@ -74,4 +74,8 @@ public interface Constants {
 	public String SPAN_CLASS_TAINT = "<span class='taint'>";
 	public int MAX_WIDTH = 400;
 	
+	static final String SORT_BY_SEVERITY = "severity";
+	static final String SORT_DESCENDING = "-";
+	static final String SORT_BY_TITLE = "title";
+	
 }
