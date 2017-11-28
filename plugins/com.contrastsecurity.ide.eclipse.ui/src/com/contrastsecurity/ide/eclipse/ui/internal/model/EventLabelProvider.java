@@ -141,21 +141,25 @@ public class EventLabelProvider extends OwnerDrawLabelProvider {
 	}
 
 	private Color getColor(String type) {
+
+		Color color = null;
 		if (type != null) {
 			switch (type.toLowerCase()) {
 			case "creation":
+				color = Constants.ICON_COLOR_CREATION;
+				break;
 			case "trigger":
-				return Constants.CREATION_COLOR;
-			case "p2o":
-			case "o2r":
-				return Constants.P20_COLOR;
+				color = Constants.ICON_COLOR_TRIGGER;
+				break;
 			case "tag":
-				return Constants.TAG_COLOR;
+				color = Constants.TAG_COLOR;
+				break;
 			default:
+				color = Constants.ICON_COLOR_PROPAGATION;
 				break;
 			}
 		}
-		return null;
+		return color;
 	}
 
 	@Override
