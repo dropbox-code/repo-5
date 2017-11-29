@@ -81,5 +81,7 @@ public interface Constants {
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
+    static final String TRACE_STORY_HEADER_CHAPTERS = "What happened?";
+    static final String TRACE_STORY_HEADER_RISK = "What's the risk?";
 	
 }
