@@ -85,6 +85,7 @@ import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityDetailsTa
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityLabelProvider;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.preferences.ContrastPreferencesPage;
+import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
 
@@ -152,7 +153,12 @@ public class VulnerabilitiesView extends ViewPart {
 		public void selectionChanged(SelectionChangedEvent event) {
 			currentPage.getApplicationCombo().removeSelectionChangedListener(listener);
 			String orgUuid = ContrastCoreActivator.getSelectedOrganizationUuid();
-			currentPage.updateApplicationCombo(orgUuid, true);
+			
+			ISelection sel = currentPage.getServerCombo().getSelection();
+			Object element = ((IStructuredSelection) sel).getFirstElement();
+			Server server = ((ServerUIAdapter) element).getServer();
+			
+			currentPage.updateApplicationCombo(orgUuid, true, server);
 			currentPage.getApplicationCombo().addSelectionChangedListener(listener);
 			startRefreshJob();
 			
@@ -521,8 +527,13 @@ public class VulnerabilitiesView extends ViewPart {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
 							//Refresh filters
 							if(isFullRefresh) {
+								
+//								ISelection sel = getServerCombo().getSelection();
+								Object element = ((IStructuredSelection) selectedServer[0]).getFirstElement();
+								Server server = ((ServerUIAdapter) element).getServer();
+								
 								currentPage.updateServerCombo(orgUuid, true);
-								currentPage.updateApplicationCombo(orgUuid, true);
+								currentPage.updateApplicationCombo(orgUuid, true, server);
 							}
 							//Refresh traces and selections
 							refreshUI(traces, selectedServer[0], selectedApp[0], isFullRefresh);
