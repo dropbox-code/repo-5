@@ -54,6 +54,10 @@ public interface Constants {
 	static final Color CREATION_COLOR = new Color(Display.getDefault(), 230, 48, 37);
 	static final Color P20_COLOR = new Color(Display.getDefault(), 247, 182, 0);
 	static final Color TAG_COLOR = new Color(Display.getDefault(), 174, 205, 67);
+	
+    static final Color ICON_COLOR_CREATION = new Color(Display.getDefault(), 247, 182, 0);
+    static final Color ICON_COLOR_PROPAGATION = new Color(Display.getDefault(), 153, 153, 153);
+    static final Color ICON_COLOR_TRIGGER = new Color(Display.getDefault(), 230, 48, 37);
 
 	// #165BAD
 	static final Color LINK_COLOR2 = new Color(Display.getDefault(), 22,91,173);
@@ -77,5 +81,7 @@ public interface Constants {
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
+    static final String TRACE_STORY_HEADER_CHAPTERS = "What happened?";
+    static final String TRACE_STORY_HEADER_RISK = "What's the risk?";
 	
 }
