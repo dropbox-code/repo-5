@@ -17,8 +17,6 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -50,9 +48,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
@@ -89,6 +85,7 @@ import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityDetailsTa
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityLabelProvider;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.preferences.ContrastPreferencesPage;
+import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.Traces;
 
@@ -147,6 +144,24 @@ public class VulnerabilitiesView extends ViewPart {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			startRefreshJob();
+		}
+	};
+	
+	private ISelectionChangedListener serverComboBoxListener = new ISelectionChangedListener() {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			currentPage.getApplicationCombo().removeSelectionChangedListener(listener);
+			String orgUuid = ContrastCoreActivator.getSelectedOrganizationUuid();
+			
+			ISelection sel = currentPage.getServerCombo().getSelection();
+			Object element = ((IStructuredSelection) sel).getFirstElement();
+			Server server = ((ServerUIAdapter) element).getServer();
+			
+			currentPage.updateApplicationCombo(orgUuid, true, server);
+			currentPage.getApplicationCombo().addSelectionChangedListener(listener);
+			startRefreshJob();
+			
 		}
 	};
 	
@@ -246,14 +261,14 @@ public class VulnerabilitiesView extends ViewPart {
 	}
 
 	private void addListeners(VulnerabilityPage page) {
-		page.getServerCombo().addSelectionChangedListener(listener);
+		page.getServerCombo().addSelectionChangedListener(serverComboBoxListener);
 		page.getApplicationCombo().addSelectionChangedListener(listener);
 		
 		page.setPageLoaderListener(pageLoaderListener);
 	}
 
 	private void removeListeners(VulnerabilityPage page) {
-		page.getServerCombo().removeSelectionChangedListener(listener);
+		page.getServerCombo().removeSelectionChangedListener(serverComboBoxListener);
 		page.getApplicationCombo().removeSelectionChangedListener(listener);
 	}
 
@@ -512,8 +527,13 @@ public class VulnerabilitiesView extends ViewPart {
 						if (viewer != null && !viewer.getTable().isDisposed()) {
 							//Refresh filters
 							if(isFullRefresh) {
-								currentPage.updateApplicationCombo(orgUuid, true);
+								
+//								ISelection sel = getServerCombo().getSelection();
+								Object element = ((IStructuredSelection) selectedServer[0]).getFirstElement();
+								Server server = ((ServerUIAdapter) element).getServer();
+								
 								currentPage.updateServerCombo(orgUuid, true);
+								currentPage.updateApplicationCombo(orgUuid, true, server);
 							}
 							//Refresh traces and selections
 							refreshUI(traces, selectedServer[0], selectedApp[0], isFullRefresh);
