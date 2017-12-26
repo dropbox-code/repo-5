@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -51,6 +53,20 @@ public class OverviewTab extends AbstractTab {
 		}
 		if (story != null && story.getStory() != null && story.getStory().getChapters() != null
 				&& story.getStory().getChapters().size() > 0) {
+//			header label
+			Label headerLabel = new Label(control, SWT.WRAP | SWT.LEFT);
+			GridData gridData = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
+			headerLabel.setLayoutData(gridData);
+			headerLabel.setText(Constants.TRACE_STORY_HEADER_CHAPTERS);
+			
+			Font font = headerLabel.getFont();
+            FontData[] fontDataArray = font.getFontData();
+        	for (FontData fontData : fontDataArray) {
+        		fontData.setStyle(SWT.BOLD);
+        	}
+        	Font newFont = new Font(Display.getDefault(), fontDataArray);
+        	headerLabel.setFont(newFont);
+//
 			for (Chapter chapter : story.getStory().getChapters()) {
 				String text = chapter.getIntroText() == null ? Constants.BLANK : chapter.getIntroText();
 				String areaText = chapter.getBody() == null ? Constants.BLANK : chapter.getBody();
@@ -67,6 +83,7 @@ public class OverviewTab extends AbstractTab {
 						}
 					}
 				}
+				
 				//new Label(control, SWT.NONE);
 				Label label = new Label(control, SWT.WRAP | SWT.LEFT);
 				GridData gd = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
@@ -96,6 +113,21 @@ public class OverviewTab extends AbstractTab {
 				Risk risk = story.getStory().getRisk();
 				String riskText = risk.getText() == null ? Constants.BLANK : risk.getText();
 				if (!riskText.isEmpty()) {
+//					header label
+					Label riskHeaderLabel = new Label(control, SWT.WRAP | SWT.LEFT);
+					GridData riskGridData = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
+					riskHeaderLabel.setLayoutData(riskGridData);
+					riskHeaderLabel.setText(Constants.TRACE_STORY_HEADER_RISK);
+					
+					Font riskFont = riskHeaderLabel.getFont();
+	                FontData[] riskFontDataArray = riskFont.getFontData();
+	            	for (FontData fontData : riskFontDataArray) {
+	            		fontData.setStyle(SWT.BOLD);
+	            	}
+	            	Font riskNewFont = new Font(Display.getDefault(), riskFontDataArray);
+	            	riskHeaderLabel.setFont(riskNewFont);
+//					
+					
 					Label label = new Label(control, SWT.WRAP | SWT.LEFT);
 					GridData gd = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
 					label.setLayoutData(gd);
