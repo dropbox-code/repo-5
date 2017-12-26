@@ -78,4 +78,15 @@ public interface Constants {
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
 	
+	static final String LAST_DETECTED_ALL = "All";
+	static final String LAST_DETECTED_HOUR = "Last Hour";
+	static final String LAST_DETECTED_DAY = "Last Day";
+	static final String LAST_DETECTED_WEEK = "Last Week";
+	static final String LAST_DETECTED_MONTH = "Last Month";
+	static final String LAST_DETECTED_YEAR = "Last Year";
+	static final String LAST_DETECTED_CUSTOM = "Custom...";
+	
+	static final String[] LAST_DETECTED_CONSTANTS = {LAST_DETECTED_ALL, LAST_DETECTED_HOUR, LAST_DETECTED_DAY, 
+			LAST_DETECTED_WEEK, LAST_DETECTED_MONTH, LAST_DETECTED_YEAR, LAST_DETECTED_CUSTOM};
+	
 }
