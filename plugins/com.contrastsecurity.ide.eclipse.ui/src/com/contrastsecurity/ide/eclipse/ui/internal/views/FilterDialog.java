@@ -1,7 +1,8 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -22,7 +24,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import com.contrastsecurity.ide.eclipse.core.Constants;
@@ -52,54 +56,40 @@ public class FilterDialog extends Dialog {
 	Servers servers;
 	Applications applications;
 
+	Button severityLevelNoteButton;
+	Button severityLevelMediumButton;
+	Button severityLevelCriticalButton;
+	Button severityLevelLowButton;
+	Button severityLevelHighButton;
+
+	Button statusAutoRemediatedButton;
+	Button statusNotAProblemButton;
+	Button statusFixedButton;
+	Button statusConfirmedButton;
+	Button statusRemediatedButton;
+	Button statusBeingTrackedButton;
+	Button statusSuspiciousButton;
+	Button statusReportedButton;
+	Button statusUntrackedButton;
+
+	IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
+
+	private Label testLabel;
+
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 
-			LocalDateTime localDateTime = LocalDateTime.now();
-
 			final String selection = (String) ((IStructuredSelection) lastDetectedCombo.getSelection())
 					.getFirstElement();
-			
-			label.setText(selection);
 
 			if (!selection.equals((Constants.LAST_DETECTED_CUSTOM))) {
 				dateTimeFrom.setEnabled(false);
 				dateTimeTo.setEnabled(false);
 			}
-			
+
 			switch (selection) {
 			case Constants.LAST_DETECTED_ALL:
-				break;
-			case Constants.LAST_DETECTED_HOUR:
-				dateTimeFrom.setDate(localDateTime.minusHours(1).getYear(), localDateTime.minusHours(1).getMonthValue(),
-						localDateTime.minusHours(1).getDayOfMonth());
-				dateTimeFrom.setTime(localDateTime.minusHours(1).getHour(), localDateTime.minusHours(1).getMinute(),
-						localDateTime.minusHours(1).getSecond());
-				break;
-			case Constants.LAST_DETECTED_DAY:
-				dateTimeFrom.setDate(localDateTime.minusDays(1).getYear(), localDateTime.minusDays(1).getMonthValue(),
-						localDateTime.minusDays(1).getDayOfMonth());
-				dateTimeFrom.setTime(localDateTime.minusDays(1).getHour(), localDateTime.minusDays(1).getMinute(),
-						localDateTime.minusDays(1).getSecond());
-				break;
-			case Constants.LAST_DETECTED_WEEK:
-				dateTimeFrom.setDate(localDateTime.minusWeeks(1).getYear(), localDateTime.minusWeeks(1).getMonthValue(),
-						localDateTime.minusWeeks(1).getDayOfMonth());
-				dateTimeFrom.setTime(localDateTime.minusWeeks(1).getHour(), localDateTime.minusWeeks(1).getMinute(),
-						localDateTime.minusWeeks(1).getSecond());
-				break;
-			case Constants.LAST_DETECTED_MONTH:
-				dateTimeFrom.setDate(localDateTime.minusMonths(1).getYear(),
-						localDateTime.minusMonths(1).getMonthValue(), localDateTime.minusMonths(1).getDayOfMonth());
-				dateTimeFrom.setTime(localDateTime.minusMonths(1).getHour(), localDateTime.minusMonths(1).getMinute(),
-						localDateTime.minusMonths(1).getSecond());
-				break;
-			case Constants.LAST_DETECTED_YEAR:
-				dateTimeFrom.setDate(localDateTime.minusYears(1).getYear(), localDateTime.minusYears(1).getMonthValue(),
-						localDateTime.minusYears(1).getDayOfMonth());
-				dateTimeFrom.setTime(localDateTime.minusYears(1).getHour(), localDateTime.minusYears(1).getMinute(),
-						localDateTime.minusYears(1).getSecond());
 				break;
 			case Constants.LAST_DETECTED_CUSTOM:
 				dateTimeFrom.setEnabled(true);
@@ -248,6 +238,8 @@ public class FilterDialog extends Dialog {
 
 		createLastDetectedSection(container);
 
+		createStatusSection(container);
+
 		return container;
 	}
 
@@ -266,20 +258,77 @@ public class FilterDialog extends Dialog {
 		Composite severityComposite = new Composite(severityCompositeContainer, SWT.NONE);
 		severityComposite.setLayout(new GridLayout(3, false));
 
-		Button severityLevelNoteButton = new Button(severityComposite, SWT.CHECK);
+		severityLevelNoteButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelNoteButton.setText("Note");
 
-		Button severityLevelMediumButton = new Button(severityComposite, SWT.CHECK);
+		severityLevelMediumButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelMediumButton.setText("Medium");
 
-		Button severityLevelCriticalButton = new Button(severityComposite, SWT.CHECK);
+		severityLevelCriticalButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelCriticalButton.setText("Critical");
 
-		Button severityLevelLowButton = new Button(severityComposite, SWT.CHECK);
+		severityLevelLowButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelLowButton.setText("Low");
 
-		Button severityLevelHighButton = new Button(severityComposite, SWT.CHECK);
+		severityLevelHighButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelHighButton.setText("High");
+
+		// remove
+		testLabel = new Label(severityComposite, SWT.NONE);
+		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		testLabel.setLayoutData(gd);
+		testLabel.setText("Test label");
+
+		testLabel.addListener(SWT.MouseDown, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				String element = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
+				testLabel.setText(element);
+			}
+		});
+	}
+
+	private void createStatusSection(Composite container) {
+
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+
+		Composite statusCompositeContainer = new Composite(container, SWT.NONE);
+		statusCompositeContainer.setLayout(new GridLayout(2, false));
+
+		label = new Label(statusCompositeContainer, SWT.NONE);
+		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		label.setLayoutData(gd);
+		label.setText("Status");
+
+		Composite statusComposite = new Composite(statusCompositeContainer, SWT.NONE);
+		statusComposite.setLayout(new GridLayout(3, false));
+
+		statusAutoRemediatedButton = new Button(statusComposite, SWT.CHECK);
+		statusAutoRemediatedButton.setText("Auto-Remediated");
+
+		statusNotAProblemButton = new Button(statusComposite, SWT.CHECK);
+		statusNotAProblemButton.setText("Not a Problem");
+
+		statusFixedButton = new Button(statusComposite, SWT.CHECK);
+		statusFixedButton.setText("Fixed");
+
+		statusConfirmedButton = new Button(statusComposite, SWT.CHECK);
+		statusConfirmedButton.setText("Confirmed");
+
+		statusRemediatedButton = new Button(statusComposite, SWT.CHECK);
+		statusRemediatedButton.setText("Remediated");
+
+		statusBeingTrackedButton = new Button(statusComposite, SWT.CHECK);
+		statusBeingTrackedButton.setText("Being Tracked");
+
+		statusSuspiciousButton = new Button(statusComposite, SWT.CHECK);
+		statusSuspiciousButton.setText("Suspicious");
+
+		statusReportedButton = new Button(statusComposite, SWT.CHECK);
+		statusReportedButton.setText("Reported");
+
+		statusUntrackedButton = new Button(statusComposite, SWT.CHECK);
+		statusUntrackedButton.setText("Untracked");
 	}
 
 	private void createLastDetectedSection(Composite container) {
@@ -312,6 +361,9 @@ public class FilterDialog extends Dialog {
 		dateTimeTo = new DateTime(lastDetectedComposite, SWT.DROP_DOWN);
 
 		lastDetectedCombo.addSelectionChangedListener(listener);
+
+		dateTimeFrom.setEnabled(false);
+		dateTimeTo.setEnabled(false);
 	}
 
 	@Override
@@ -325,6 +377,92 @@ public class FilterDialog extends Dialog {
 		// TODO Auto-generated method stub
 		super.configureShell(newShell);
 		newShell.setText("Filter");
+	}
+
+	protected void saveFilter() {
+		Long serverId = getSelectedServerId();
+		prefs.putLong(Constants.SERVER_ID, serverId);
+		String appId = getSelectedAppId();
+		prefs.put(Constants.APPLICATION_ID, appId);
+
+		prefs.putBoolean(Constants.SEVERITY_LEVEL_NOTE, severityLevelNoteButton.getSelection());
+		prefs.putBoolean(Constants.SEVERITY_LEVEL_MEDIUM, severityLevelMediumButton.getSelection());
+		prefs.putBoolean(Constants.SEVERITY_LEVEL_CRITICAL, severityLevelCriticalButton.getSelection());
+		prefs.putBoolean(Constants.SEVERITY_LEVEL_LOW, severityLevelLowButton.getSelection());
+		prefs.putBoolean(Constants.SEVERITY_LEVEL_HIGH, severityLevelHighButton.getSelection());
+
+		prefs.putBoolean(Constants.STATUS_AUTO_REMEDIATED, statusAutoRemediatedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_NOT_A_PROBLEM, statusNotAProblemButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_FIXED, statusFixedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_CONFIRMED, statusConfirmedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_REMEDIATED, statusRemediatedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_BEING_TRACKED, statusBeingTrackedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_SUSPICIOUS, statusSuspiciousButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_REPORTED, statusReportedButton.getSelection());
+		prefs.putBoolean(Constants.STATUS_UNTRACKED, statusUntrackedButton.getSelection());
+
+		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
+		prefs.put(Constants.LAST_DETECTED, lastDetected);
+
+		if (lastDetected.equals(Constants.LAST_DETECTED_CUSTOM)) {
+			Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
+					dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
+			Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(),
+					dateTimeTo.getDay(), dateTimeTo.getHours(), dateTimeTo.getMinutes());
+
+			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
+			prefs.putLong(Constants.LAST_DETECTED_TO, calendarTo.getTimeInMillis());
+		} else {
+			prefs.remove(Constants.LAST_DETECTED_FROM);
+			prefs.remove(Constants.LAST_DETECTED_TO);
+		}
+	}
+
+	private void populateFiltersWithDataFromEclipsePreferences() {
+		severityLevelNoteButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_NOTE, false));
+		severityLevelMediumButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_MEDIUM, false));
+		severityLevelCriticalButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_CRITICAL, false));
+		severityLevelLowButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_LOW, false));
+		severityLevelHighButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_HIGH, false));
+
+		statusAutoRemediatedButton.setSelection(prefs.getBoolean(Constants.STATUS_AUTO_REMEDIATED, false));
+		statusNotAProblemButton.setSelection(prefs.getBoolean(Constants.STATUS_NOT_A_PROBLEM, false));
+		statusFixedButton.setSelection(prefs.getBoolean(Constants.STATUS_FIXED, false));
+		statusConfirmedButton.setSelection(prefs.getBoolean(Constants.STATUS_CONFIRMED, false));
+		statusRemediatedButton.setSelection(prefs.getBoolean(Constants.STATUS_REMEDIATED, false));
+		statusBeingTrackedButton.setSelection(prefs.getBoolean(Constants.STATUS_BEING_TRACKED, false));
+		statusSuspiciousButton.setSelection(prefs.getBoolean(Constants.STATUS_SUSPICIOUS, false));
+		statusReportedButton.setSelection(prefs.getBoolean(Constants.STATUS_REPORTED, false));
+		statusUntrackedButton.setSelection(prefs.getBoolean(Constants.STATUS_UNTRACKED, false));
+
+		String lastDetected = prefs.get(Constants.LAST_DETECTED, "");
+		
+		if (!lastDetected.isEmpty()) {
+			lastDetectedCombo.setSelection(new StructuredSelection(lastDetected));
+			
+		}
+	}
+
+	private Long getSelectedServerId() {
+		ISelection sel = serverCombo.getSelection();
+		if (sel instanceof IStructuredSelection) {
+			Object element = ((IStructuredSelection) sel).getFirstElement();
+			if (element instanceof ServerUIAdapter) {
+				return ((ServerUIAdapter) element).getId();
+			}
+		}
+		return Constants.ALL_SERVERS;
+	}
+
+	private String getSelectedAppId() {
+		ISelection sel = applicationCombo.getSelection();
+		if (sel instanceof IStructuredSelection) {
+			Object element = ((IStructuredSelection) sel).getFirstElement();
+			if (element instanceof ApplicationUIAdapter) {
+				return ((ApplicationUIAdapter) element).getId();
+			}
+		}
+		return Constants.ALL_APPLICATIONS;
 	}
 
 }
