@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.codec.binary.StringUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
@@ -28,7 +28,7 @@ import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
 
 public class Util {
-	
+
 	private final static String LIST_DELIMITATOR = ";";
 
 	public static Organization getDefaultOrganization(ContrastSDK sdk) throws IOException, UnauthorizedException {
@@ -63,57 +63,75 @@ public class Util {
 		return apiKey != null && serviceKey != null && username != null && !apiKey.isEmpty() && !serviceKey.isEmpty()
 				&& !username.isEmpty();
 	}
-	
+
 	public static String[] extractOrganizationNames(List<Organization> orgList) {
 		String[] orgArray = new String[orgList.size()];
-		
-		for(int i = 0; i < orgList.size(); i++)
+
+		for (int i = 0; i < orgList.size(); i++)
 			orgArray[i] = orgList.get(i).getName();
-		
+
 		return orgArray;
 	}
-	
+
 	public static TraceFilterForm getTraceFilterForm(final int offset, final int limit, String sort) {
 		return getTraceFilterForm(null, offset, limit, sort);
 	}
-	
-	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit, String sort) {
+
+	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit,
+			String sort) {
 		final TraceFilterForm form = new TraceFilterForm();
-		if(selectedServerId != null) {
+		if (selectedServerId != null) {
 			final List<Long> serverIds = new ArrayList<>();
 			serverIds.add(selectedServerId);
 			form.setServerIds(serverIds);
 		}
-		
+
 		form.setOffset(offset);
 		form.setLimit(limit);
 		form.setSort(sort);
-		
+
 		return form;
 	}
-	
+
+	public static TraceFilterForm getTraceFilterForm(final int offset, final int limit) {
+		return getTraceFilterForm(null, offset, limit);
+	}
+
+	public static TraceFilterForm getTraceFilterForm(final Long selectedServerId, final int offset, final int limit) {
+		final TraceFilterForm form = new TraceFilterForm();
+		if (selectedServerId != null) {
+			final List<Long> serverIds = new ArrayList<>();
+			serverIds.add(selectedServerId);
+			form.setServerIds(serverIds);
+		}
+		form.setOffset(offset);
+		form.setLimit(limit);
+
+		return form;
+	}
+
 	public static String[] getListFromString(String list) {
 		String[] orgList;
-		
-		if(StringUtils.isNotBlank(list))
+
+		if (StringUtils.isNotBlank(list))
 			orgList = StringUtils.split(list, LIST_DELIMITATOR);
 		else
 			return new String[0];
-		
+
 		return orgList;
 	}
-	
+
 	public static String getStringFromList(String[] list) {
 		StringBuffer buffer = new StringBuffer();
-		
+
 		int size = list.length;
-		for(int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			buffer.append(list[i]);
-			
-			if(i < size - 1)
+
+			if (i < size - 1)
 				buffer.append(LIST_DELIMITATOR);
 		}
-		
+
 		return buffer.toString();
 	}
 

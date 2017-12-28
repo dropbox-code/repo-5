@@ -1,9 +1,14 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -24,13 +29,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import com.contrastsecurity.http.RuleSeverity;
+import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
+import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ApplicationUIAdapter;
@@ -43,6 +49,10 @@ import com.contrastsecurity.models.Servers;
 import com.contrastsecurity.sdk.ContrastSDK;
 
 public class FilterDialog extends Dialog {
+
+	private int currentOffset = 0;
+	private static final int PAGE_LIMIT = 20;
+	private TraceFilterForm traceFilterForm;
 
 	private ComboViewer serverCombo;
 	private ComboViewer applicationCombo;
@@ -73,8 +83,6 @@ public class FilterDialog extends Dialog {
 	Button statusUntrackedButton;
 
 	IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-
-	private Label testLabel;
 
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
@@ -240,6 +248,8 @@ public class FilterDialog extends Dialog {
 
 		createStatusSection(container);
 
+		populateFiltersWithDataFromEclipsePreferences();
+
 		return container;
 	}
 
@@ -272,20 +282,6 @@ public class FilterDialog extends Dialog {
 
 		severityLevelHighButton = new Button(severityComposite, SWT.CHECK);
 		severityLevelHighButton.setText("High");
-
-		// remove
-		testLabel = new Label(severityComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		testLabel.setLayoutData(gd);
-		testLabel.setText("Test label");
-
-		testLabel.addListener(SWT.MouseDown, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				String element = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
-				testLabel.setText(element);
-			}
-		});
 	}
 
 	private void createStatusSection(Composite container) {
@@ -436,11 +432,165 @@ public class FilterDialog extends Dialog {
 		statusUntrackedButton.setSelection(prefs.getBoolean(Constants.STATUS_UNTRACKED, false));
 
 		String lastDetected = prefs.get(Constants.LAST_DETECTED, "");
-		
+
 		if (!lastDetected.isEmpty()) {
 			lastDetectedCombo.setSelection(new StructuredSelection(lastDetected));
-			
+
+			LocalDateTime localDateTime = LocalDateTime.now();
+
+			switch (lastDetected) {
+			case Constants.LAST_DETECTED_ALL:
+				break;
+			case Constants.LAST_DETECTED_HOUR:
+				LocalDateTime localDateTimeMinusHour = localDateTime.minusHours(1);
+
+				dateTimeFrom.setDate(localDateTimeMinusHour.getYear(), localDateTimeMinusHour.getMonthValue(),
+						localDateTimeMinusHour.getDayOfMonth());
+				dateTimeFrom.setTime(localDateTimeMinusHour.getHour(), localDateTimeMinusHour.getMinute(),
+						localDateTimeMinusHour.getSecond());
+				break;
+			case Constants.LAST_DETECTED_DAY:
+				LocalDateTime localDateTimeMinusDay = localDateTime.minusDays(1);
+				dateTimeFrom.setDate(localDateTimeMinusDay.getYear(), localDateTimeMinusDay.getMonthValue(),
+						localDateTimeMinusDay.getDayOfMonth());
+				dateTimeFrom.setTime(localDateTimeMinusDay.getHour(), localDateTimeMinusDay.getMinute(),
+						localDateTimeMinusDay.getSecond());
+				break;
+			case Constants.LAST_DETECTED_WEEK:
+				LocalDateTime localDateTimeMinusWeek = localDateTime.minusWeeks(1);
+
+				dateTimeFrom.setDate(localDateTimeMinusWeek.getYear(), localDateTimeMinusWeek.getMonthValue(),
+						localDateTimeMinusWeek.getDayOfMonth());
+				dateTimeFrom.setTime(localDateTimeMinusWeek.getHour(), localDateTimeMinusWeek.getMinute(),
+						localDateTimeMinusWeek.getSecond());
+				break;
+			case Constants.LAST_DETECTED_MONTH:
+				LocalDateTime localDateTimeMinusMonth = localDateTime.minusMonths(1);
+				dateTimeFrom.setDate(localDateTimeMinusMonth.getYear(), localDateTimeMinusMonth.getMonthValue(),
+						localDateTimeMinusMonth.getDayOfMonth());
+				dateTimeFrom.setTime(localDateTimeMinusMonth.getHour(), localDateTimeMinusMonth.getMinute(),
+						localDateTimeMinusMonth.getSecond());
+				break;
+			case Constants.LAST_DETECTED_YEAR:
+				LocalDateTime localDateTimeMinusYear = localDateTime.minusYears(1);
+				dateTimeFrom.setDate(localDateTimeMinusYear.getYear(), localDateTimeMinusYear.getMonthValue(),
+						localDateTimeMinusYear.getDayOfMonth());
+				dateTimeFrom.setTime(localDateTimeMinusYear.getHour(), localDateTimeMinusYear.getMinute(),
+						localDateTimeMinusYear.getSecond());
+				break;
+			case Constants.LAST_DETECTED_CUSTOM:
+				Long lastDetectedFrom = prefs.getLong(Constants.LAST_DETECTED_FROM, 0);
+				Long lastDetectedTo = prefs.getLong(Constants.LAST_DETECTED_TO, 0);
+
+				if (lastDetectedFrom != 0 && lastDetectedTo != 0) {
+					Calendar calendarFrom = new GregorianCalendar();
+					calendarFrom.setTimeInMillis(lastDetectedFrom);
+					Calendar calendarTo = new GregorianCalendar();
+					calendarTo.setTimeInMillis(lastDetectedTo);
+
+					dateTimeFrom.setDate(calendarFrom.get(Calendar.YEAR), calendarFrom.get(Calendar.MONTH),
+							calendarFrom.get(Calendar.DAY_OF_MONTH));
+					dateTimeFrom.setTime(calendarFrom.get(Calendar.HOUR_OF_DAY), calendarFrom.get(Calendar.MINUTE),
+							calendarFrom.get(Calendar.SECOND));
+
+					dateTimeTo.setDate(calendarTo.get(Calendar.YEAR), calendarTo.get(Calendar.MONTH),
+							calendarTo.get(Calendar.DAY_OF_MONTH));
+					dateTimeTo.setTime(calendarTo.get(Calendar.HOUR_OF_DAY), calendarTo.get(Calendar.MINUTE),
+							calendarTo.get(Calendar.SECOND));
+				}
+				break;
+			}
 		}
+	}
+
+	private TraceFilterForm extractFiltersIntoTraceFilterForm() {
+
+		EnumSet<RuleSeverity> severities = getSelectedSeverities();
+		List<String> statuses = getSelectedStatuses();
+
+		Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
+				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
+
+		Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(), dateTimeTo.getDay(),
+				dateTimeTo.getHours(), dateTimeTo.getMinutes());
+
+		Date fromDate = new Date(calendarFrom.getTimeInMillis());
+		Date toDate = new Date(calendarTo.getTimeInMillis());
+
+		Long serverId = getSelectedServerId();
+		String appId = getSelectedAppId();
+
+		TraceFilterForm form = null;
+		if (serverId == Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+			form = Util.getTraceFilterForm(currentOffset, PAGE_LIMIT);
+		} else if (serverId == Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+			form = Util.getTraceFilterForm(currentOffset, PAGE_LIMIT);
+		} else if (serverId != Constants.ALL_SERVERS && Constants.ALL_APPLICATIONS.equals(appId)) {
+			form = Util.getTraceFilterForm(serverId, currentOffset, PAGE_LIMIT);
+		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
+			form = Util.getTraceFilterForm(serverId, currentOffset, PAGE_LIMIT);
+		}
+		form.setSeverities(severities);
+		form.setStatus(statuses);
+		form.setStartDate(fromDate);
+		form.setEndDate(toDate);
+		form.setOffset(currentOffset);
+
+		return form;
+	}
+
+	private EnumSet<RuleSeverity> getSelectedSeverities() {
+
+		EnumSet<RuleSeverity> severities = EnumSet.noneOf(RuleSeverity.class);
+		if (severityLevelNoteButton.getSelection()) {
+			severities.add(RuleSeverity.NOTE);
+		}
+		if (severityLevelLowButton.getSelection()) {
+			severities.add(RuleSeverity.LOW);
+		}
+		if (severityLevelMediumButton.getSelection()) {
+			severities.add(RuleSeverity.MEDIUM);
+		}
+		if (severityLevelHighButton.getSelection()) {
+			severities.add(RuleSeverity.HIGH);
+		}
+		if (severityLevelCriticalButton.getSelection()) {
+			severities.add(RuleSeverity.CRITICAL);
+		}
+		return severities;
+	}
+
+	private List<String> getSelectedStatuses() {
+		List<String> statuses = new ArrayList<>();
+		if (statusAutoRemediatedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_AUTO_REMEDIATED);
+		}
+		if (statusConfirmedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_CONFIRMED);
+		}
+		if (statusSuspiciousButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_SUSPICIOUS);
+		}
+		if (statusNotAProblemButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING);
+		}
+		if (statusRemediatedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_REMEDIATED);
+		}
+		if (statusReportedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_REPORTED);
+		}
+		if (statusFixedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_FIXED);
+		}
+		if (statusBeingTrackedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_BEING_TRACKED);
+		}
+		if (statusUntrackedButton.getSelection()) {
+			statuses.add(Constants.VULNERABILITY_STATUS_UNTRACKED);
+		}
+
+		return statuses;
 	}
 
 	private Long getSelectedServerId() {
@@ -463,6 +613,23 @@ public class FilterDialog extends Dialog {
 			}
 		}
 		return Constants.ALL_APPLICATIONS;
+	}
+
+	@Override
+	protected void cancelPressed() {
+		// TODO Auto-generated method stub
+		super.cancelPressed();
+	}
+
+	@Override
+	protected void okPressed() {
+		saveFilter();
+		traceFilterForm = extractFiltersIntoTraceFilterForm();
+		super.okPressed();
+	}
+
+	public TraceFilterForm getTraceFilterForm() {
+		return traceFilterForm;
 	}
 
 }

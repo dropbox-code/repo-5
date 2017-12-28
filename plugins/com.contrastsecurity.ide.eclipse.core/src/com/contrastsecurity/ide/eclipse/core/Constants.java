@@ -117,5 +117,15 @@ public interface Constants {
 
 	static final String[] LAST_DETECTED_CONSTANTS = { LAST_DETECTED_ALL, LAST_DETECTED_HOUR, LAST_DETECTED_DAY,
 			LAST_DETECTED_WEEK, LAST_DETECTED_MONTH, LAST_DETECTED_YEAR, LAST_DETECTED_CUSTOM };
+	
+    static final String VULNERABILITY_STATUS_AUTO_REMEDIATED = "Auto-Remediated";
+    static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
+    static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
+    static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
+    static final String VULNERABILITY_STATUS_REPORTED = "Reported";
+    static final String VULNERABILITY_STATUS_FIXED = "Fixed";
+    static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
+    static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
+    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
 
 }
