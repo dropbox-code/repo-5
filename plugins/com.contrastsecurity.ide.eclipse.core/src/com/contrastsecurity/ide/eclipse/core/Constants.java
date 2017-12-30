@@ -31,7 +31,6 @@ public interface Constants {
 	static final String SERVER_ID = "serverId";
 	static final String APPLICATION_ID = "applicationId";
 
-//	
 	static final String SEVERITY_LEVEL_NOTE = "severityLevelNote";
 	static final String SEVERITY_LEVEL_MEDIUM = "severityLevelMedium";
 	static final String SEVERITY_LEVEL_CRITICAL = "severityLevelCritical";
@@ -47,8 +46,7 @@ public interface Constants {
 	static final String STATUS_SUSPICIOUS = "statusSuspicious";
 	static final String STATUS_REPORTED = "statusReported";
 	static final String STATUS_UNTRACKED = "statusUntracked";
-//	
-	
+
 	static final long ALL_SERVERS = -1l;
 	static final String ALL_APPLICATIONS = "All applications";
 	static final String BLANK = "";
@@ -97,6 +95,7 @@ public interface Constants {
 	public String SPAN_CLASS_TAINT = "<span class='taint'>";
 	public int MAX_WIDTH = 400;
 
+	static final String TRACE_SORT = "traceSort";
 	static final String SORT_BY_SEVERITY = "severity";
 	static final String SORT_DESCENDING = "-";
 	static final String SORT_BY_TITLE = "title";
@@ -106,7 +105,7 @@ public interface Constants {
 	static final String LAST_DETECTED = "lastDetected";
 	static final String LAST_DETECTED_FROM = "lastDetectedFrom";
 	static final String LAST_DETECTED_TO = "lastDetectedTo";
-	
+
 	static final String LAST_DETECTED_ALL = "All";
 	static final String LAST_DETECTED_HOUR = "Last Hour";
 	static final String LAST_DETECTED_DAY = "Last Day";
@@ -117,15 +116,17 @@ public interface Constants {
 
 	static final String[] LAST_DETECTED_CONSTANTS = { LAST_DETECTED_ALL, LAST_DETECTED_HOUR, LAST_DETECTED_DAY,
 			LAST_DETECTED_WEEK, LAST_DETECTED_MONTH, LAST_DETECTED_YEAR, LAST_DETECTED_CUSTOM };
-	
-    static final String VULNERABILITY_STATUS_AUTO_REMEDIATED = "Auto-Remediated";
-    static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
-    static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
-    static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
-    static final String VULNERABILITY_STATUS_REPORTED = "Reported";
-    static final String VULNERABILITY_STATUS_FIXED = "Fixed";
-    static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
-    static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
-    static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
+
+	static final String VULNERABILITY_STATUS_AUTO_REMEDIATED = "Auto-Remediated";
+	static final String VULNERABILITY_STATUS_CONFIRMED = "Confirmed";
+	static final String VULNERABILITY_STATUS_SUSPICIOUS = "Suspicious";
+	static final String VULNERABILITY_STATUS_REMEDIATED = "Remediated";
+	static final String VULNERABILITY_STATUS_REPORTED = "Reported";
+	static final String VULNERABILITY_STATUS_FIXED = "Fixed";
+	static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
+	static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
+	static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
+
+	static final String CURRENT_OFFSET = "currentOffset";
 
 }

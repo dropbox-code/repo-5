@@ -84,6 +84,16 @@ public class FilterDialog extends Dialog {
 
 	IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 
+	private ISelectionChangedListener serverComboBoxListener = new ISelectionChangedListener() {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+
+			String orgUuid = ContrastCoreActivator.getSelectedOrganizationUuid();
+			updateApplicationCombo(orgUuid, true, applications);
+		}
+	};
+
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
@@ -95,9 +105,62 @@ public class FilterDialog extends Dialog {
 				dateTimeFrom.setEnabled(false);
 				dateTimeTo.setEnabled(false);
 			}
-
+			LocalDateTime localDateTime = LocalDateTime.now();
 			switch (selection) {
 			case Constants.LAST_DETECTED_ALL:
+				prefs.remove(Constants.LAST_DETECTED_FROM);
+				prefs.remove(Constants.LAST_DETECTED_TO);
+				break;
+			case Constants.LAST_DETECTED_HOUR:
+				LocalDateTime localDateTimeMinusHour = localDateTime.minusHours(1);
+
+				dateTimeFrom.setYear(localDateTimeMinusHour.getYear());
+				dateTimeFrom.setDay(localDateTimeMinusHour.getDayOfMonth());
+				dateTimeFrom.setMonth(localDateTimeMinusHour.getMonthValue() - 1);
+				dateTimeFrom.setHours(localDateTimeMinusHour.getHour());
+				dateTimeFrom.setMinutes(localDateTimeMinusHour.getMinute());
+				dateTimeFrom.setSeconds(localDateTimeMinusHour.getSecond());
+
+				break;
+			case Constants.LAST_DETECTED_DAY:
+				LocalDateTime localDateTimeMinusDay = localDateTime.minusDays(1);
+
+				dateTimeFrom.setYear(localDateTimeMinusDay.getYear());
+				dateTimeFrom.setDay(localDateTimeMinusDay.getDayOfMonth());
+				dateTimeFrom.setMonth(localDateTimeMinusDay.getMonthValue() - 1);
+				dateTimeFrom.setHours(localDateTimeMinusDay.getHour());
+				dateTimeFrom.setMinutes(localDateTimeMinusDay.getMinute());
+				dateTimeFrom.setSeconds(localDateTimeMinusDay.getSecond());
+				break;
+			case Constants.LAST_DETECTED_WEEK:
+				LocalDateTime localDateTimeMinusWeek = localDateTime.minusWeeks(1);
+
+				dateTimeFrom.setYear(localDateTimeMinusWeek.getYear());
+				dateTimeFrom.setDay(localDateTimeMinusWeek.getDayOfMonth());
+				dateTimeFrom.setMonth(localDateTimeMinusWeek.getMonthValue() - 1);
+				dateTimeFrom.setHours(localDateTimeMinusWeek.getHour());
+				dateTimeFrom.setMinutes(localDateTimeMinusWeek.getMinute());
+				dateTimeFrom.setSeconds(localDateTimeMinusWeek.getSecond());
+				break;
+			case Constants.LAST_DETECTED_MONTH:
+				LocalDateTime localDateTimeMinusMonth = localDateTime.minusMonths(1);
+
+				dateTimeFrom.setYear(localDateTimeMinusMonth.getYear());
+				dateTimeFrom.setDay(localDateTimeMinusMonth.getDayOfMonth());
+				dateTimeFrom.setMonth(localDateTimeMinusMonth.getMonthValue() - 1);
+				dateTimeFrom.setHours(localDateTimeMinusMonth.getHour());
+				dateTimeFrom.setMinutes(localDateTimeMinusMonth.getMinute());
+				dateTimeFrom.setSeconds(localDateTimeMinusMonth.getSecond());
+				break;
+			case Constants.LAST_DETECTED_YEAR:
+				LocalDateTime localDateTimeMinusYear = localDateTime.minusYears(1);
+
+				dateTimeFrom.setYear(localDateTimeMinusYear.getYear());
+				dateTimeFrom.setDay(localDateTimeMinusYear.getDayOfMonth());
+				dateTimeFrom.setMonth(localDateTimeMinusYear.getMonthValue() - 1);
+				dateTimeFrom.setHours(localDateTimeMinusYear.getHour());
+				dateTimeFrom.setMinutes(localDateTimeMinusYear.getMinute());
+				dateTimeFrom.setSeconds(localDateTimeMinusYear.getSecond());
 				break;
 			case Constants.LAST_DETECTED_CUSTOM:
 				dateTimeFrom.setEnabled(true);
@@ -113,7 +176,6 @@ public class FilterDialog extends Dialog {
 		extendedContrastSDK = (ExtendedContrastSDK) contrastSDK;
 		this.servers = servers;
 		this.applications = applications;
-		// TODO Auto-generated constructor stub
 	}
 
 	private String getOrgUuid() {
@@ -188,9 +250,29 @@ public class FilterDialog extends Dialog {
 		Set<ApplicationUIAdapter> contrastApplications = new LinkedHashSet<>();
 		int count = 0;
 		if (orgUuid != null) {
-			if (applications != null && applications.getApplications() != null
-					&& applications.getApplications().size() > 0) {
-				for (Application application : applications.getApplications()) {
+
+			Server server = null;
+			ISelection sel = serverCombo.getSelection();
+			if (sel instanceof IStructuredSelection) {
+				Object element = ((IStructuredSelection) sel).getFirstElement();
+				if (element instanceof ServerUIAdapter) {
+					server = ((ServerUIAdapter) element).getServer();
+				}
+			}
+
+			if (server == null) {
+				if (applications != null && applications.getApplications() != null
+						&& applications.getApplications().size() > 0) {
+					for (Application application : applications.getApplications()) {
+						ApplicationUIAdapter app = new ApplicationUIAdapter(application, application.getName());
+						contrastApplications.add(app);
+						count++;
+						ContrastUIActivator.logInfo(application.getName());
+					}
+				}
+			} else {
+				List<Application> apps = server.getApplications();
+				for (Application application : apps) {
 					ApplicationUIAdapter app = new ApplicationUIAdapter(application, application.getName());
 					contrastApplications.add(app);
 					count++;
@@ -233,6 +315,8 @@ public class FilterDialog extends Dialog {
 
 		createServerCombo(comboComposite, orgUuid);
 		updateServerCombo(orgUuid, true, servers);
+
+		serverCombo.addSelectionChangedListener(serverComboBoxListener);
 
 		label = new Label(comboComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
@@ -364,13 +448,11 @@ public class FilterDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		// TODO Auto-generated method stub
 		return new Point(850, 400);
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
-		// TODO Auto-generated method stub
 		super.configureShell(newShell);
 		newShell.setText("Filter");
 	}
@@ -400,21 +482,29 @@ public class FilterDialog extends Dialog {
 		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
 		prefs.put(Constants.LAST_DETECTED, lastDetected);
 
-		if (lastDetected.equals(Constants.LAST_DETECTED_CUSTOM)) {
-			Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
-					dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
-			Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(),
-					dateTimeTo.getDay(), dateTimeTo.getHours(), dateTimeTo.getMinutes());
+		Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
+				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
+		Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(), dateTimeTo.getDay(),
+				dateTimeTo.getHours(), dateTimeTo.getMinutes());
 
-			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
-			prefs.putLong(Constants.LAST_DETECTED_TO, calendarTo.getTimeInMillis());
-		} else {
+		switch (lastDetected) {
+		case Constants.LAST_DETECTED_ALL:
 			prefs.remove(Constants.LAST_DETECTED_FROM);
 			prefs.remove(Constants.LAST_DETECTED_TO);
+			break;
+		case Constants.LAST_DETECTED_CUSTOM:
+			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
+			prefs.putLong(Constants.LAST_DETECTED_TO, calendarTo.getTimeInMillis());
+			break;
+		default:
+			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
+			prefs.remove(Constants.LAST_DETECTED_TO);
+			break;
 		}
 	}
 
 	private void populateFiltersWithDataFromEclipsePreferences() {
+
 		severityLevelNoteButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_NOTE, false));
 		severityLevelMediumButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_MEDIUM, false));
 		severityLevelCriticalButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_CRITICAL, false));
@@ -435,68 +525,49 @@ public class FilterDialog extends Dialog {
 
 		if (!lastDetected.isEmpty()) {
 			lastDetectedCombo.setSelection(new StructuredSelection(lastDetected));
-
-			LocalDateTime localDateTime = LocalDateTime.now();
+			Long lastDetectedFrom = prefs.getLong(Constants.LAST_DETECTED_FROM, 0);
+			Long lastDetectedTo = prefs.getLong(Constants.LAST_DETECTED_TO, 0);
 
 			switch (lastDetected) {
 			case Constants.LAST_DETECTED_ALL:
 				break;
-			case Constants.LAST_DETECTED_HOUR:
-				LocalDateTime localDateTimeMinusHour = localDateTime.minusHours(1);
-
-				dateTimeFrom.setDate(localDateTimeMinusHour.getYear(), localDateTimeMinusHour.getMonthValue(),
-						localDateTimeMinusHour.getDayOfMonth());
-				dateTimeFrom.setTime(localDateTimeMinusHour.getHour(), localDateTimeMinusHour.getMinute(),
-						localDateTimeMinusHour.getSecond());
-				break;
-			case Constants.LAST_DETECTED_DAY:
-				LocalDateTime localDateTimeMinusDay = localDateTime.minusDays(1);
-				dateTimeFrom.setDate(localDateTimeMinusDay.getYear(), localDateTimeMinusDay.getMonthValue(),
-						localDateTimeMinusDay.getDayOfMonth());
-				dateTimeFrom.setTime(localDateTimeMinusDay.getHour(), localDateTimeMinusDay.getMinute(),
-						localDateTimeMinusDay.getSecond());
-				break;
-			case Constants.LAST_DETECTED_WEEK:
-				LocalDateTime localDateTimeMinusWeek = localDateTime.minusWeeks(1);
-
-				dateTimeFrom.setDate(localDateTimeMinusWeek.getYear(), localDateTimeMinusWeek.getMonthValue(),
-						localDateTimeMinusWeek.getDayOfMonth());
-				dateTimeFrom.setTime(localDateTimeMinusWeek.getHour(), localDateTimeMinusWeek.getMinute(),
-						localDateTimeMinusWeek.getSecond());
-				break;
-			case Constants.LAST_DETECTED_MONTH:
-				LocalDateTime localDateTimeMinusMonth = localDateTime.minusMonths(1);
-				dateTimeFrom.setDate(localDateTimeMinusMonth.getYear(), localDateTimeMinusMonth.getMonthValue(),
-						localDateTimeMinusMonth.getDayOfMonth());
-				dateTimeFrom.setTime(localDateTimeMinusMonth.getHour(), localDateTimeMinusMonth.getMinute(),
-						localDateTimeMinusMonth.getSecond());
-				break;
-			case Constants.LAST_DETECTED_YEAR:
-				LocalDateTime localDateTimeMinusYear = localDateTime.minusYears(1);
-				dateTimeFrom.setDate(localDateTimeMinusYear.getYear(), localDateTimeMinusYear.getMonthValue(),
-						localDateTimeMinusYear.getDayOfMonth());
-				dateTimeFrom.setTime(localDateTimeMinusYear.getHour(), localDateTimeMinusYear.getMinute(),
-						localDateTimeMinusYear.getSecond());
-				break;
 			case Constants.LAST_DETECTED_CUSTOM:
-				Long lastDetectedFrom = prefs.getLong(Constants.LAST_DETECTED_FROM, 0);
-				Long lastDetectedTo = prefs.getLong(Constants.LAST_DETECTED_TO, 0);
 
-				if (lastDetectedFrom != 0 && lastDetectedTo != 0) {
-					Calendar calendarFrom = new GregorianCalendar();
+				if (lastDetectedFrom != 0) {
+					Calendar calendarFrom = Calendar.getInstance();
 					calendarFrom.setTimeInMillis(lastDetectedFrom);
-					Calendar calendarTo = new GregorianCalendar();
+
+					dateTimeFrom.setYear(calendarFrom.get(Calendar.YEAR));
+					dateTimeFrom.setDay(calendarFrom.get(Calendar.DAY_OF_MONTH));
+					dateTimeFrom.setMonth(calendarFrom.get(Calendar.MONTH) - 1);
+					dateTimeFrom.setHours(calendarFrom.get(Calendar.HOUR_OF_DAY));
+					dateTimeFrom.setMinutes(calendarFrom.get(Calendar.MINUTE));
+					dateTimeFrom.setSeconds(calendarFrom.get(Calendar.SECOND));
+				}
+				if (lastDetectedTo != 0) {
+
+					Calendar calendarTo = Calendar.getInstance();
 					calendarTo.setTimeInMillis(lastDetectedTo);
 
-					dateTimeFrom.setDate(calendarFrom.get(Calendar.YEAR), calendarFrom.get(Calendar.MONTH),
-							calendarFrom.get(Calendar.DAY_OF_MONTH));
-					dateTimeFrom.setTime(calendarFrom.get(Calendar.HOUR_OF_DAY), calendarFrom.get(Calendar.MINUTE),
-							calendarFrom.get(Calendar.SECOND));
-
-					dateTimeTo.setDate(calendarTo.get(Calendar.YEAR), calendarTo.get(Calendar.MONTH),
-							calendarTo.get(Calendar.DAY_OF_MONTH));
-					dateTimeTo.setTime(calendarTo.get(Calendar.HOUR_OF_DAY), calendarTo.get(Calendar.MINUTE),
-							calendarTo.get(Calendar.SECOND));
+					dateTimeTo.setYear(calendarTo.get(Calendar.YEAR));
+					dateTimeTo.setDay(calendarTo.get(Calendar.DAY_OF_MONTH));
+					dateTimeTo.setMonth(calendarTo.get(Calendar.MONTH) - 1);
+					dateTimeTo.setHours(calendarTo.get(Calendar.HOUR_OF_DAY));
+					dateTimeTo.setMinutes(calendarTo.get(Calendar.MINUTE));
+					dateTimeTo.setSeconds(calendarTo.get(Calendar.SECOND));
+				}
+				break;
+			default:
+				if (lastDetectedFrom != 0) {
+					Calendar calendarFrom = Calendar.getInstance();
+					calendarFrom.setTimeInMillis(lastDetectedFrom);					
+					
+					dateTimeFrom.setYear(calendarFrom.get(Calendar.YEAR));
+					dateTimeFrom.setDay(calendarFrom.get(Calendar.DAY_OF_MONTH));
+					dateTimeFrom.setMonth(calendarFrom.get(Calendar.MONTH) - 1);
+					dateTimeFrom.setHours(calendarFrom.get(Calendar.HOUR_OF_DAY));
+					dateTimeFrom.setMinutes(calendarFrom.get(Calendar.MINUTE));
+					dateTimeFrom.setSeconds(calendarFrom.get(Calendar.SECOND));
 				}
 				break;
 			}
@@ -507,15 +578,6 @@ public class FilterDialog extends Dialog {
 
 		EnumSet<RuleSeverity> severities = getSelectedSeverities();
 		List<String> statuses = getSelectedStatuses();
-
-		Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
-				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
-
-		Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(), dateTimeTo.getDay(),
-				dateTimeTo.getHours(), dateTimeTo.getMinutes());
-
-		Date fromDate = new Date(calendarFrom.getTimeInMillis());
-		Date toDate = new Date(calendarTo.getTimeInMillis());
 
 		Long serverId = getSelectedServerId();
 		String appId = getSelectedAppId();
@@ -532,8 +594,28 @@ public class FilterDialog extends Dialog {
 		}
 		form.setSeverities(severities);
 		form.setStatus(statuses);
-		form.setStartDate(fromDate);
-		form.setEndDate(toDate);
+
+		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
+
+		Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
+				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
+
+		Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(), dateTimeTo.getDay(),
+				dateTimeTo.getHours(), dateTimeTo.getMinutes());
+		Date fromDate = new Date(calendarFrom.getTimeInMillis());
+		Date toDate = new Date(calendarTo.getTimeInMillis());
+
+		switch (lastDetected) {
+		case Constants.LAST_DETECTED_ALL:
+			break;
+		case Constants.LAST_DETECTED_CUSTOM:
+			form.setStartDate(fromDate);
+			form.setEndDate(toDate);
+			break;
+		default:
+			form.setStartDate(fromDate);
+			break;
+		}
 		form.setOffset(currentOffset);
 
 		return form;
@@ -617,7 +699,6 @@ public class FilterDialog extends Dialog {
 
 	@Override
 	protected void cancelPressed() {
-		// TODO Auto-generated method stub
 		super.cancelPressed();
 	}
 
@@ -631,5 +712,8 @@ public class FilterDialog extends Dialog {
 	public TraceFilterForm getTraceFilterForm() {
 		return traceFilterForm;
 	}
+
+	// page.getServerCombo().addSelectionChangedListener(serverComboBoxListener);
+	// page.getApplicationCombo().addSelectionChangedListener(listener);
 
 }

@@ -18,9 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-
+import org.apache.commons.lang.StringUtils;
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.models.Organization;
