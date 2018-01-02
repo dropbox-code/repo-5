@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2017 Contrast Security.
+ * All rights reserved. 
+ * 
+ * This program and the accompanying materials are made available under 
+ * the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 3 of the License.
+ * 
+ * The terms of the GNU GPL version 3 which accompanies this distribution
+ * and is available at https://www.gnu.org/licenses/gpl-3.0.en.html
+ * 
+ * Contributors:
+ *     Contrast Security - initial API and implementation
+ *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
 import java.time.LocalDateTime;
@@ -22,7 +36,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -113,54 +126,23 @@ public class FilterDialog extends Dialog {
 				break;
 			case Constants.LAST_DETECTED_HOUR:
 				LocalDateTime localDateTimeMinusHour = localDateTime.minusHours(1);
-
-				dateTimeFrom.setYear(localDateTimeMinusHour.getYear());
-				dateTimeFrom.setDay(localDateTimeMinusHour.getDayOfMonth());
-				dateTimeFrom.setMonth(localDateTimeMinusHour.getMonthValue() - 1);
-				dateTimeFrom.setHours(localDateTimeMinusHour.getHour());
-				dateTimeFrom.setMinutes(localDateTimeMinusHour.getMinute());
-				dateTimeFrom.setSeconds(localDateTimeMinusHour.getSecond());
-
+				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusHour);
 				break;
 			case Constants.LAST_DETECTED_DAY:
 				LocalDateTime localDateTimeMinusDay = localDateTime.minusDays(1);
-
-				dateTimeFrom.setYear(localDateTimeMinusDay.getYear());
-				dateTimeFrom.setDay(localDateTimeMinusDay.getDayOfMonth());
-				dateTimeFrom.setMonth(localDateTimeMinusDay.getMonthValue() - 1);
-				dateTimeFrom.setHours(localDateTimeMinusDay.getHour());
-				dateTimeFrom.setMinutes(localDateTimeMinusDay.getMinute());
-				dateTimeFrom.setSeconds(localDateTimeMinusDay.getSecond());
+				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusDay);
 				break;
 			case Constants.LAST_DETECTED_WEEK:
 				LocalDateTime localDateTimeMinusWeek = localDateTime.minusWeeks(1);
-
-				dateTimeFrom.setYear(localDateTimeMinusWeek.getYear());
-				dateTimeFrom.setDay(localDateTimeMinusWeek.getDayOfMonth());
-				dateTimeFrom.setMonth(localDateTimeMinusWeek.getMonthValue() - 1);
-				dateTimeFrom.setHours(localDateTimeMinusWeek.getHour());
-				dateTimeFrom.setMinutes(localDateTimeMinusWeek.getMinute());
-				dateTimeFrom.setSeconds(localDateTimeMinusWeek.getSecond());
+				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusWeek);
 				break;
 			case Constants.LAST_DETECTED_MONTH:
 				LocalDateTime localDateTimeMinusMonth = localDateTime.minusMonths(1);
-
-				dateTimeFrom.setYear(localDateTimeMinusMonth.getYear());
-				dateTimeFrom.setDay(localDateTimeMinusMonth.getDayOfMonth());
-				dateTimeFrom.setMonth(localDateTimeMinusMonth.getMonthValue() - 1);
-				dateTimeFrom.setHours(localDateTimeMinusMonth.getHour());
-				dateTimeFrom.setMinutes(localDateTimeMinusMonth.getMinute());
-				dateTimeFrom.setSeconds(localDateTimeMinusMonth.getSecond());
+				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusMonth);
 				break;
 			case Constants.LAST_DETECTED_YEAR:
 				LocalDateTime localDateTimeMinusYear = localDateTime.minusYears(1);
-
-				dateTimeFrom.setYear(localDateTimeMinusYear.getYear());
-				dateTimeFrom.setDay(localDateTimeMinusYear.getDayOfMonth());
-				dateTimeFrom.setMonth(localDateTimeMinusYear.getMonthValue() - 1);
-				dateTimeFrom.setHours(localDateTimeMinusYear.getHour());
-				dateTimeFrom.setMinutes(localDateTimeMinusYear.getMinute());
-				dateTimeFrom.setSeconds(localDateTimeMinusYear.getSecond());
+				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusYear);
 				break;
 			case Constants.LAST_DETECTED_CUSTOM:
 				dateTimeFrom.setEnabled(true);
@@ -169,6 +151,24 @@ public class FilterDialog extends Dialog {
 			}
 		}
 	};
+
+	private void setDateTimeFromLocalDateTime(DateTime dateTime, LocalDateTime localDateTime) {
+		dateTime.setYear(localDateTime.getYear());
+		dateTime.setDay(localDateTime.getDayOfMonth());
+		dateTime.setMonth(localDateTime.getMonthValue() - 1);
+		dateTime.setHours(localDateTime.getHour());
+		dateTime.setMinutes(localDateTime.getMinute());
+		dateTime.setSeconds(localDateTime.getSecond());
+	}
+
+	private void setDateTimeFromCalendar(DateTime dateTime, Calendar calendar) {
+		dateTime.setYear(calendar.get(Calendar.YEAR));
+		dateTime.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+		dateTime.setMonth(calendar.get(Calendar.MONTH) - 1);
+		dateTime.setHours(calendar.get(Calendar.HOUR_OF_DAY));
+		dateTime.setMinutes(calendar.get(Calendar.MINUTE));
+		dateTime.setSeconds(calendar.get(Calendar.SECOND));
+	}
 
 	public FilterDialog(Shell parentShell, ContrastSDK contrastSDK, Servers servers, Applications applications) {
 		super(parentShell);
@@ -188,31 +188,39 @@ public class FilterDialog extends Dialog {
 		return orgUuid;
 	}
 
-	private void createApplicationCombo(Composite composite, String orgUuid) {
-		applicationCombo = new ComboViewer(composite, SWT.READ_ONLY);
-		applicationCombo.getControl().setFont(composite.getFont());
-		applicationCombo.setLabelProvider(new ContrastLabelProvider());
-		applicationCombo.setContentProvider(new ArrayContentProvider());
+	private void createApplicationCombo(Composite composite) {
+		applicationCombo = createContrastComboViewer(composite);
 	}
 
-	private void createServerCombo(Composite composite, String orgUuid) {
-		serverCombo = new ComboViewer(composite, SWT.READ_ONLY);
-		serverCombo.getControl().setFont(composite.getFont());
-		serverCombo.setLabelProvider(new ContrastLabelProvider());
-		serverCombo.setContentProvider(new ArrayContentProvider());
+	private void createServerCombo(Composite composite) {
+		serverCombo = createContrastComboViewer(composite);
 	}
 
 	private void createLastDetectedCombo(Composite composite) {
-		lastDetectedCombo = new ComboViewer(composite, SWT.READ_ONLY);
-		lastDetectedCombo.getControl().setFont(composite.getFont());
-		lastDetectedCombo.setLabelProvider(new LabelProvider());
-		lastDetectedCombo.setContentProvider(new ArrayContentProvider());
+		lastDetectedCombo = createComboViewer(composite);
 
 		Set<String> lastDetectedValues = new LinkedHashSet<>();
 		lastDetectedValues.addAll(Arrays.asList(Constants.LAST_DETECTED_CONSTANTS));
 
 		lastDetectedCombo.setInput(lastDetectedValues);
 		lastDetectedCombo.setSelection(new StructuredSelection(Constants.LAST_DETECTED_ALL));
+	}
+
+	private ComboViewer createComboViewer(Composite composite) {
+		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		comboViewer.getControl().setFont(composite.getFont());
+		comboViewer.setLabelProvider(new LabelProvider());
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		return comboViewer;
+	}
+
+	private ComboViewer createContrastComboViewer(Composite composite) {
+
+		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+		comboViewer.getControl().setFont(composite.getFont());
+		comboViewer.setLabelProvider(new ContrastLabelProvider());
+		comboViewer.setContentProvider(new ArrayContentProvider());
+		return comboViewer;
 	}
 
 	public void updateServerCombo(final String orgUuid, final boolean setSavedDefaults, Servers servers) {
@@ -301,29 +309,20 @@ public class FilterDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
-
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-
 		Composite comboComposite = new Composite(container, SWT.NONE);
 		comboComposite.setLayout(new GridLayout(2, false));
 
-		label = new Label(comboComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("Server");
+		label = createLabel(comboComposite, "Server");
 		String orgUuid = getOrgUuid();
 
-		createServerCombo(comboComposite, orgUuid);
+		createServerCombo(comboComposite);
 		updateServerCombo(orgUuid, true, servers);
 
 		serverCombo.addSelectionChangedListener(serverComboBoxListener);
 
-		label = new Label(comboComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("Application");
+		label = createLabel(comboComposite, "Application");
 
-		createApplicationCombo(comboComposite, orgUuid);
+		createApplicationCombo(comboComposite);
 		updateApplicationCombo(orgUuid, true, applications);
 
 		createSeverityLevelSection(container);
@@ -339,104 +338,86 @@ public class FilterDialog extends Dialog {
 
 	private void createSeverityLevelSection(Composite container) {
 
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-
 		Composite severityCompositeContainer = new Composite(container, SWT.NONE);
 		severityCompositeContainer.setLayout(new GridLayout(2, false));
 
-		label = new Label(severityCompositeContainer, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("Severity");
+		label = createLabel(severityCompositeContainer, "Severity");
 
 		Composite severityComposite = new Composite(severityCompositeContainer, SWT.NONE);
 		severityComposite.setLayout(new GridLayout(3, false));
 
-		severityLevelNoteButton = new Button(severityComposite, SWT.CHECK);
-		severityLevelNoteButton.setText("Note");
+		severityLevelNoteButton = createCheckBoxButton(severityComposite, "Note");
 
-		severityLevelMediumButton = new Button(severityComposite, SWT.CHECK);
-		severityLevelMediumButton.setText("Medium");
+		severityLevelMediumButton = createCheckBoxButton(severityComposite, "Medium");
 
-		severityLevelCriticalButton = new Button(severityComposite, SWT.CHECK);
-		severityLevelCriticalButton.setText("Critical");
+		severityLevelCriticalButton = createCheckBoxButton(severityComposite, "Critical");
 
-		severityLevelLowButton = new Button(severityComposite, SWT.CHECK);
-		severityLevelLowButton.setText("Low");
+		severityLevelLowButton = createCheckBoxButton(severityComposite, "Low");
 
-		severityLevelHighButton = new Button(severityComposite, SWT.CHECK);
-		severityLevelHighButton.setText("High");
+		severityLevelHighButton = createCheckBoxButton(severityComposite, "High");
+	}
+
+	private Button createCheckBoxButton(Composite composite, String text) {
+		Button button = new Button(composite, SWT.CHECK);
+		button.setText(text);
+		return button;
 	}
 
 	private void createStatusSection(Composite container) {
 
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-
 		Composite statusCompositeContainer = new Composite(container, SWT.NONE);
 		statusCompositeContainer.setLayout(new GridLayout(2, false));
 
-		label = new Label(statusCompositeContainer, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("Status");
+		label = createLabel(statusCompositeContainer, "Status");
 
 		Composite statusComposite = new Composite(statusCompositeContainer, SWT.NONE);
 		statusComposite.setLayout(new GridLayout(3, false));
 
-		statusAutoRemediatedButton = new Button(statusComposite, SWT.CHECK);
-		statusAutoRemediatedButton.setText("Auto-Remediated");
+		statusAutoRemediatedButton = createCheckBoxButton(statusComposite, "Auto-Remediated");
 
-		statusNotAProblemButton = new Button(statusComposite, SWT.CHECK);
-		statusNotAProblemButton.setText("Not a Problem");
+		statusNotAProblemButton = createCheckBoxButton(statusComposite, "Not a Problem");
 
-		statusFixedButton = new Button(statusComposite, SWT.CHECK);
-		statusFixedButton.setText("Fixed");
+		statusFixedButton = createCheckBoxButton(statusComposite, "Fixed");
 
-		statusConfirmedButton = new Button(statusComposite, SWT.CHECK);
-		statusConfirmedButton.setText("Confirmed");
+		statusConfirmedButton = createCheckBoxButton(statusComposite, "Confirmed");
 
-		statusRemediatedButton = new Button(statusComposite, SWT.CHECK);
-		statusRemediatedButton.setText("Remediated");
+		statusRemediatedButton = createCheckBoxButton(statusComposite, "Remediated");
 
-		statusBeingTrackedButton = new Button(statusComposite, SWT.CHECK);
-		statusBeingTrackedButton.setText("Being Tracked");
+		statusBeingTrackedButton = createCheckBoxButton(statusComposite, "Being Tracked");
 
-		statusSuspiciousButton = new Button(statusComposite, SWT.CHECK);
-		statusSuspiciousButton.setText("Suspicious");
+		statusSuspiciousButton = createCheckBoxButton(statusComposite, "Suspicious");
 
-		statusReportedButton = new Button(statusComposite, SWT.CHECK);
-		statusReportedButton.setText("Reported");
+		statusReportedButton = createCheckBoxButton(statusComposite, "Reported");
 
-		statusUntrackedButton = new Button(statusComposite, SWT.CHECK);
-		statusUntrackedButton.setText("Untracked");
+		statusUntrackedButton = createCheckBoxButton(statusComposite, "Untracked");
+	}
+
+	private Label createLabel(Composite composite, String text) {
+		GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(gd);
+		label.setText(text);
+		return label;
+
 	}
 
 	private void createLastDetectedSection(Composite container) {
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		Composite lastDetectedCompositeContainer = new Composite(container, SWT.NONE);
 		lastDetectedCompositeContainer.setLayout(new GridLayout(3, false));
 
-		label = new Label(lastDetectedCompositeContainer, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("Last Detected");
+		label = createLabel(lastDetectedCompositeContainer, "Last Detected");
 
 		createLastDetectedCombo(lastDetectedCompositeContainer);
 
 		Composite lastDetectedComposite = new Composite(lastDetectedCompositeContainer, SWT.NONE);
 		lastDetectedComposite.setLayout(new GridLayout(2, false));
 
-		label = new Label(lastDetectedComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("From");
+		label = createLabel(lastDetectedComposite, "From");
 
 		dateTimeFrom = new DateTime(lastDetectedComposite, SWT.DROP_DOWN);
 
-		label = new Label(lastDetectedComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		label.setLayoutData(gd);
-		label.setText("To");
+		label = createLabel(lastDetectedComposite, "To");
 
 		dateTimeTo = new DateTime(lastDetectedComposite, SWT.DROP_DOWN);
 
@@ -531,38 +512,20 @@ public class FilterDialog extends Dialog {
 				if (lastDetectedFrom != 0) {
 					Calendar calendarFrom = Calendar.getInstance();
 					calendarFrom.setTimeInMillis(lastDetectedFrom);
-
-					dateTimeFrom.setYear(calendarFrom.get(Calendar.YEAR));
-					dateTimeFrom.setDay(calendarFrom.get(Calendar.DAY_OF_MONTH));
-					dateTimeFrom.setMonth(calendarFrom.get(Calendar.MONTH) - 1);
-					dateTimeFrom.setHours(calendarFrom.get(Calendar.HOUR_OF_DAY));
-					dateTimeFrom.setMinutes(calendarFrom.get(Calendar.MINUTE));
-					dateTimeFrom.setSeconds(calendarFrom.get(Calendar.SECOND));
+					setDateTimeFromCalendar(dateTimeFrom, calendarFrom);
 				}
 				if (lastDetectedTo != 0) {
 
 					Calendar calendarTo = Calendar.getInstance();
 					calendarTo.setTimeInMillis(lastDetectedTo);
-
-					dateTimeTo.setYear(calendarTo.get(Calendar.YEAR));
-					dateTimeTo.setDay(calendarTo.get(Calendar.DAY_OF_MONTH));
-					dateTimeTo.setMonth(calendarTo.get(Calendar.MONTH) - 1);
-					dateTimeTo.setHours(calendarTo.get(Calendar.HOUR_OF_DAY));
-					dateTimeTo.setMinutes(calendarTo.get(Calendar.MINUTE));
-					dateTimeTo.setSeconds(calendarTo.get(Calendar.SECOND));
+					setDateTimeFromCalendar(dateTimeTo, calendarTo);
 				}
 				break;
 			default:
 				if (lastDetectedFrom != 0) {
 					Calendar calendarFrom = Calendar.getInstance();
-					calendarFrom.setTimeInMillis(lastDetectedFrom);					
-					
-					dateTimeFrom.setYear(calendarFrom.get(Calendar.YEAR));
-					dateTimeFrom.setDay(calendarFrom.get(Calendar.DAY_OF_MONTH));
-					dateTimeFrom.setMonth(calendarFrom.get(Calendar.MONTH) - 1);
-					dateTimeFrom.setHours(calendarFrom.get(Calendar.HOUR_OF_DAY));
-					dateTimeFrom.setMinutes(calendarFrom.get(Calendar.MINUTE));
-					dateTimeFrom.setSeconds(calendarFrom.get(Calendar.SECOND));
+					calendarFrom.setTimeInMillis(lastDetectedFrom);
+					setDateTimeFromCalendar(dateTimeFrom, calendarFrom);
 				}
 				break;
 			}
@@ -707,8 +670,4 @@ public class FilterDialog extends Dialog {
 	public TraceFilterForm getTraceFilterForm() {
 		return traceFilterForm;
 	}
-
-	// page.getServerCombo().addSelectionChangedListener(serverComboBoxListener);
-	// page.getApplicationCombo().addSelectionChangedListener(listener);
-
 }
