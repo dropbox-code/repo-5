@@ -447,11 +447,6 @@ public class FilterDialog extends Dialog {
 	}
 
 	@Override
-	protected Point getInitialSize() {
-		return new Point(850, 400);
-	}
-
-	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText("Filter");
