@@ -149,15 +149,6 @@ public class Util {
 		comboViewer.setContentProvider(new ArrayContentProvider());
 		return comboViewer;
 	}
-	
-
-	public static ComboViewer createComboViewerRightAligned(Composite composite) {
-		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY | SWT.END);
-		comboViewer.getControl().setFont(composite.getFont());
-		comboViewer.setLabelProvider(new LabelProvider());
-		comboViewer.setContentProvider(new ArrayContentProvider());
-		return comboViewer;
-	}
 
 	public static Label createLabel(Composite composite, String text) {
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);

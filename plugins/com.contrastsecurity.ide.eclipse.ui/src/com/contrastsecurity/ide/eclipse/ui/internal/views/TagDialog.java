@@ -90,7 +90,7 @@ public class TagDialog extends Dialog {
 		Composite comboComposite = new Composite(container, SWT.NONE);
 		comboComposite.setLayout(new GridLayout(2, false));
 		Util.createLabel(comboComposite, "Apply existing tag");
-		tagsComboViewer = Util.createComboViewerRightAligned(comboComposite);
+		tagsComboViewer = Util.createComboViewer(comboComposite);
 		populateTagsComboViewer(tagsComboViewer, traceTagsResource, orgTagsResource);
 		tagsComboViewer.addSelectionChangedListener(tagsComboViewerListener);
 
@@ -98,8 +98,6 @@ public class TagDialog extends Dialog {
 		createTagComposite.setLayout(new GridLayout(3, false));
 		Util.createLabel(createTagComposite, "Create and apply a new tag");
 		createTagText = new Text(createTagComposite, SWT.BORDER);
-		GridData gd = new GridData(SWT.END, SWT.FILL, true, false);
-		createTagText.setLayoutData(gd);
 
 		Button createTagButton = createButton(createTagComposite, "Create");
 
@@ -241,7 +239,6 @@ public class TagDialog extends Dialog {
 
 			newTagsArray[newTagsArray.length - 1] = tag;
 			tableViewer.setInput(newTagsArray);
-			tableViewer.refresh();
 		}
 	}
 
@@ -256,8 +253,6 @@ public class TagDialog extends Dialog {
 
 		String[] newData = (String[]) ArrayUtils.removeElement(tagsArray, tag);
 		tableViewer.setInput(newData);
-		tableViewer.refresh();
-//		viewer.getControl().getParent().redraw();
 	}
 
 	public List<String> getNewTraceTags() {
