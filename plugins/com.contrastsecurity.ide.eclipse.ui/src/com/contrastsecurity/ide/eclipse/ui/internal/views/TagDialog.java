@@ -40,7 +40,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -111,11 +110,10 @@ public class TagDialog extends Dialog {
 		});
 
 		Composite appliedTagsComposite = new Composite(container, SWT.NONE);
-		appliedTagsComposite.setSize(700, 700);
 		appliedTagsComposite.setLayout(new GridLayout(2, false));
-		
+
 		Util.createLabel(appliedTagsComposite, "Applied tags");
-		tableViewer = createTableViewer(appliedTagsComposite);
+		tableViewer = createTableViewer(container);
 
 		String[] traceTagsArray = traceTagsResource.getTags().toArray(new String[traceTagsResource.getTags().size()]);
 		tableViewer.setInput(traceTagsArray);
@@ -125,8 +123,7 @@ public class TagDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return super.getInitialSize();
-		// new Point(500, 500);
+		return new Point(350, 370);
 	}
 
 	private Button createButton(Composite composite, String text) {
@@ -169,10 +166,10 @@ public class TagDialog extends Dialog {
 
 		TableColumn tagColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
 		tagColumn.setText("Tag");
-		tagColumn.setWidth(300);
+		tagColumn.setWidth(250);
 		TableColumn removeColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
 		removeColumn.setText("Remove");
-		removeColumn.setWidth(80);
+		removeColumn.setWidth(70);
 
 		tableViewer.getTable().addMouseListener(new MouseListener() {
 
