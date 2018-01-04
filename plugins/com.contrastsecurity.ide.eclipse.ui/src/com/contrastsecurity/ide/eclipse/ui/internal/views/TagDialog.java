@@ -40,6 +40,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -110,7 +111,9 @@ public class TagDialog extends Dialog {
 		});
 
 		Composite appliedTagsComposite = new Composite(container, SWT.NONE);
+		appliedTagsComposite.setSize(700, 700);
 		appliedTagsComposite.setLayout(new GridLayout(2, false));
+		
 		Util.createLabel(appliedTagsComposite, "Applied tags");
 		tableViewer = createTableViewer(appliedTagsComposite);
 
@@ -118,6 +121,12 @@ public class TagDialog extends Dialog {
 		tableViewer.setInput(traceTagsArray);
 
 		return container;
+	}
+
+	@Override
+	protected Point getInitialSize() {
+		return super.getInitialSize();
+		// new Point(500, 500);
 	}
 
 	private Button createButton(Composite composite, String text) {
@@ -181,7 +190,6 @@ public class TagDialog extends Dialog {
 			public void mouseDoubleClick(MouseEvent e) {
 			}
 		});
-
 		return tableViewer;
 	}
 
