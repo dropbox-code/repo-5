@@ -449,6 +449,7 @@ public class VulnerabilitiesView extends ViewPart {
 					ContrastUIActivator.log(e1);
 				}
 				detailsPage.setStory(story);
+				detailsPage.setRecommendationResource(recommendationResource);
 				detailsPage.setEventSummaryResource(eventSummary);
 				detailsPage.setHttpRequest(httpRequest);
 				detailsPage.createAdditionalTabs();

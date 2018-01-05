@@ -128,6 +128,8 @@ public interface Constants {
 	static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
 
 	static final String CURRENT_OFFSET = "currentOffset";
+	
+	public static final String LINK_DELIM = "$$LINK_DELIM$$";
 
 	public static final String OPEN_TAG_PARAGRAPH = "{{#paragraph}}";
 	public static final String CLOSE_TAG_PARAGRAPH = "{{/paragraph}}";

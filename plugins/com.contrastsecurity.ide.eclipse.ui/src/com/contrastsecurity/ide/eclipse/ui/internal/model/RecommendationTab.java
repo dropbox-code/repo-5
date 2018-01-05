@@ -17,11 +17,20 @@ package com.contrastsecurity.ide.eclipse.ui.internal.model;
 import java.net.URLDecoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 
 import com.contrastsecurity.ide.eclipse.core.Constants;
+import com.contrastsecurity.ide.eclipse.core.extended.CustomRecommendation;
+import com.contrastsecurity.ide.eclipse.core.extended.CustomRuleReferences;
 import com.contrastsecurity.ide.eclipse.core.extended.RecommendationResource;
+import com.contrastsecurity.ide.eclipse.core.extended.RuleReferences;
 
 public class RecommendationTab extends AbstractTab {
 
@@ -48,7 +57,116 @@ public class RecommendationTab extends AbstractTab {
 				&& recommendationResource.getRuleReferences() != null
 				&& recommendationResource.getCustomRuleReferences() != null) {
 
+			String formattedRecommendationText = recommendationResource.getRecommendation().getFormattedText();
+			String openTag = null;
+			String closeTag = null;
+
+			if (formattedRecommendationText.contains(Constants.OPEN_TAG_C_SHARP_BLOCK)) {
+				openTag = Constants.OPEN_TAG_C_SHARP_BLOCK;
+				closeTag = Constants.CLOSE_TAG_C_SHARP_BLOCK;
+			} else if (formattedRecommendationText.contains(Constants.OPEN_TAG_HTML_BLOCK)) {
+				openTag = Constants.OPEN_TAG_HTML_BLOCK;
+				closeTag = Constants.CLOSE_TAG_HTML_BLOCK;
+			} else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVA_BLOCK)) {
+				openTag = Constants.OPEN_TAG_JAVA_BLOCK;
+				closeTag = Constants.CLOSE_TAG_JAVA_BLOCK;
+			} else if (formattedRecommendationText.contains(Constants.OPEN_TAG_XML_BLOCK)) {
+				openTag = Constants.OPEN_TAG_XML_BLOCK;
+				closeTag = Constants.CLOSE_TAG_XML_BLOCK;
+			} else if (formattedRecommendationText.contains(Constants.OPEN_TAG_JAVASCRIPT_BLOCK)) {
+				openTag = Constants.OPEN_TAG_JAVASCRIPT_BLOCK;
+				closeTag = Constants.CLOSE_TAG_JAVASCRIPT_BLOCK;
+			}
+
+			formattedRecommendationText = formatLinks(formattedRecommendationText);
+
+			String[] codeBlocks = StringUtils.substringsBetween(formattedRecommendationText, openTag, closeTag);
+			String[] textBlocks = StringUtils.substringsBetween(formattedRecommendationText, closeTag, openTag);
+
+			String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
+			String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
+
+			createLabel(control, textBlockFirst);
+
+			for (int i = 0; i < codeBlocks.length; i++) {
+
+				String textToInsert = StringEscapeUtils.unescapeHtml(codeBlocks[i]);
+				createStyledText(control, textToInsert);
+
+				if (i < codeBlocks.length - 1) {
+					createLabel(control, textBlocks[i]);
+				}
+			}
+			createLabel(control, textBlockLast);
+
+			CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
+			String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK
+					: customRecommendation.getText();
+			if (!customRecommendationText.isEmpty()) {
+				customRecommendationText = parseMustache(customRecommendationText);
+
+				createLabel(control, customRecommendationText);
+			}
+
+			createLabel(control, "CWE: " + recommendationResource.getCwe());
+
+			createLabel(control, "OWASP: " + recommendationResource.getOwasp());
+
+			RuleReferences ruleReferences = recommendationResource.getRuleReferences();
+			String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
+			if (!ruleReferencesText.isEmpty()) {
+				ruleReferencesText = parseMustache(ruleReferencesText);
+				createLabel(control, "References: " + ruleReferencesText);
+			}
+			CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
+			if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
+				String customRuleReferencesText = parseMustache(customRuleReferences.getText());
+				createLabel(control, customRuleReferencesText);
+			}
 		}
+	}
+
+	private Label createLabel(Composite composite, String text) {
+		Label label = new Label(composite, SWT.WRAP | SWT.LEFT);
+		GridData gd = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
+		label.setLayoutData(gd);
+		label.setText(text);
+		return label;
+	}
+
+	private StyledText createStyledText(Composite composite, String text) {
+		final StyledText textArea = new StyledText(composite, SWT.WRAP);
+		final int padding = 5;
+		textArea.setLeftMargin(padding);
+		textArea.setRightMargin(padding);
+		textArea.setTopMargin(padding);
+		textArea.setBottomMargin(padding);
+		textArea.setWordWrap(true);
+		textArea.setCaret(null);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		textArea.setLayoutData(gd);
+		textArea.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+		textArea.setText(text);
+		return textArea;
+	}
+
+	private String formatLinks(String text) {
+
+		String formattedText = text;
+		String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK,
+				Constants.CLOSE_TAG_LINK);
+		if (links != null && links.length > 0) {
+			for (String link : links) {
+				int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
+				String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " ("
+						+ link.substring(0, indexOfDelimiter) + ")";
+
+				formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink
+						+ formattedText.substring(formattedText.indexOf(link) + link.length());
+			}
+		}
+
+		return formattedText;
 	}
 
 	private String parseMustache(String text) {
