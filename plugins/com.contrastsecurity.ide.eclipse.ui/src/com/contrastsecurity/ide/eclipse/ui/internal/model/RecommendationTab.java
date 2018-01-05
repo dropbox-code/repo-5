@@ -21,6 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -108,15 +110,34 @@ public class RecommendationTab extends AbstractTab {
 				createLabel(control, customRecommendationText);
 			}
 
-			createLabel(control, "CWE: " + recommendationResource.getCwe());
+			Composite cweComposite = new Composite(control, SWT.NONE);
+			cweComposite.setLayout(new RowLayout());
 
-			createLabel(control, "OWASP: " + recommendationResource.getOwasp());
+			Label cweHeaderLabel = createLabel(cweComposite, "CWE:");
+			cweHeaderLabel.setLayoutData(new RowData(100, 15));
+			Label cweLabel = createLabel(cweComposite, recommendationResource.getCwe());
+			cweLabel.setLayoutData(new RowData());
+
+			Composite owaspComposite = new Composite(control, SWT.NONE);
+			owaspComposite.setLayout(new RowLayout());
+
+			Label owaspHeaderLabel = createLabel(owaspComposite, "OWASP:");
+			owaspHeaderLabel.setLayoutData(new RowData(100, 15));
+			Label owaspLabel = createLabel(owaspComposite, recommendationResource.getOwasp());
+			owaspLabel.setLayoutData(new RowData());
 
 			RuleReferences ruleReferences = recommendationResource.getRuleReferences();
 			String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
 			if (!ruleReferencesText.isEmpty()) {
 				ruleReferencesText = parseMustache(ruleReferencesText);
-				createLabel(control, "References: " + ruleReferencesText);
+
+				Composite referencesComposite = new Composite(control, SWT.NONE);
+				referencesComposite.setLayout(new RowLayout());
+
+				Label referencesHeaderLabel = createLabel(referencesComposite, "References:");
+				referencesHeaderLabel.setLayoutData(new RowData(100, 15));
+				Label referencesLabel = createLabel(referencesComposite, ruleReferencesText);
+				referencesLabel.setLayoutData(new RowData());
 			}
 			CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
 			if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
