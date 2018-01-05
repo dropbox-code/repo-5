@@ -71,6 +71,7 @@ import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
+import com.contrastsecurity.ide.eclipse.core.extended.RecommendationResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
@@ -436,11 +437,14 @@ public class VulnerabilitiesView extends ViewPart {
 				StoryResource story = null;
 				EventSummaryResource eventSummary = null;
 				HttpRequestResource httpRequest = null;
+				RecommendationResource recommendationResource = null;
+
 				try {
 					Key key = new Key(ContrastUIActivator.getOrgUuid(), trace.getUuid());
 					story = getStory(key);
 					eventSummary = getEventSummary(key);
 					httpRequest = getHttpRequest(key);
+					recommendationResource = getRecommendationResource(key);
 				} catch (IOException | UnauthorizedException e1) {
 					ContrastUIActivator.log(e1);
 				}
@@ -457,6 +461,16 @@ public class VulnerabilitiesView extends ViewPart {
 			}
 
 		});
+	}
+
+	private RecommendationResource getRecommendationResource(Key key) throws IOException, UnauthorizedException {
+
+		RecommendationResource recommendationResource = contrastCache.getRecommendationResources().get(key);
+		if (recommendationResource == null) {
+			recommendationResource = sdk.getRecommendation(key.getOrgUuid(), key.getTraceId());
+			contrastCache.getRecommendationResources().put(key, recommendationResource);
+		}
+		return recommendationResource;
 	}
 
 	private StoryResource getStory(Key key) throws IOException, UnauthorizedException {

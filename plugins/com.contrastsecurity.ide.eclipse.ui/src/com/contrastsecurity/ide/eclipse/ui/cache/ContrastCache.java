@@ -16,6 +16,7 @@ package com.contrastsecurity.ide.eclipse.ui.cache;
 
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
+import com.contrastsecurity.ide.eclipse.core.extended.RecommendationResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
@@ -37,6 +38,13 @@ public class ContrastCache {
 			.initialCapacity(MAX_CACHE_SIZE / 2)
 			.maximumWeightedCapacity(MAX_CACHE_SIZE)
 			.build();
+	
+    private ConcurrentLinkedHashMap<Key, RecommendationResource> recommendationResources =
+            new ConcurrentLinkedHashMap.Builder<Key, RecommendationResource>()
+                    .initialCapacity(MAX_CACHE_SIZE / 2)
+                    .maximumWeightedCapacity(MAX_CACHE_SIZE)
+                    .build();
+	
 	public ConcurrentLinkedHashMap<Key, EventSummaryResource> getEventSummaryResources() {
 		return eventSummaryResources;
 	}
@@ -46,9 +54,15 @@ public class ContrastCache {
 	public ConcurrentLinkedHashMap<Key, HttpRequestResource> getHttpRequestResources() {
 		return httpRequestResources;
 	}
+	
+	public ConcurrentLinkedHashMap<Key, RecommendationResource> getRecommendationResources() {
+        return recommendationResources;
+    }
+	
 	public void clear() {
 		eventSummaryResources.clear();
 		storyResources.clear();
 		httpRequestResources.clear();
+		recommendationResources.clear();
 	}
 }
