@@ -242,7 +242,9 @@ public class TagDialog extends Dialog {
 	private void applyTag(String tag) {
 		if (!tag.isEmpty()) {
 
+			tagsComboViewer.removeSelectionChangedListener(tagsComboViewerListener);
 			tagsComboViewer.remove(tag);
+			tagsComboViewer.addSelectionChangedListener(tagsComboViewerListener);
 
 			if (!createTagText.getText().isEmpty()) {
 				createTagText.setText("");
