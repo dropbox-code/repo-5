@@ -43,6 +43,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -93,6 +95,14 @@ public class TagDialog extends Dialog {
 		tagsComboViewer = Util.createComboViewer(comboComposite);
 		populateTagsComboViewer(tagsComboViewer, traceTagsResource, orgTagsResource);
 		tagsComboViewer.addSelectionChangedListener(tagsComboViewerListener);
+		tagsComboViewer.getCombo().addListener(SWT.MouseVerticalWheel, new Listener() {
+
+			@Override
+			public void handleEvent(Event arg0) {
+				arg0.doit = false;
+
+			}
+		});
 
 		Composite createTagComposite = new Composite(container, SWT.NONE);
 		createTagComposite.setLayout(new GridLayout(3, false));
@@ -123,7 +133,7 @@ public class TagDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(350, 370);
+		return new Point(400, 370);
 	}
 
 	private Button createButton(Composite composite, String text) {
