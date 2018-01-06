@@ -14,11 +14,14 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowData;
@@ -26,7 +29,12 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.extended.CustomRecommendation;
@@ -88,7 +96,8 @@ public class RecommendationTab extends AbstractTab {
 			String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
 			String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-			createLabel(control, textBlockFirst);
+			// createLabel(control, textBlockFirst);
+			createLink(control, parseMustache(textBlockFirst));
 
 			for (int i = 0; i < codeBlocks.length; i++) {
 
@@ -96,10 +105,12 @@ public class RecommendationTab extends AbstractTab {
 				createStyledText(control, textToInsert);
 
 				if (i < codeBlocks.length - 1) {
-					createLabel(control, textBlocks[i]);
+					// createLabel(control, textBlocks[i]);
+					createLink(control, parseMustache(textBlocks[i]));
 				}
 			}
-			createLabel(control, textBlockLast);
+			// createLabel(control, textBlockLast);
+			createLink(control, parseMustache(textBlockLast));
 
 			CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
 			String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK
@@ -115,16 +126,16 @@ public class RecommendationTab extends AbstractTab {
 
 			Label cweHeaderLabel = createLabel(cweComposite, "CWE:");
 			cweHeaderLabel.setLayoutData(new RowData(100, 15));
-			Label cweLabel = createLabel(cweComposite, recommendationResource.getCwe());
-			cweLabel.setLayoutData(new RowData());
+			Link cweLink = createLinkFromUrlString(cweComposite, recommendationResource.getCwe());
+			cweLink.setLayoutData(new RowData());
 
 			Composite owaspComposite = new Composite(control, SWT.NONE);
 			owaspComposite.setLayout(new RowLayout());
 
 			Label owaspHeaderLabel = createLabel(owaspComposite, "OWASP:");
 			owaspHeaderLabel.setLayoutData(new RowData(100, 15));
-			Label owaspLabel = createLabel(owaspComposite, recommendationResource.getOwasp());
-			owaspLabel.setLayoutData(new RowData());
+			Link owaspLink = createLinkFromUrlString(owaspComposite, recommendationResource.getOwasp());
+			owaspLink.setLayoutData(new RowData());
 
 			RuleReferences ruleReferences = recommendationResource.getRuleReferences();
 			String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
@@ -136,14 +147,52 @@ public class RecommendationTab extends AbstractTab {
 
 				Label referencesHeaderLabel = createLabel(referencesComposite, "References:");
 				referencesHeaderLabel.setLayoutData(new RowData(100, 15));
-				Label referencesLabel = createLabel(referencesComposite, ruleReferencesText);
-				referencesLabel.setLayoutData(new RowData());
+				Link referencesLink = createLinkFromUrlString(referencesComposite, ruleReferencesText);
+				referencesLink.setLayoutData(new RowData());
 			}
 			CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
 			if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
 				String customRuleReferencesText = parseMustache(customRuleReferences.getText());
 				createLabel(control, customRuleReferencesText);
 			}
+		}
+	}
+
+	private Link createLinkFromUrlString(Composite composite, String text) {
+		Link link = new Link(composite, SWT.NONE);
+		text = "<a>" + text + "</a>";
+		link.setText(text);
+		link.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				try {
+					openLinkInBrowser(event.text);
+				} catch (PartInitException | MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		return link;
+	}
+
+	private Link createLink(Composite composite, String text) {
+		Link link = new Link(composite, SWT.NONE);
+		link.setText(text);
+		link.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				try {
+					openLinkInBrowser(event.text);
+				} catch (PartInitException | MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		return link;
+	}
+
+	public void openLinkInBrowser(String urlString) throws MalformedURLException, PartInitException {
+		if (!urlString.isEmpty()) {
+			URL url = new URL(urlString);
+			PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(url);
 		}
 	}
 
@@ -176,11 +225,13 @@ public class RecommendationTab extends AbstractTab {
 		String formattedText = text;
 		String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK,
 				Constants.CLOSE_TAG_LINK);
+
 		if (links != null && links.length > 0) {
 			for (String link : links) {
+
 				int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
-				String formattedLink = link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + " ("
-						+ link.substring(0, indexOfDelimiter) + ")";
+				String formattedLink = "<a href=\"" + link.substring(0, indexOfDelimiter) + "\">"
+						+ link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
 
 				formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink
 						+ formattedText.substring(formattedText.indexOf(link) + link.length());
@@ -190,12 +241,63 @@ public class RecommendationTab extends AbstractTab {
 		return formattedText;
 	}
 
+	// private void createTextBlockComposite(Composite container, String textBlock)
+	// {
+	//
+	// Composite composite = new Composite(container, SWT.NONE);
+	// composite.setLayout(new RowLayout());
+	//
+	// if (textBlock.contains(Constants.OPEN_TAG_GOOD_PARAM)) {
+	// int indexOfGoodParamOpenTag =
+	// textBlock.indexOf(Constants.OPEN_TAG_GOOD_PARAM);
+	// String textBeforeGoodParamOpenTag = textBlock.substring(0,
+	// indexOfGoodParamOpenTag);
+	// int indexOfGoodParamCloseTag =
+	// textBlock.indexOf(Constants.CLOSE_TAG_GOOD_PARAM);
+	// String textAfterGoodParamCloseTag = textBlock
+	// .substring(indexOfGoodParamCloseTag +
+	// Constants.CLOSE_TAG_GOOD_PARAM.length());
+	// String goodParam = StringUtils.substringBetween(textBlock,
+	// Constants.OPEN_TAG_GOOD_PARAM,
+	// Constants.CLOSE_TAG_GOOD_PARAM);
+	// insertTextIntoTextPane(jTextPane, parseMustache(textBeforeGoodParamOpenTag));
+	// insertColoredTextIntoTextPane(jTextPane, goodParam,
+	// Constants.GOOD_PARAM_COLOR);
+	// insertTextIntoTextPane(jTextPane, parseMustache(textAfterGoodParamCloseTag));
+	//
+	// } else if (textBlock.contains(Constants.OPEN_TAG_BAD_PARAM)) {
+	// int indexOfBadParamOpenTag = textBlock.indexOf(Constants.OPEN_TAG_BAD_PARAM);
+	// String textBeforeBadParamOpenTag = textBlock.substring(0,
+	// indexOfBadParamOpenTag);
+	// int indexOfBadParamCloseTag =
+	// textBlock.indexOf(Constants.CLOSE_TAG_BAD_PARAM);
+	// String textAfterBadParamCloseTag = textBlock
+	// .substring(indexOfBadParamCloseTag + Constants.CLOSE_TAG_BAD_PARAM.length());
+	// String badParam = StringUtils.substringBetween(textBlock,
+	// Constants.OPEN_TAG_BAD_PARAM,
+	// Constants.CLOSE_TAG_BAD_PARAM);
+	// insertTextIntoTextPane(jTextPane, parseMustache(textBeforeBadParamOpenTag));
+	// insertColoredTextIntoTextPane(jTextPane, badParam, Constants.CREATION_COLOR);
+	// insertTextIntoTextPane(jTextPane, parseMustache(textAfterBadParamCloseTag));
+	//
+	// } else {
+	// insertTextIntoTextPane(jTextPane, parseMustache(textBlock));
+	// }
+	// }
+
 	private String parseMustache(String text) {
 		try {
 			text = URLDecoder.decode(text, "UTF-8");
 		} catch (Exception ignored) {
 		}
 		text = StringEscapeUtils.unescapeHtml(text);
+
+		// text = text.replace(Constants.OPEN_TAG_GOOD_PARAM, "<p
+		// style=\"color:green\">");
+		// text = text.replace(Constants.OPEN_TAG_BAD_PARAM, "<p style=\"color:red\">");
+		//
+		// text = text.replace(Constants.CLOSE_TAG_GOOD_PARAM, "</p>");
+		// text = text.replace(Constants.CLOSE_TAG_BAD_PARAM, "</p>");
 
 		for (String mustache : Constants.MUSTACHE_CONSTANTS) {
 			text = text.replace(mustache, Constants.BLANK);
