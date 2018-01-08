@@ -37,6 +37,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -47,10 +48,12 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.TagsResource;
+import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.TagLabelProvider;
 
 public class TagDialog extends Dialog {
@@ -195,6 +198,37 @@ public class TagDialog extends Dialog {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
+			}
+		});
+
+		tableViewer.getTable().addListener(SWT.PaintItem, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				if (event.index == 1) {
+					Image tmpImage = ContrastUIActivator.getImage("/icons/remove.png");
+					int tmpWidth = 0;
+					int tmpHeight = 0;
+					int tmpX = 0;
+					int tmpY = 0;
+
+					tmpWidth = tableViewer.getTable().getColumn(event.index).getWidth();
+					tmpHeight = ((TableItem) event.item).getBounds().height;
+
+					tmpX = tmpImage.getBounds().width;
+					tmpX = (tmpWidth / 2 - tmpX / 2);
+					tmpY = tmpImage.getBounds().height;
+					tmpY = (tmpHeight / 2 - tmpY / 2);
+					if (tmpX <= 0)
+						tmpX = event.x;
+					else
+						tmpX += event.x;
+					if (tmpY <= 0)
+						tmpY = event.y;
+					else
+						tmpY += event.y;
+					event.gc.drawImage(tmpImage, tmpX, tmpY);
+				}
 			}
 		});
 		return tableViewer;

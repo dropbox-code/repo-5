@@ -59,8 +59,8 @@ public class TagLabelProvider extends StyledCellLabelProvider {
 			cell.setText(title);
 			break;
 		case 1:
-			Image image = getImage(index);
-			cell.setImage(image);
+			// Image image = getImage(index);
+			// cell.setImage(image);
 			break;
 		default:
 			break;
