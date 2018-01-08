@@ -179,7 +179,7 @@ public class TagDialog extends Dialog {
 
 		TableColumn tagColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
 		tagColumn.setText("Tag");
-		tagColumn.setWidth(250);
+		tagColumn.setWidth(290);
 		TableColumn removeColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
 		removeColumn.setText("Remove");
 		removeColumn.setWidth(70);
