@@ -72,6 +72,8 @@ public interface Constants {
 	static final Color P20_COLOR = new Color(Display.getDefault(), 247, 182, 0);
 	static final Color TAG_COLOR = new Color(Display.getDefault(), 174, 205, 67);
 
+	static final Color GOOD_PARAM_COLOR = new Color(Display.getDefault(), 0, 128, 0);
+
 	static final Color ICON_COLOR_CREATION = new Color(Display.getDefault(), 247, 182, 0);
 	static final Color ICON_COLOR_PROPAGATION = new Color(Display.getDefault(), 153, 153, 153);
 	static final Color ICON_COLOR_TRIGGER = new Color(Display.getDefault(), 230, 48, 37);
@@ -128,7 +130,7 @@ public interface Constants {
 	static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
 
 	static final String CURRENT_OFFSET = "currentOffset";
-	
+
 	public static final String LINK_DELIM = "$$LINK_DELIM$$";
 
 	public static final String OPEN_TAG_PARAGRAPH = "{{#paragraph}}";
