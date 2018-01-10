@@ -21,9 +21,12 @@ import java.net.URLDecoder;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
@@ -34,6 +37,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -97,15 +101,18 @@ public class RecommendationTab extends AbstractTab {
 
 			insertTextBlock(control, textBlockFirst);
 
-			for (int i = 0; i < codeBlocks.length; i++) {
+			if (codeBlocks != null && codeBlocks.length > 0) {
+				for (int i = 0; i < codeBlocks.length; i++) {
 
-				String textToInsert = StringEscapeUtils.unescapeHtml(codeBlocks[i]);
-				createStyledTextCodeBlock(control, textToInsert);
+					String textToInsert = StringEscapeUtils.unescapeHtml(codeBlocks[i]);
+					createStyledTextCodeBlock(control, textToInsert);
 
-//				if (i < codeBlocks.length - 1) {
-//					insertTextBlock(control, textBlocks[i]);
-//				}
+					if (textBlocks != null && textBlocks.length > 0 && i < codeBlocks.length - 1) {
+						insertTextBlock(control, textBlocks[i]);
+					}
+				}
 			}
+
 			insertTextBlock(control, textBlockLast);
 
 			CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
@@ -152,6 +159,18 @@ public class RecommendationTab extends AbstractTab {
 				createLabel(control, customRuleReferencesText);
 			}
 		}
+
+		ScrolledComposite sc = (ScrolledComposite) control.getParent();
+
+		Rectangle r = sc.getClientArea();
+		Control content = sc.getContent();
+		if (content != null && r != null) {
+			Point minSize = content.computeSize(r.width, SWT.DEFAULT);
+			sc.setMinSize(minSize);
+			ScrollBar vBar = sc.getVerticalBar();
+			vBar.setPageIncrement(r.height);
+		}
+
 	}
 
 	private Link createLinkFromUrlString(Composite composite, String text) {
@@ -239,9 +258,9 @@ public class RecommendationTab extends AbstractTab {
 							+ links[i].substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
 					createLink(composite, formattedLink);
 
-//					if (textBlocks != null && textBlocks.length > 0 && i < links.length - 1) {
-//						createStyledTextBlock(composite, parseMustache(textBlocks[i]));
-//					}
+					if (textBlocks != null && textBlocks.length > 0 && i < links.length - 1) {
+						createStyledTextBlock(composite, parseMustache(textBlocks[i]));
+					}
 				}
 				createStyledTextBlock(composite, parseMustache(textBlockLast));
 			} else {
