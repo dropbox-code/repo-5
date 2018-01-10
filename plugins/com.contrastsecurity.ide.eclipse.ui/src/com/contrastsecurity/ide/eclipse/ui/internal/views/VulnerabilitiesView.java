@@ -73,6 +73,7 @@ import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.core.extended.RecommendationResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
+import com.contrastsecurity.ide.eclipse.core.extended.TagsResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
 import com.contrastsecurity.ide.eclipse.ui.cache.Key;
@@ -167,7 +168,7 @@ public class VulnerabilitiesView extends ViewPart {
 		@Override
 		public void onFilterLoad(Servers retrievedServers, Applications retrievedApplications) {
 			if (retrievedServers != null && retrievedApplications != null) {
-				FilterDialog filterDialog = new FilterDialog(currentPage.getShell(), getSdk(), retrievedServers,
+				FilterDialog filterDialog = new FilterDialog(currentPage.getShell(), retrievedServers,
 						retrievedApplications);
 				filterDialog.create();
 				filterDialog.open();
@@ -438,13 +439,19 @@ public class VulnerabilitiesView extends ViewPart {
 				EventSummaryResource eventSummary = null;
 				HttpRequestResource httpRequest = null;
 				RecommendationResource recommendationResource = null;
+				TagsResource traceTagsResource = null;
+				TagsResource orgTagsResource = null;
 
 				try {
 					Key key = new Key(ContrastUIActivator.getOrgUuid(), trace.getUuid());
+					Key keyForOrg = new Key(ContrastUIActivator.getOrgUuid(), null);
+
 					story = getStory(key);
 					eventSummary = getEventSummary(key);
 					httpRequest = getHttpRequest(key);
 					recommendationResource = getRecommendationResource(key);
+					traceTagsResource = getTags(key);
+					orgTagsResource = getTags(keyForOrg);
 				} catch (IOException | UnauthorizedException e1) {
 					ContrastUIActivator.log(e1);
 				}
@@ -452,6 +459,9 @@ public class VulnerabilitiesView extends ViewPart {
 				detailsPage.setRecommendationResource(recommendationResource);
 				detailsPage.setEventSummaryResource(eventSummary);
 				detailsPage.setHttpRequest(httpRequest);
+				detailsPage.setOrgTagsResource(orgTagsResource);
+				detailsPage.setTraceTagsResource(traceTagsResource);
+
 				detailsPage.createAdditionalTabs();
 				removeListeners(currentPage);
 				book.showPage(detailsPage);
@@ -472,6 +482,20 @@ public class VulnerabilitiesView extends ViewPart {
 			contrastCache.getRecommendationResources().put(key, recommendationResource);
 		}
 		return recommendationResource;
+	}
+
+	private TagsResource getTags(Key key) throws IOException, UnauthorizedException {
+		TagsResource tagsResource = contrastCache.getTagsResources().get(key);
+
+		if (tagsResource == null) {
+			if (key.getTraceId() != null) {
+				tagsResource = sdk.getTagsByTrace(key.getOrgUuid(), key.getTraceId());
+			} else {
+				tagsResource = sdk.getTagsByOrg(key.getOrgUuid());
+			}
+			contrastCache.getTagsResources().put(key, tagsResource);
+		}
+		return tagsResource;
 	}
 
 	private StoryResource getStory(Key key) throws IOException, UnauthorizedException {
