@@ -102,9 +102,9 @@ public class RecommendationTab extends AbstractTab {
 				String textToInsert = StringEscapeUtils.unescapeHtml(codeBlocks[i]);
 				createStyledTextCodeBlock(control, textToInsert);
 
-				if (i < codeBlocks.length - 1) {
-					insertTextBlock(control, textBlocks[i]);
-				}
+//				if (i < codeBlocks.length - 1) {
+//					insertTextBlock(control, textBlocks[i]);
+//				}
 			}
 			insertTextBlock(control, textBlockLast);
 
@@ -226,7 +226,6 @@ public class RecommendationTab extends AbstractTab {
 
 				String[] textBlocks = StringUtils.substringsBetween(text, Constants.CLOSE_TAG_LINK,
 						Constants.OPEN_TAG_LINK);
-				System.out.println(textBlocks);
 
 				String textBlockFirst = StringUtils.substringBefore(text, Constants.OPEN_TAG_LINK);
 				String textBlockLast = StringUtils.substringAfterLast(text, Constants.CLOSE_TAG_LINK);
@@ -240,9 +239,9 @@ public class RecommendationTab extends AbstractTab {
 							+ links[i].substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
 					createLink(composite, formattedLink);
 
-					if (i < links.length - 1) {
-						createStyledTextBlock(composite, parseMustache(textBlocks[i]));
-					}
+//					if (textBlocks != null && textBlocks.length > 0 && i < links.length - 1) {
+//						createStyledTextBlock(composite, parseMustache(textBlocks[i]));
+//					}
 				}
 				createStyledTextBlock(composite, parseMustache(textBlockLast));
 			} else {
@@ -329,15 +328,20 @@ public class RecommendationTab extends AbstractTab {
 	// }
 
 	private String parseMustache(String text) {
-		try {
-			text = URLDecoder.decode(text, "UTF-8");
-		} catch (Exception ignored) {
-		}
-		text = StringEscapeUtils.unescapeHtml(text);
-		for (String mustache : Constants.MUSTACHE_CONSTANTS) {
-			text = text.replace(mustache, Constants.BLANK);
+		if (text != null) {
+			try {
+				text = URLDecoder.decode(text, "UTF-8");
+			} catch (Exception ignored) {
+			}
+			text = StringEscapeUtils.unescapeHtml(text);
+			for (String mustache : Constants.MUSTACHE_CONSTANTS) {
+				text = text.replace(mustache, Constants.BLANK);
+			}
+
+			return text;
+		} else {
+			return null;
 		}
 
-		return text;
 	}
 }
