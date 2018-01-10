@@ -143,15 +143,26 @@ public class RecommendationTab extends AbstractTab {
 			RuleReferences ruleReferences = recommendationResource.getRuleReferences();
 			String ruleReferencesText = ruleReferences.getText() == null ? Constants.BLANK : ruleReferences.getText();
 			if (!ruleReferencesText.isEmpty()) {
-				ruleReferencesText = parseMustache(ruleReferencesText);
 
 				Composite referencesComposite = new Composite(control, SWT.NONE);
 				referencesComposite.setLayout(new RowLayout());
 
 				Label referencesHeaderLabel = createLabel(referencesComposite, "References:");
 				referencesHeaderLabel.setLayoutData(new RowData(100, 15));
-				Link referencesLink = createLinkFromUrlString(referencesComposite, ruleReferencesText);
+
+				String firstLink = StringUtils.substringBefore(ruleReferencesText, Constants.MUSTACHE_NL);
+				Link referencesLink = createLinkFromUrlString(referencesComposite, firstLink);
 				referencesLink.setLayoutData(new RowData());
+
+				String[] links = StringUtils.substringsBetween(ruleReferencesText, Constants.MUSTACHE_NL,
+						Constants.MUSTACHE_NL);
+
+				if (links != null && links.length > 0) {
+					for (String link : links) {
+						Link linkObject = createLinkFromUrlString(referencesComposite, link);
+						linkObject.setLayoutData(new RowData());
+					}
+				}
 			}
 			CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
 			if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
