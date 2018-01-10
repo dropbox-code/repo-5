@@ -95,7 +95,7 @@ public class RecommendationTab extends AbstractTab {
 			String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
 			String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-			// createStyledTextBlock(control, parseMustache(textBlockFirst));
+			insertTextBlock(control, textBlockFirst);
 
 			for (int i = 0; i < codeBlocks.length; i++) {
 
@@ -103,10 +103,10 @@ public class RecommendationTab extends AbstractTab {
 				createStyledTextCodeBlock(control, textToInsert);
 
 				if (i < codeBlocks.length - 1) {
-					// createStyledTextBlock(control, parseMustache(textBlocks[i]));
+					insertTextBlock(control, textBlocks[i]);
 				}
 			}
-			// createStyledTextBlock(control, parseMustache(textBlockLast));
+			insertTextBlock(control, textBlockLast);
 
 			CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
 			String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK
@@ -209,6 +209,7 @@ public class RecommendationTab extends AbstractTab {
 		textArea.setBottomMargin(padding);
 		textArea.setWordWrap(true);
 		textArea.setCaret(null);
+		textArea.setEditable(false);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		textArea.setLayoutData(gd);
 		textArea.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
@@ -217,33 +218,42 @@ public class RecommendationTab extends AbstractTab {
 	}
 
 	private void insertTextBlock(Composite composite, String text) {
-		String[] links = StringUtils.substringsBetween(text, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
 
-		if (links != null && links.length > 0) {
+		if (text != null && !text.isEmpty()) {
+			String[] links = StringUtils.substringsBetween(text, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
 
-			String[] textBlocks = StringUtils.substringsBetween(text, Constants.CLOSE_TAG_LINK,
-					Constants.OPEN_TAG_LINK);
+			if (links != null && links.length > 0) {
 
-			String textBlockFirst = StringUtils.substringBefore(text, Constants.OPEN_TAG_LINK);
-			String textBlockLast = StringUtils.substringAfterLast(text, Constants.CLOSE_TAG_LINK);
+				String[] textBlocks = StringUtils.substringsBetween(text, Constants.CLOSE_TAG_LINK,
+						Constants.OPEN_TAG_LINK);
+				System.out.println(textBlocks);
 
-			createStyledTextBlock(composite, textBlockFirst);
+				String textBlockFirst = StringUtils.substringBefore(text, Constants.OPEN_TAG_LINK);
+				String textBlockLast = StringUtils.substringAfterLast(text, Constants.CLOSE_TAG_LINK);
 
-			for (String link : links) {
+				createStyledTextBlock(composite, parseMustache(textBlockFirst));
 
-				int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
-				String formattedLink = "<a href=\"" + link.substring(0, indexOfDelimiter) + "\">"
-						+ link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
+				for (int i = 0; i < links.length; i++) {
 
-				text = text.substring(0, text.indexOf(link)) + formattedLink
-						+ text.substring(text.indexOf(link) + link.length());
+					int indexOfDelimiter = links[i].indexOf(Constants.LINK_DELIM);
+					String formattedLink = "<a href=\"" + links[i].substring(0, indexOfDelimiter) + "\">"
+							+ links[i].substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
+					createLink(composite, formattedLink);
+
+					if (i < links.length - 1) {
+						createStyledTextBlock(composite, parseMustache(textBlocks[i]));
+					}
+				}
+				createStyledTextBlock(composite, parseMustache(textBlockLast));
+			} else {
+				createStyledTextBlock(composite, parseMustache(text));
 			}
 		}
 	}
 
 	private StyledText createStyledTextBlock(Composite composite, String text) {
 
-		if (!text.isEmpty()) {
+		if (text != null && !text.isEmpty()) {
 			int paramStart = 0;
 			int paramLength = 0;
 			Color color = null;
@@ -278,6 +288,8 @@ public class RecommendationTab extends AbstractTab {
 			styledText.setCaret(null);
 			styledText.setBackground(composite.getBackground());
 			styledText.setEditable(false);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+			styledText.setLayoutData(gd);
 
 			if (paramStart != 0 && paramLength != 0 && color != null) {
 				StyleRange styleRange = new StyleRange();
