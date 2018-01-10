@@ -21,16 +21,9 @@ import java.net.URLDecoder;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.PaintObjectEvent;
-import org.eclipse.swt.custom.PaintObjectListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GlyphMetrics;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
@@ -53,12 +46,6 @@ import com.contrastsecurity.ide.eclipse.core.extended.RuleReferences;
 public class RecommendationTab extends AbstractTab {
 
 	private RecommendationResource recommendationResource;
-
-	private static int[] offsets;
-
-	private static Control[] controls;
-
-	private static int MARGIN = 5;
 
 	public RecommendationTab(Composite parent, int style) {
 		super(parent, style);
@@ -102,16 +89,13 @@ public class RecommendationTab extends AbstractTab {
 				closeTag = Constants.CLOSE_TAG_JAVASCRIPT_BLOCK;
 			}
 
-			// formattedRecommendationText = formatLinks(formattedRecommendationText);
-
 			String[] codeBlocks = StringUtils.substringsBetween(formattedRecommendationText, openTag, closeTag);
 			String[] textBlocks = StringUtils.substringsBetween(formattedRecommendationText, closeTag, openTag);
 
 			String textBlockFirst = StringUtils.substringBefore(formattedRecommendationText, openTag);
 			String textBlockLast = StringUtils.substringAfterLast(formattedRecommendationText, closeTag);
 
-			// createLabel(control, textBlockFirst);
-			createStyledTextBlock(control, parseMustache(textBlockFirst));
+			// createStyledTextBlock(control, parseMustache(textBlockFirst));
 
 			for (int i = 0; i < codeBlocks.length; i++) {
 
@@ -119,12 +103,10 @@ public class RecommendationTab extends AbstractTab {
 				createStyledTextCodeBlock(control, textToInsert);
 
 				if (i < codeBlocks.length - 1) {
-					// createLabel(control, textBlocks[i]);
-					createStyledTextBlock(control, parseMustache(textBlocks[i]));
+					// createStyledTextBlock(control, parseMustache(textBlocks[i]));
 				}
 			}
-			// createLabel(control, textBlockLast);
-			createStyledTextBlock(control, parseMustache(textBlockLast));
+			// createStyledTextBlock(control, parseMustache(textBlockLast));
 
 			CustomRecommendation customRecommendation = recommendationResource.getCustomRecommendation();
 			String customRecommendationText = customRecommendation.getText() == null ? Constants.BLANK
@@ -234,141 +216,105 @@ public class RecommendationTab extends AbstractTab {
 		return textArea;
 	}
 
-	static void addControl(StyledText styledText, Control control, int offset) {
-		StyleRange style = new StyleRange();
-		style.start = offset;
-		style.length = 1;
-		control.pack();
-		Rectangle rect = control.getBounds();
-		int ascent = 2 * rect.height / 3;
-		int descent = rect.height - ascent;
-		style.metrics = new GlyphMetrics(ascent + MARGIN, descent + MARGIN, rect.width + 2 * MARGIN);
-		styledText.setStyleRange(style);
-	}
-
-	private StyledText createStyledTextBlock(Composite composite, String text) {
-
-		int paramStart = 0;
-		int paramLength = 0;
-
-		Color color = null;
-
-		if (text.contains(Constants.OPEN_TAG_GOOD_PARAM)) {
-
-			int indexOfGoodParamOpenTag = text.indexOf(Constants.OPEN_TAG_GOOD_PARAM);
-			int indexOfGoodParamCloseTag = text.indexOf(Constants.CLOSE_TAG_GOOD_PARAM);
-			paramStart = indexOfGoodParamOpenTag;
-			paramLength = indexOfGoodParamCloseTag - (indexOfGoodParamOpenTag + Constants.OPEN_TAG_GOOD_PARAM.length());
-
-			color = Constants.GOOD_PARAM_COLOR;
-			text = text.replace(Constants.OPEN_TAG_GOOD_PARAM, "");
-			text = text.replace(Constants.CLOSE_TAG_GOOD_PARAM, "");
-
-		} else if (text.contains(Constants.OPEN_TAG_BAD_PARAM)) {
-
-			int indexOfBadParamOpenTag = text.indexOf(Constants.OPEN_TAG_BAD_PARAM);
-			int indexOfBadParamCloseTag = text.indexOf(Constants.CLOSE_TAG_BAD_PARAM);
-			paramStart = indexOfBadParamOpenTag;
-			paramLength = indexOfBadParamCloseTag - (indexOfBadParamOpenTag + Constants.OPEN_TAG_BAD_PARAM.length());
-
-			color = Constants.CREATION_COLOR;
-			text = text.replace(Constants.OPEN_TAG_BAD_PARAM, "");
-			text = text.replace(Constants.CLOSE_TAG_BAD_PARAM, "");
-		}
-
-		StyledText styledText = new StyledText(composite, SWT.WRAP);
-
-		styledText.setText(text);
-		StyleRange styleRange = new StyleRange();
-		styleRange.start = paramStart;
-		styleRange.length = paramLength;
-		styleRange.foreground = color;
-		styledText.setStyleRange(styleRange);
-		styledText.setCaret(null);
-		styledText.setBackground(composite.getBackground());
-		styledText.setEditable(false);
-
-		controls = new Control[1];
-		Link link = createLink(styledText, "<a href=\"http://google.com\">Google</a>");
-
-		controls[0] = link;
-
-		offsets = new int[controls.length];
-		int lastOffset = 0;
-		for (int i = 0; i < controls.length; i++) {
-
-			// int offset = text.indexOf("\uFFFC", lastOffset);
-			int offset = 10;
-
-			offsets[i] = offset;
-			addControl(styledText, controls[i], offsets[i]);
-			lastOffset = offset + 1;
-		}
-
-		// use a verify listener to keep the offsets up to date
-		styledText.addVerifyListener(new VerifyListener() {
-			public void verifyText(VerifyEvent e) {
-				int start = e.start;
-				int replaceCharCount = e.end - e.start;
-				int newCharCount = e.text.length();
-				for (int i = 0; i < offsets.length; i++) {
-					int offset = offsets[i];
-					if (start <= offset && offset < start + replaceCharCount) {
-						// this widget is being deleted from the text
-						if (controls[i] != null && !controls[i].isDisposed()) {
-							controls[i].dispose();
-							controls[i] = null;
-						}
-						offset = -1;
-					}
-					if (offset != -1 && offset >= start)
-						offset += newCharCount - replaceCharCount;
-					offsets[i] = offset;
-				}
-			}
-		});
-
-		// reposition widgets on paint event
-		styledText.addPaintObjectListener(new PaintObjectListener() {
-			public void paintObject(PaintObjectEvent event) {
-				StyleRange style = event.style;
-				int start = style.start;
-				for (int i = 0; i < offsets.length; i++) {
-					int offset = offsets[i];
-					if (start == offset) {
-						Point pt = controls[i].getSize();
-						int x = event.x + MARGIN;
-						int y = event.y + event.ascent - 2 * pt.y / 3;
-						controls[i].setLocation(x, y);
-						break;
-					}
-				}
-			}
-		});
-
-		return styledText;
-	}
-
-	private String formatLinks(String text) {
-
-		String formattedText = text;
-		String[] links = StringUtils.substringsBetween(formattedText, Constants.OPEN_TAG_LINK,
-				Constants.CLOSE_TAG_LINK);
+	private void insertTextBlock(Composite composite, String text) {
+		String[] links = StringUtils.substringsBetween(text, Constants.OPEN_TAG_LINK, Constants.CLOSE_TAG_LINK);
 
 		if (links != null && links.length > 0) {
+
+			String[] textBlocks = StringUtils.substringsBetween(text, Constants.CLOSE_TAG_LINK,
+					Constants.OPEN_TAG_LINK);
+
+			String textBlockFirst = StringUtils.substringBefore(text, Constants.OPEN_TAG_LINK);
+			String textBlockLast = StringUtils.substringAfterLast(text, Constants.CLOSE_TAG_LINK);
+
+			createStyledTextBlock(composite, textBlockFirst);
+
 			for (String link : links) {
 
 				int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
 				String formattedLink = "<a href=\"" + link.substring(0, indexOfDelimiter) + "\">"
 						+ link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
 
-				formattedText = formattedText.substring(0, formattedText.indexOf(link)) + formattedLink
-						+ formattedText.substring(formattedText.indexOf(link) + link.length());
+				text = text.substring(0, text.indexOf(link)) + formattedLink
+						+ text.substring(text.indexOf(link) + link.length());
 			}
 		}
-
-		return formattedText;
 	}
+
+	private StyledText createStyledTextBlock(Composite composite, String text) {
+
+		if (!text.isEmpty()) {
+			int paramStart = 0;
+			int paramLength = 0;
+			Color color = null;
+
+			if (text.contains(Constants.OPEN_TAG_GOOD_PARAM)) {
+
+				int indexOfGoodParamOpenTag = text.indexOf(Constants.OPEN_TAG_GOOD_PARAM);
+				int indexOfGoodParamCloseTag = text.indexOf(Constants.CLOSE_TAG_GOOD_PARAM);
+				paramStart = indexOfGoodParamOpenTag;
+				paramLength = indexOfGoodParamCloseTag
+						- (indexOfGoodParamOpenTag + Constants.OPEN_TAG_GOOD_PARAM.length());
+
+				color = Constants.GOOD_PARAM_COLOR;
+				text = text.replace(Constants.OPEN_TAG_GOOD_PARAM, "");
+				text = text.replace(Constants.CLOSE_TAG_GOOD_PARAM, "");
+
+			} else if (text.contains(Constants.OPEN_TAG_BAD_PARAM)) {
+
+				int indexOfBadParamOpenTag = text.indexOf(Constants.OPEN_TAG_BAD_PARAM);
+				int indexOfBadParamCloseTag = text.indexOf(Constants.CLOSE_TAG_BAD_PARAM);
+				paramStart = indexOfBadParamOpenTag;
+				paramLength = indexOfBadParamCloseTag
+						- (indexOfBadParamOpenTag + Constants.OPEN_TAG_BAD_PARAM.length());
+
+				color = Constants.CREATION_COLOR;
+				text = text.replace(Constants.OPEN_TAG_BAD_PARAM, "");
+				text = text.replace(Constants.CLOSE_TAG_BAD_PARAM, "");
+			}
+
+			StyledText styledText = new StyledText(composite, SWT.WRAP);
+			styledText.setText(text);
+			styledText.setCaret(null);
+			styledText.setBackground(composite.getBackground());
+			styledText.setEditable(false);
+
+			if (paramStart != 0 && paramLength != 0 && color != null) {
+				StyleRange styleRange = new StyleRange();
+				styleRange.start = paramStart;
+				styleRange.length = paramLength;
+				styleRange.foreground = color;
+				styledText.setStyleRange(styleRange);
+			}
+
+			return styledText;
+		} else
+			return null;
+	}
+
+	// private String formatLinks(String text) {
+	//
+	// String formattedText = text;
+	// String[] links = StringUtils.substringsBetween(formattedText,
+	// Constants.OPEN_TAG_LINK,
+	// Constants.CLOSE_TAG_LINK);
+	//
+	// if (links != null && links.length > 0) {
+	// for (String link : links) {
+	//
+	// int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
+	// String formattedLink = "<a href=\"" + link.substring(0, indexOfDelimiter) +
+	// "\">"
+	// + link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
+	//
+	// formattedText = formattedText.substring(0, formattedText.indexOf(link)) +
+	// formattedLink
+	// + formattedText.substring(formattedText.indexOf(link) + link.length());
+	// }
+	// }
+	//
+	// return formattedText;
+	// }
 
 	private String parseMustache(String text) {
 		try {
