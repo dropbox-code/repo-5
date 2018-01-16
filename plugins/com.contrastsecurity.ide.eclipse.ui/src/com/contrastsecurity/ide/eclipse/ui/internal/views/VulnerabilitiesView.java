@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.action.Action;
@@ -438,6 +439,7 @@ public class VulnerabilitiesView extends ViewPart {
 				StoryResource story = null;
 				EventSummaryResource eventSummary = null;
 				HttpRequestResource httpRequest = null;
+				String status = null;
 				RecommendationResource recommendationResource = null;
 				TagsResource traceTagsResource = null;
 				TagsResource orgTagsResource = null;
@@ -449,7 +451,9 @@ public class VulnerabilitiesView extends ViewPart {
 					story = getStory(key);
 					eventSummary = getEventSummary(key);
 					httpRequest = getHttpRequest(key);
+					status = getVulnerabilityStatus(key);
 					recommendationResource = getRecommendationResource(key);
+					
 					traceTagsResource = getTags(key);
 					orgTagsResource = getTags(keyForOrg);
 				} catch (IOException | UnauthorizedException e1) {
@@ -459,6 +463,7 @@ public class VulnerabilitiesView extends ViewPart {
 				detailsPage.setRecommendationResource(recommendationResource);
 				detailsPage.setEventSummaryResource(eventSummary);
 				detailsPage.setHttpRequest(httpRequest);
+				detailsPage.setVulnerabilityStatus(StringUtils.isBlank(status) ? trace.getStatus() : status);
 				detailsPage.setOrgTagsResource(orgTagsResource);
 				detailsPage.setTraceTagsResource(traceTagsResource);
 
@@ -523,6 +528,11 @@ public class VulnerabilitiesView extends ViewPart {
 			contrastCache.getHttpRequestResources().put(key, httpRequest);
 		}
 		return httpRequest;
+	}
+	
+	private String getVulnerabilityStatus(Key key) throws IOException, UnauthorizedException {
+		Trace trace = sdk.getTraceByUuid(key.getOrgUuid(), key.getTraceId()).getTrace();
+		return trace.getStatus();
 	}
 
 	public void refreshTraces(final boolean isFullRefresh) {
