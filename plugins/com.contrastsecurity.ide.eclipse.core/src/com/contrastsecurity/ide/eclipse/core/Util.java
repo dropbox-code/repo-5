@@ -168,5 +168,4 @@ public class Util {
 		label.setImage(image);
 		return label;
 	}
-
 }
