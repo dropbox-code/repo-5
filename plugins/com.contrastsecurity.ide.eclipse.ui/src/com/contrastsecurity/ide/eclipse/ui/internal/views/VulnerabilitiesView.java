@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.action.Action;
@@ -71,6 +72,7 @@ import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
+import com.contrastsecurity.ide.eclipse.core.extended.RecommendationResource;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
 import com.contrastsecurity.ide.eclipse.core.extended.TagsResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
@@ -437,6 +439,8 @@ public class VulnerabilitiesView extends ViewPart {
 				StoryResource story = null;
 				EventSummaryResource eventSummary = null;
 				HttpRequestResource httpRequest = null;
+				String status = null;
+				RecommendationResource recommendationResource = null;
 				TagsResource traceTagsResource = null;
 				TagsResource orgTagsResource = null;
 
@@ -447,16 +451,19 @@ public class VulnerabilitiesView extends ViewPart {
 					story = getStory(key);
 					eventSummary = getEventSummary(key);
 					httpRequest = getHttpRequest(key);
-
+					status = getVulnerabilityStatus(key);
+					recommendationResource = getRecommendationResource(key);
+					
 					traceTagsResource = getTags(key);
 					orgTagsResource = getTags(keyForOrg);
-
 				} catch (IOException | UnauthorizedException e1) {
 					ContrastUIActivator.log(e1);
 				}
 				detailsPage.setStory(story);
+				detailsPage.setRecommendationResource(recommendationResource);
 				detailsPage.setEventSummaryResource(eventSummary);
 				detailsPage.setHttpRequest(httpRequest);
+				detailsPage.setVulnerabilityStatus(StringUtils.isBlank(status) ? trace.getStatus() : status);
 				detailsPage.setOrgTagsResource(orgTagsResource);
 				detailsPage.setTraceTagsResource(traceTagsResource);
 
@@ -470,6 +477,16 @@ public class VulnerabilitiesView extends ViewPart {
 			}
 
 		});
+	}
+
+	private RecommendationResource getRecommendationResource(Key key) throws IOException, UnauthorizedException {
+
+		RecommendationResource recommendationResource = contrastCache.getRecommendationResources().get(key);
+		if (recommendationResource == null) {
+			recommendationResource = sdk.getRecommendation(key.getOrgUuid(), key.getTraceId());
+			contrastCache.getRecommendationResources().put(key, recommendationResource);
+		}
+		return recommendationResource;
 	}
 
 	private TagsResource getTags(Key key) throws IOException, UnauthorizedException {
@@ -511,6 +528,11 @@ public class VulnerabilitiesView extends ViewPart {
 			contrastCache.getHttpRequestResources().put(key, httpRequest);
 		}
 		return httpRequest;
+	}
+	
+	private String getVulnerabilityStatus(Key key) throws IOException, UnauthorizedException {
+		Trace trace = sdk.getTraceByUuid(key.getOrgUuid(), key.getTraceId()).getTrace();
+		return trace.getStatus();
 	}
 
 	public void refreshTraces(final boolean isFullRefresh) {
