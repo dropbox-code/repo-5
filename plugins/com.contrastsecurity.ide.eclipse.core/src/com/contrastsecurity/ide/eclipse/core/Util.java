@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -158,5 +159,13 @@ public class Util {
 		label.setText(text);
 		return label;
 
+	}
+
+	public static Label createLabel(Composite composite, Image image) {
+		GridData gd = new GridData(SWT.END, SWT.FILL, true, false);
+		Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(gd);
+		label.setImage(image);
+		return label;
 	}
 }
