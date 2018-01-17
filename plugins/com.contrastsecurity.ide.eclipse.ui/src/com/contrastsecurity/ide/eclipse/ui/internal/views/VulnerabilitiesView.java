@@ -199,6 +199,10 @@ public class VulnerabilitiesView extends ViewPart {
 			} else {
 				currentTraceFilterForm.setSeverities(null);
 			}
+			currentTraceFilterForm.setOffset(0);
+			currentTraceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
+			prefs.putInt(Constants.CURRENT_OFFSET, 0);
+
 			startRefreshJob();
 		}
 	};
