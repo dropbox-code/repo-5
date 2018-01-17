@@ -85,6 +85,7 @@ import com.contrastsecurity.ide.eclipse.ui.internal.model.IFilterListener;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.IPageLoaderListener;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.LoadingPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.MainPage;
+import com.contrastsecurity.ide.eclipse.ui.internal.model.SeverityFilterListener;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityDetailsPage;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityDetailsTab;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.VulnerabilityLabelProvider;
@@ -189,6 +190,16 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 	};
 
+	private SeverityFilterListener severityFilterListener = new SeverityFilterListener() {
+		@Override
+		public void onSeverityFilterLoad(EnumSet<RuleSeverity> severities) {
+			if (!severities.isEmpty()) {
+				currentTraceFilterForm.setSeverities(severities);
+				startRefreshJob();
+			}
+		}
+	};
+
 	/**
 	 * The constructor.
 	 */
@@ -275,6 +286,7 @@ public class VulnerabilitiesView extends ViewPart {
 	private void addListeners(VulnerabilityPage page) {
 		page.setPageLoaderListener(pageLoaderListener);
 		page.setOpenFilterDialogButtonListener(openFilterDialogButtonListener);
+		page.setSeverityFilterListener(severityFilterListener);
 		// page.getOpenFilterDialogButton().addListener(SWT.Selection,
 		// openFilterDialogButtonListener);
 	}
@@ -453,7 +465,7 @@ public class VulnerabilitiesView extends ViewPart {
 					httpRequest = getHttpRequest(key);
 					status = getVulnerabilityStatus(key);
 					recommendationResource = getRecommendationResource(key);
-					
+
 					traceTagsResource = getTags(key);
 					orgTagsResource = getTags(keyForOrg);
 				} catch (IOException | UnauthorizedException e1) {
@@ -529,7 +541,7 @@ public class VulnerabilitiesView extends ViewPart {
 		}
 		return httpRequest;
 	}
-	
+
 	private String getVulnerabilityStatus(Key key) throws IOException, UnauthorizedException {
 		Trace trace = sdk.getTraceByUuid(key.getOrgUuid(), key.getTraceId()).getTrace();
 		return trace.getStatus();
