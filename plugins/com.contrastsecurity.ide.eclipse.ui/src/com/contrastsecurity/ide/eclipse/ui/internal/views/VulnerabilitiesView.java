@@ -179,6 +179,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 				if (dialogTraceFilterForm != null) {
 					dialogTraceFilterForm.setSort(currentTraceFilterForm.getSort());
+					dialogTraceFilterForm.setSeverities(currentTraceFilterForm.getSeverities());
 					currentTraceFilterForm = dialogTraceFilterForm;
 					currentTraceFilterForm.setOffset(0);
 					currentTraceFilterForm.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
@@ -195,8 +196,10 @@ public class VulnerabilitiesView extends ViewPart {
 		public void onSeverityFilterLoad(EnumSet<RuleSeverity> severities) {
 			if (!severities.isEmpty()) {
 				currentTraceFilterForm.setSeverities(severities);
-				startRefreshJob();
+			} else {
+				currentTraceFilterForm.setSeverities(null);
 			}
+			startRefreshJob();
 		}
 	};
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,7 +41,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Shell;
 
-import com.contrastsecurity.http.RuleSeverity;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
@@ -72,11 +70,11 @@ public class FilterDialog extends Dialog {
 	private Servers servers;
 	private Applications applications;
 
-	private Button severityLevelNoteButton;
-	private Button severityLevelMediumButton;
-	private Button severityLevelCriticalButton;
-	private Button severityLevelLowButton;
-	private Button severityLevelHighButton;
+	// private Button severityLevelNoteButton;
+	// private Button severityLevelMediumButton;
+	// private Button severityLevelCriticalButton;
+	// private Button severityLevelLowButton;
+	// private Button severityLevelHighButton;
 
 	private Button statusAutoRemediatedButton;
 	private Button statusNotAProblemButton;
@@ -301,7 +299,7 @@ public class FilterDialog extends Dialog {
 		applicationCombo = createContrastComboViewer(comboComposite);
 		updateApplicationCombo(orgUuid, true, applications);
 
-		createSeverityLevelSection(container);
+		// createSeverityLevelSection(container);
 
 		createLastDetectedSection(container);
 
@@ -312,26 +310,29 @@ public class FilterDialog extends Dialog {
 		return container;
 	}
 
-	private void createSeverityLevelSection(Composite container) {
-
-		Composite severityCompositeContainer = new Composite(container, SWT.NONE);
-		severityCompositeContainer.setLayout(new GridLayout(2, false));
-
-		UIElementUtils.createLabel(severityCompositeContainer, "Severity");
-
-		Composite severityComposite = new Composite(severityCompositeContainer, SWT.NONE);
-		severityComposite.setLayout(new GridLayout(3, false));
-
-		severityLevelNoteButton = createCheckBoxButton(severityComposite, "Note");
-
-		severityLevelMediumButton = createCheckBoxButton(severityComposite, "Medium");
-
-		severityLevelCriticalButton = createCheckBoxButton(severityComposite, "Critical");
-
-		severityLevelLowButton = createCheckBoxButton(severityComposite, "Low");
-
-		severityLevelHighButton = createCheckBoxButton(severityComposite, "High");
-	}
+	// private void createSeverityLevelSection(Composite container) {
+	//
+	// Composite severityCompositeContainer = new Composite(container, SWT.NONE);
+	// severityCompositeContainer.setLayout(new GridLayout(2, false));
+	//
+	// UIElementUtils.createLabel(severityCompositeContainer, "Severity");
+	//
+	// Composite severityComposite = new Composite(severityCompositeContainer,
+	// SWT.NONE);
+	// severityComposite.setLayout(new GridLayout(3, false));
+	//
+	// severityLevelNoteButton = createCheckBoxButton(severityComposite, "Note");
+	//
+	// severityLevelMediumButton = createCheckBoxButton(severityComposite,
+	// "Medium");
+	//
+	// severityLevelCriticalButton = createCheckBoxButton(severityComposite,
+	// "Critical");
+	//
+	// severityLevelLowButton = createCheckBoxButton(severityComposite, "Low");
+	//
+	// severityLevelHighButton = createCheckBoxButton(severityComposite, "High");
+	// }
 
 	private Button createCheckBoxButton(Composite composite, String text) {
 		Button button = new Button(composite, SWT.CHECK);
@@ -405,11 +406,16 @@ public class FilterDialog extends Dialog {
 		String appId = getSelectedAppId();
 		prefs.put(Constants.APPLICATION_ID, appId);
 
-		prefs.putBoolean(Constants.SEVERITY_LEVEL_NOTE, severityLevelNoteButton.getSelection());
-		prefs.putBoolean(Constants.SEVERITY_LEVEL_MEDIUM, severityLevelMediumButton.getSelection());
-		prefs.putBoolean(Constants.SEVERITY_LEVEL_CRITICAL, severityLevelCriticalButton.getSelection());
-		prefs.putBoolean(Constants.SEVERITY_LEVEL_LOW, severityLevelLowButton.getSelection());
-		prefs.putBoolean(Constants.SEVERITY_LEVEL_HIGH, severityLevelHighButton.getSelection());
+		// prefs.putBoolean(Constants.SEVERITY_LEVEL_NOTE,
+		// severityLevelNoteButton.getSelection());
+		// prefs.putBoolean(Constants.SEVERITY_LEVEL_MEDIUM,
+		// severityLevelMediumButton.getSelection());
+		// prefs.putBoolean(Constants.SEVERITY_LEVEL_CRITICAL,
+		// severityLevelCriticalButton.getSelection());
+		// prefs.putBoolean(Constants.SEVERITY_LEVEL_LOW,
+		// severityLevelLowButton.getSelection());
+		// prefs.putBoolean(Constants.SEVERITY_LEVEL_HIGH,
+		// severityLevelHighButton.getSelection());
 
 		prefs.putBoolean(Constants.STATUS_AUTO_REMEDIATED, statusAutoRemediatedButton.getSelection());
 		prefs.putBoolean(Constants.STATUS_NOT_A_PROBLEM, statusNotAProblemButton.getSelection());
@@ -447,11 +453,16 @@ public class FilterDialog extends Dialog {
 
 	private void populateFiltersWithDataFromEclipsePreferences() {
 
-		severityLevelNoteButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_NOTE, false));
-		severityLevelMediumButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_MEDIUM, false));
-		severityLevelCriticalButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_CRITICAL, false));
-		severityLevelLowButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_LOW, false));
-		severityLevelHighButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_HIGH, false));
+		// severityLevelNoteButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_NOTE,
+		// false));
+		// severityLevelMediumButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_MEDIUM,
+		// false));
+		// severityLevelCriticalButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_CRITICAL,
+		// false));
+		// severityLevelLowButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_LOW,
+		// false));
+		// severityLevelHighButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_HIGH,
+		// false));
 
 		statusAutoRemediatedButton.setSelection(prefs.getBoolean(Constants.STATUS_AUTO_REMEDIATED, false));
 		statusNotAProblemButton.setSelection(prefs.getBoolean(Constants.STATUS_NOT_A_PROBLEM, false));
@@ -500,7 +511,7 @@ public class FilterDialog extends Dialog {
 
 	private TraceFilterForm extractFiltersIntoTraceFilterForm() {
 
-		EnumSet<RuleSeverity> severities = getSelectedSeverities();
+		// EnumSet<RuleSeverity> severities = getSelectedSeverities();
 		List<String> statuses = getSelectedStatuses();
 
 		Long serverId = getSelectedServerId();
@@ -516,7 +527,7 @@ public class FilterDialog extends Dialog {
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
 			form = Util.getTraceFilterForm(serverId, currentOffset, PAGE_LIMIT);
 		}
-		form.setSeverities(severities);
+		// form.setSeverities(severities);
 		form.setStatus(statuses);
 
 		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
@@ -545,26 +556,26 @@ public class FilterDialog extends Dialog {
 		return form;
 	}
 
-	private EnumSet<RuleSeverity> getSelectedSeverities() {
-
-		EnumSet<RuleSeverity> severities = EnumSet.noneOf(RuleSeverity.class);
-		if (severityLevelNoteButton.getSelection()) {
-			severities.add(RuleSeverity.NOTE);
-		}
-		if (severityLevelLowButton.getSelection()) {
-			severities.add(RuleSeverity.LOW);
-		}
-		if (severityLevelMediumButton.getSelection()) {
-			severities.add(RuleSeverity.MEDIUM);
-		}
-		if (severityLevelHighButton.getSelection()) {
-			severities.add(RuleSeverity.HIGH);
-		}
-		if (severityLevelCriticalButton.getSelection()) {
-			severities.add(RuleSeverity.CRITICAL);
-		}
-		return severities;
-	}
+	// private EnumSet<RuleSeverity> getSelectedSeverities() {
+	//
+	// EnumSet<RuleSeverity> severities = EnumSet.noneOf(RuleSeverity.class);
+	// if (severityLevelNoteButton.getSelection()) {
+	// severities.add(RuleSeverity.NOTE);
+	// }
+	// if (severityLevelLowButton.getSelection()) {
+	// severities.add(RuleSeverity.LOW);
+	// }
+	// if (severityLevelMediumButton.getSelection()) {
+	// severities.add(RuleSeverity.MEDIUM);
+	// }
+	// if (severityLevelHighButton.getSelection()) {
+	// severities.add(RuleSeverity.HIGH);
+	// }
+	// if (severityLevelCriticalButton.getSelection()) {
+	// severities.add(RuleSeverity.CRITICAL);
+	// }
+	// return severities;
+	// }
 
 	private List<String> getSelectedStatuses() {
 		List<String> statuses = new ArrayList<>();
