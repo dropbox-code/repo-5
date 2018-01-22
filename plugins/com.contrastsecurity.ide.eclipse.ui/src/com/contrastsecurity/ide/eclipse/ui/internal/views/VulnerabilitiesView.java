@@ -128,7 +128,7 @@ public class VulnerabilitiesView extends ViewPart {
 	 */
 	private final static int SHOW_VULNERABILITY_IN_BROWSER_ACTION = 2;
 
-	private TableViewer viewer;
+	private TableViewer table;
 	private Action refreshAction;
 	private Action openPreferencesPage;
 	private Action doubleClickAction;
@@ -222,7 +222,7 @@ public class VulnerabilitiesView extends ViewPart {
 		createList(parent);
 		// refreshTraces();
 		// viewer.setLabelProvider(new TraceLabelProvider());
-		getSite().setSelectionProvider(viewer);
+		getSite().setSelectionProvider(table);
 		makeActions();
 		hookContextMenu();
 		hookDoubleClickAction();
@@ -304,11 +304,11 @@ public class VulnerabilitiesView extends ViewPart {
 	}
 
 	private void createViewer(Composite composite) {
-		viewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
+		table = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		viewer.getTable().setLayoutData(gd);
-		viewer.setLabelProvider(new VulnerabilityLabelProvider());
-		TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
+		table.getTable().setLayoutData(gd);
+		table.setLabelProvider(new VulnerabilityLabelProvider());
+		TableColumn column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(80);
 		column.setText("Severity");
 
@@ -332,7 +332,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 		});
 
-		column = new TableColumn(viewer.getTable(), SWT.NONE);
+		column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(600);
 		column.setText("Vulnerability");
 
@@ -356,11 +356,11 @@ public class VulnerabilitiesView extends ViewPart {
 
 		});
 
-		column = new TableColumn(viewer.getTable(), SWT.NONE);
+		column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(400);
-		column.setText("Actions");
+		column.setText("Application");
 
-		viewer.getTable().addMouseListener(new MouseListener() {
+		table.getTable().addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseUp(MouseEvent e) {
@@ -378,15 +378,15 @@ public class VulnerabilitiesView extends ViewPart {
 			}
 		});
 
-		column = new TableColumn(viewer.getTable(), SWT.NONE);
+		column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(100);
 		column.setText("");
 
-		viewer.getTable().setLinesVisible(true);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		table.getTable().setLinesVisible(true);
+		table.getTable().setHeaderVisible(true);
+		table.setContentProvider(ArrayContentProvider.getInstance());
 		TableLayout layout = new TableLayout();
-		viewer.getTable().setLayout(layout);
+		table.getTable().setLayout(layout);
 	}
 
 	/**
@@ -404,16 +404,14 @@ public class VulnerabilitiesView extends ViewPart {
 		if (getOrgUuid() == null)
 			return;
 
-		ISelection sel = viewer.getSelection();
+		ISelection sel = table.getSelection();
 
 		if (sel instanceof IStructuredSelection && ((IStructuredSelection) sel).getFirstElement() instanceof Trace) {
 			final Trace trace = (Trace) ((IStructuredSelection) sel).getFirstElement();
 
 			int action = getActionFromClick(isDoubleClick, new Point(xCoord, yCoord));
 
-			if (VIEW_VULNERABILITY_OVERVIEW_ACTION == action && !trace.getTitle().contains(Constants.UNLICENSED))
-				showVulnerabiltyDetails(trace, VulnerabilityDetailsTab.OVERVIEW);
-			else if (VIEW_VULNERABILITY_EVENTS_ACTION == action && !trace.getTitle().contains(Constants.UNLICENSED))
+			if (VIEW_VULNERABILITY_EVENTS_ACTION == action && !trace.getTitle().contains(Constants.UNLICENSED))
 				showVulnerabiltyDetails(trace, VulnerabilityDetailsTab.EVENTS);
 			else if (SHOW_VULNERABILITY_IN_BROWSER_ACTION == action) {
 				try {
@@ -437,7 +435,7 @@ public class VulnerabilitiesView extends ViewPart {
 	 *         mouse event.
 	 */
 	private int getActionFromClick(boolean isDoubleClick, Point point) {
-		ViewerCell cell = viewer.getCell(point);
+		ViewerCell cell = table.getCell(point);
 
 		if (cell != null) {
 			int columnIndex = cell.getColumnIndex();
@@ -563,7 +561,7 @@ public class VulnerabilitiesView extends ViewPart {
 			@Override
 			public void run() {
 				statusLabel.setText("");
-				if (viewer != null && !viewer.getTable().isDisposed()) {
+				if (table != null && !table.getTable().isDisposed()) {
 					startRefreshTraces();
 				} else {
 					refreshJob.cancel();
@@ -580,7 +578,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 				@Override
 				public void run() {
-					if (viewer != null && !viewer.getTable().isDisposed()) {
+					if (table != null && !table.getTable().isDisposed()) {
 						noOrgUuid(e);
 					} else {
 						refreshJob.cancel();
@@ -602,7 +600,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 					@Override
 					public void run() {
-						if (viewer != null && !viewer.getTable().isDisposed()) {
+						if (table != null && !table.getTable().isDisposed()) {
 							// Refresh filters
 							if (isFullRefresh) {
 								currentPage.getServers(orgUuid, true);
@@ -621,7 +619,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 					@Override
 					public void run() {
-						if (viewer != null && !viewer.getTable().isDisposed()) {
+						if (table != null && !table.getTable().isDisposed()) {
 							statusLabel.setText("Server error: " + e.getMessage());
 						} else {
 							refreshJob.cancel();
@@ -677,7 +675,7 @@ public class VulnerabilitiesView extends ViewPart {
 	private void refreshUI(Traces traces, final boolean isFullRefresh) {
 		if (traces != null && traces.getTraces() != null) {
 			Trace[] traceArray = traces.getTraces().toArray(new Trace[0]);
-			viewer.setInput(traceArray);
+			table.setInput(traceArray);
 		}
 		if (traces != null && traces.getTraces() != null && traces.getTraces().size() > 0) {
 			if (activePage != mainPage) {
@@ -704,13 +702,13 @@ public class VulnerabilitiesView extends ViewPart {
 		if (isFullRefresh)
 			currentPage.initializePageCombo(PAGE_LIMIT, total);
 
-		viewer.getControl().getParent().layout(true, true);
-		viewer.getControl().getParent().redraw();
+		table.getControl().getParent().layout(true, true);
+		table.getControl().getParent().redraw();
 	}
 
 	private void noOrgUuid(Exception e) {
 		statusLabel.setText("Server error: " + e.getMessage());
-		viewer.refresh();
+		table.refresh();
 		if (currentPage == noVulnerabilitiesPage || currentPage == mainPage) {
 			addListeners(currentPage);
 		}
@@ -718,7 +716,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 	private void startRefreshTraces() {
 		showLoadingPage();
-		viewer.setInput(new Trace[0]);
+		table.setInput(new Trace[0]);
 		currentPage.getLabel().setText("0 Vulnerabilities");
 		refreshAction.setEnabled(false);
 		removeListeners(mainPage);
@@ -774,9 +772,9 @@ public class VulnerabilitiesView extends ViewPart {
 				VulnerabilitiesView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, viewer);
+		Menu menu = menuMgr.createContextMenu(table.getControl());
+		table.getControl().setMenu(menu);
+		getSite().registerContextMenu(menuMgr, table);
 	}
 
 	private void contributeToActionBars() {
@@ -828,7 +826,7 @@ public class VulnerabilitiesView extends ViewPart {
 				ContrastUIActivator.imageDescriptorFromPlugin(ContrastUIActivator.PLUGIN_ID, "/icons/refresh_tab.gif"));
 		doubleClickAction = new Action() {
 			public void run() {
-				ISelection selection = viewer.getSelection();
+				ISelection selection = table.getSelection();
 				Object obj = ((IStructuredSelection) selection).getFirstElement();
 				dblClickAction(obj);
 			}
@@ -839,7 +837,7 @@ public class VulnerabilitiesView extends ViewPart {
 	}
 
 	private void hookDoubleClickAction() {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
+		table.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				doubleClickAction.run();
 			}
@@ -848,8 +846,8 @@ public class VulnerabilitiesView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		if (viewer != null || !viewer.getControl().isDisposed()) {
-			viewer.getControl().setFocus();
+		if (table != null || !table.getControl().isDisposed()) {
+			table.getControl().setFocus();
 		}
 	}
 
