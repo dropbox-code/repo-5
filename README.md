@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Contrast-Security-OSS/ide-plugin-eclipse2.svg?branch=master)](https://travis-ci.org/Contrast-Security-OSS/ide-plugin-eclipse2)
+
 # IDE plugin connecting to REST API
 
 ### Getting Started
