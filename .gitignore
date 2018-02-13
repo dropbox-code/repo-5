@@ -6,3 +6,6 @@ target/
 hs_err_pid*
 *.project
 .metadata
+
+.DS_Store
+*cer
