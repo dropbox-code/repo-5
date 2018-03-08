@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
  * Copyright (c) 2017 Contrast Security.
  * All rights reserved. 
  * 
@@ -12,10 +11,7 @@
  * 
  * Contributors:
  *     Contrast Security - initial API and implementation
--->
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.contrastsecurity.ide.eclipse</groupId>
@@ -35,6 +31,12 @@
 		<module>features</module>
 		<module>updatesite</module>
 	</modules>
+
+	<scm>
+		<connection>scm:git:https://github.com/Contrast-Security-OSS/ide-plugin-eclipse2.git</connection>
+		<developerConnection>scm:git:https://github.com/Contrast-Security-OSS/ide-plugin-eclipse2.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
 
 	<build>
 		<plugins>
@@ -72,7 +74,7 @@
 						<artifact>
 							<groupId>com.contrastsecurity.ide.eclipse.target</groupId>
 							<artifactId>mars</artifactId>
-							<version>1.1.0-SNAPSHOT</version>
+							<version>${project.version}</version>
 						</artifact>
 					</target>
 					<environments>
@@ -159,6 +161,18 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+		          <groupId>com.itemis.maven.plugins</groupId>
+		          <artifactId>unleash-maven-plugin</artifactId>
+		          <version>2.7.4</version>
+		          <dependencies>
+		            <dependency>
+		              <groupId>com.itemis.maven.plugins</groupId>
+		              <artifactId>unleash-scm-provider-git</artifactId>
+		              <version>2.1.0</version>
+		            </dependency>
+		          </dependencies>
+		        </plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-packaging-plugin</artifactId>
