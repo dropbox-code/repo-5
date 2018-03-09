@@ -62,5 +62,10 @@ To disable this behavior add this line at the end of your maven build command:
 
     mvn ... -Djarsigner.skip=true
 
+### Releasing a new version
+* [unleash-maven-plugin](https://github.com/shillner/unleash-maven-plugin) is used for releases.
+* To start a new release, run the following command. It requires github username and the name of system environment variable containing the github password. It uses the standard plugin release workflow for [unleash:perform-tycho](https://github.com/shillner/unleash-maven-plugin/wiki/unleash:perform-tycho) goal, but it does not deploy artifacts.
+    mvn clean unleash:perform-tycho -Dworkflow=customWorkflow -Dunleash.releaseArgs="jarsigner.skip=true" -Dunleash.scmUsername="USERNAME" -Dunleash.scmPasswordEnvVar="GITHUB_PASS_ENV_VAR"
+
 ### License
 GPL version 3 
