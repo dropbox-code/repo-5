@@ -133,7 +133,7 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		apiKeyLabel.setText(API_KEY_LABEL_TEXT);
 		
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
-		apiKeyText = UIElementUtils.createBasicText(container, gd, SWT.BORDER);
+		apiKeyText = UIElementUtils.createBasicText(container, gd, SWT.PASSWORD | SWT.BORDER);
 		apiKeyText.setToolTipText("You can find your organization API key in the Organization Settings, in the API section.");
 	}
 	
