@@ -159,7 +159,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 		UIElementUtils.createLabel(defaultOrganizationGroup, "API Key:");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		apiKeyText = UIElementUtils.createBasicText(defaultOrganizationGroup, gd, SWT.BORDER);
+		apiKeyText = UIElementUtils.createBasicText(defaultOrganizationGroup, gd, SWT.PASSWORD | SWT.BORDER);
 		apiKeyText.setEditable(false);
 		
 		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
