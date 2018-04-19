@@ -16,7 +16,7 @@
 - start Eclipse (current target version is Mars, but I have tested with Neon)
 - select Help>Install New Software>Add
 - click Archive...
-- select updatesite/target/contrastide.updatesite-1.0.0-SNAPSHOT.zip
+- select updatesite/target/contrastide.updatesite-(version)-SNAPSHOT.zip
 - select Contrast IDE
 - restart Eclipse
 
