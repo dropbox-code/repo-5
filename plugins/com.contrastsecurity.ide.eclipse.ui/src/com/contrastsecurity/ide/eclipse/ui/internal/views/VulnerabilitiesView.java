@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -170,7 +171,7 @@ public class VulnerabilitiesView extends ViewPart {
 		@Override
 		public void onFilterLoad(Servers retrievedServers, Applications retrievedApplications) {
 			if (retrievedServers != null && retrievedApplications != null) {
-				FilterDialog filterDialog = new FilterDialog(currentPage.getShell(), retrievedServers,
+				final FilterDialog filterDialog = new FilterDialog(currentPage.getShell(), retrievedServers,
 						retrievedApplications);
 				filterDialog.create();
 				filterDialog.open();
@@ -943,6 +944,13 @@ public class VulnerabilitiesView extends ViewPart {
 		form.setSort(prefs.get(Constants.TRACE_SORT, Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY));
 		currentOffset = prefs.getInt(Constants.CURRENT_OFFSET, 0);
 		form.setExpand(EnumSet.of(TraceFilterForm.TraceExpandValue.APPLICATION));
+
+		String appVersionTag = prefs.get(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, "");
+		if (!appVersionTag.isEmpty()) {
+			form.setAppVersionTags(Collections.singletonList(appVersionTag));
+		} else {
+			form.setAppVersionTags(null);
+		}
 
 		return form;
 	}

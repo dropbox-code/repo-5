@@ -14,10 +14,12 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
@@ -34,6 +36,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -41,10 +45,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Shell;
 
+import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
+import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
+import com.contrastsecurity.ide.eclipse.core.extended.Filter;
+import com.contrastsecurity.ide.eclipse.core.extended.FilterResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ApplicationUIAdapter;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.ContrastLabelProvider;
@@ -57,24 +65,21 @@ import com.contrastsecurity.models.Servers;
 
 public class FilterDialog extends Dialog {
 
-	private int currentOffset = 0;
+	private final int currentOffset = 0;
 	private static final int PAGE_LIMIT = 20;
 	private TraceFilterForm traceFilterForm;
 
 	private ComboViewer serverCombo;
 	private ComboViewer applicationCombo;
+	private ComboViewer appVersionTagsComboViewer;
+	private Button refreshAppVersionTagsButton;
+	private Button clearAppVersionTagsButton;
 	private ComboViewer lastDetectedCombo;
 	private DateTime dateTimeFrom;
 	private DateTime dateTimeTo;
 
 	private Servers servers;
 	private Applications applications;
-
-	// private Button severityLevelNoteButton;
-	// private Button severityLevelMediumButton;
-	// private Button severityLevelCriticalButton;
-	// private Button severityLevelLowButton;
-	// private Button severityLevelHighButton;
 
 	private Button statusAutoRemediatedButton;
 	private Button statusNotAProblemButton;
@@ -86,9 +91,11 @@ public class FilterDialog extends Dialog {
 	private Button statusReportedButton;
 	private Button statusUntrackedButton;
 
-	private IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
+	private final ExtendedContrastSDK extendedContrastSDK = ContrastCoreActivator.getContrastSDK();
 
-	private ISelectionChangedListener serverComboBoxListener = new ISelectionChangedListener() {
+	private final IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
+
+	private final ISelectionChangedListener serverComboBoxListener = new ISelectionChangedListener() {
 
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
@@ -98,7 +105,15 @@ public class FilterDialog extends Dialog {
 		}
 	};
 
-	private ISelectionChangedListener listener = new ISelectionChangedListener() {
+	private final ISelectionChangedListener applicationComboListener = new ISelectionChangedListener() {
+
+		@Override
+		public void selectionChanged(SelectionChangedEvent event) {
+			updateAppVersionTagsComboBox(null);
+		}
+	};
+
+	private final ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 
@@ -299,7 +314,9 @@ public class FilterDialog extends Dialog {
 		applicationCombo = createContrastComboViewer(comboComposite);
 		updateApplicationCombo(orgUuid, true, applications);
 
-		// createSeverityLevelSection(container);
+		applicationCombo.addSelectionChangedListener(applicationComboListener);
+
+		createAppVersionTagsSection(container);
 
 		createLastDetectedSection(container);
 
@@ -309,30 +326,6 @@ public class FilterDialog extends Dialog {
 
 		return container;
 	}
-
-	// private void createSeverityLevelSection(Composite container) {
-	//
-	// Composite severityCompositeContainer = new Composite(container, SWT.NONE);
-	// severityCompositeContainer.setLayout(new GridLayout(2, false));
-	//
-	// UIElementUtils.createLabel(severityCompositeContainer, "Severity");
-	//
-	// Composite severityComposite = new Composite(severityCompositeContainer,
-	// SWT.NONE);
-	// severityComposite.setLayout(new GridLayout(3, false));
-	//
-	// severityLevelNoteButton = createCheckBoxButton(severityComposite, "Note");
-	//
-	// severityLevelMediumButton = createCheckBoxButton(severityComposite,
-	// "Medium");
-	//
-	// severityLevelCriticalButton = createCheckBoxButton(severityComposite,
-	// "Critical");
-	//
-	// severityLevelLowButton = createCheckBoxButton(severityComposite, "Low");
-	//
-	// severityLevelHighButton = createCheckBoxButton(severityComposite, "High");
-	// }
 
 	private Button createCheckBoxButton(Composite composite, String text) {
 		Button button = new Button(composite, SWT.CHECK);
@@ -367,6 +360,58 @@ public class FilterDialog extends Dialog {
 		statusReportedButton = createCheckBoxButton(statusComposite, "Reported");
 
 		statusUntrackedButton = createCheckBoxButton(statusComposite, "Untracked");
+	}
+
+	private void createAppVersionTagsSection(Composite container) {
+
+		Composite appVersionTagsCompositeContainer = new Composite(container, SWT.NONE);
+		appVersionTagsCompositeContainer.setLayout(new GridLayout(2, false));
+
+		UIElementUtils.createLabel(appVersionTagsCompositeContainer, "Build Number");
+
+		Composite appVersionTagsComposite = new Composite(appVersionTagsCompositeContainer, SWT.NONE);
+		appVersionTagsComposite.setLayout(new GridLayout(3, false));
+
+		appVersionTagsComboViewer = UIElementUtils.createComboViewer(appVersionTagsComposite);
+
+		refreshAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, "Refresh");
+		refreshAppVersionTagsButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String orgUuid = ContrastCoreActivator.getSelectedOrganizationUuid();
+				String appId = getSelectedAppId();
+				if (!appId.equals(Constants.ALL_APPLICATIONS)) {
+					FilterResource filterResource = getApplicationTraceFiltersByType(orgUuid, appId,
+							Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS);
+
+					updateAppVersionTagsComboBox(filterResource.getFilters());
+				} else {
+					updateAppVersionTagsComboBox(null);
+				}
+			}
+		});
+		clearAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, "Clear");
+		clearAppVersionTagsButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateAppVersionTagsComboBox(null);
+			}
+		});
+	}
+
+	private void updateAppVersionTagsComboBox(List<Filter> filters) {
+
+		if (filters != null && !filters.isEmpty()) {
+			Set<String> appVersionTagsValues = new LinkedHashSet<>();
+			for (Filter filter : filters) {
+				appVersionTagsValues.add(filter.toString());
+			}
+			appVersionTagsComboViewer.setInput(appVersionTagsValues);
+			appVersionTagsComboViewer.setSelection(new StructuredSelection(filters.get(0).toString()));
+		} else {
+			appVersionTagsComboViewer.setInput(new LinkedHashSet<>());
+		}
+
 	}
 
 	private void createLastDetectedSection(Composite container) {
@@ -406,17 +451,6 @@ public class FilterDialog extends Dialog {
 		String appId = getSelectedAppId();
 		prefs.put(Constants.APPLICATION_ID, appId);
 
-		// prefs.putBoolean(Constants.SEVERITY_LEVEL_NOTE,
-		// severityLevelNoteButton.getSelection());
-		// prefs.putBoolean(Constants.SEVERITY_LEVEL_MEDIUM,
-		// severityLevelMediumButton.getSelection());
-		// prefs.putBoolean(Constants.SEVERITY_LEVEL_CRITICAL,
-		// severityLevelCriticalButton.getSelection());
-		// prefs.putBoolean(Constants.SEVERITY_LEVEL_LOW,
-		// severityLevelLowButton.getSelection());
-		// prefs.putBoolean(Constants.SEVERITY_LEVEL_HIGH,
-		// severityLevelHighButton.getSelection());
-
 		prefs.putBoolean(Constants.STATUS_AUTO_REMEDIATED, statusAutoRemediatedButton.getSelection());
 		prefs.putBoolean(Constants.STATUS_NOT_A_PROBLEM, statusNotAProblemButton.getSelection());
 		prefs.putBoolean(Constants.STATUS_FIXED, statusFixedButton.getSelection());
@@ -449,20 +483,10 @@ public class FilterDialog extends Dialog {
 			prefs.remove(Constants.LAST_DETECTED_TO);
 			break;
 		}
+		prefs.put(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, getSelectedAppVersionTag());
 	}
 
 	private void populateFiltersWithDataFromEclipsePreferences() {
-
-		// severityLevelNoteButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_NOTE,
-		// false));
-		// severityLevelMediumButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_MEDIUM,
-		// false));
-		// severityLevelCriticalButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_CRITICAL,
-		// false));
-		// severityLevelLowButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_LOW,
-		// false));
-		// severityLevelHighButton.setSelection(prefs.getBoolean(Constants.SEVERITY_LEVEL_HIGH,
-		// false));
 
 		statusAutoRemediatedButton.setSelection(prefs.getBoolean(Constants.STATUS_AUTO_REMEDIATED, false));
 		statusNotAProblemButton.setSelection(prefs.getBoolean(Constants.STATUS_NOT_A_PROBLEM, false));
@@ -507,11 +531,17 @@ public class FilterDialog extends Dialog {
 				break;
 			}
 		}
+
+		String appVersionTag = prefs.get(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, "");
+		if (!appVersionTag.isEmpty()) {
+			Set<String> appVersionTagsValues = new LinkedHashSet<>();
+			appVersionTagsValues.add(appVersionTag);
+			appVersionTagsComboViewer.setInput(appVersionTagsValues);
+			appVersionTagsComboViewer.setSelection(new StructuredSelection(appVersionTag));
+		}
 	}
 
 	private TraceFilterForm extractFiltersIntoTraceFilterForm() {
-
-		// EnumSet<RuleSeverity> severities = getSelectedSeverities();
 		List<String> statuses = getSelectedStatuses();
 
 		Long serverId = getSelectedServerId();
@@ -527,7 +557,6 @@ public class FilterDialog extends Dialog {
 		} else if (serverId != Constants.ALL_SERVERS && !Constants.ALL_APPLICATIONS.equals(appId)) {
 			form = Util.getTraceFilterForm(serverId, currentOffset, PAGE_LIMIT);
 		}
-		// form.setSeverities(severities);
 		form.setStatus(statuses);
 
 		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
@@ -553,29 +582,14 @@ public class FilterDialog extends Dialog {
 		}
 		form.setOffset(currentOffset);
 
+		if (!getSelectedAppVersionTag().isEmpty()) {
+			form.setAppVersionTags(Collections.singletonList(getSelectedAppVersionTag()));
+		} else {
+			form.setAppVersionTags(null);
+		}
+
 		return form;
 	}
-
-	// private EnumSet<RuleSeverity> getSelectedSeverities() {
-	//
-	// EnumSet<RuleSeverity> severities = EnumSet.noneOf(RuleSeverity.class);
-	// if (severityLevelNoteButton.getSelection()) {
-	// severities.add(RuleSeverity.NOTE);
-	// }
-	// if (severityLevelLowButton.getSelection()) {
-	// severities.add(RuleSeverity.LOW);
-	// }
-	// if (severityLevelMediumButton.getSelection()) {
-	// severities.add(RuleSeverity.MEDIUM);
-	// }
-	// if (severityLevelHighButton.getSelection()) {
-	// severities.add(RuleSeverity.HIGH);
-	// }
-	// if (severityLevelCriticalButton.getSelection()) {
-	// severities.add(RuleSeverity.CRITICAL);
-	// }
-	// return severities;
-	// }
 
 	private List<String> getSelectedStatuses() {
 		List<String> statuses = new ArrayList<>();
@@ -632,6 +646,17 @@ public class FilterDialog extends Dialog {
 		return Constants.ALL_APPLICATIONS;
 	}
 
+	private String getSelectedAppVersionTag() {
+		ISelection sel = appVersionTagsComboViewer.getSelection();
+		if (sel instanceof IStructuredSelection) {
+			Object element = ((IStructuredSelection) sel).getFirstElement();
+			if (element != null) {
+				return element.toString();
+			}
+		}
+		return "";
+	}
+
 	@Override
 	protected void cancelPressed() {
 		super.cancelPressed();
@@ -646,5 +671,15 @@ public class FilterDialog extends Dialog {
 
 	public TraceFilterForm getTraceFilterForm() {
 		return traceFilterForm;
+	}
+
+	private FilterResource getApplicationTraceFiltersByType(final String orgUuid, final String appId, final String filterType) {
+		FilterResource filterResource = null;
+		try {
+			filterResource = extendedContrastSDK.getApplicationTraceFiltersByType(orgUuid, appId, filterType);
+		} catch (IOException | UnauthorizedException e) {
+			e.printStackTrace();
+		}
+		return filterResource;
 	}
 }
