@@ -380,7 +380,7 @@ public class FilterDialog extends Dialog {
 		UIElementUtils.createLabel(appVersionTagsCompositeContainer, "Build Number");
 
 		Composite appVersionTagsComposite = new Composite(appVersionTagsCompositeContainer, SWT.NONE);
-		appVersionTagsComposite.setLayout(new GridLayout(4, false));
+		appVersionTagsComposite.setLayout(new GridLayout(3, false));
 
 		appVersionTagsComboViewer = UIElementUtils.createComboViewer(appVersionTagsComposite);
 
