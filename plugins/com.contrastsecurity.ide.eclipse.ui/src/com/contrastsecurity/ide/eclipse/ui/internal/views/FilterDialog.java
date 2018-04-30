@@ -109,7 +109,17 @@ public class FilterDialog extends Dialog {
 
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
+
 			updateAppVersionTagsComboBox(null);
+			if (getSelectedAppId().equals(Constants.ALL_APPLICATIONS)) {
+				appVersionTagsComboViewer.getCombo().setEnabled(false);
+				refreshAppVersionTagsButton.setEnabled(false);
+				clearAppVersionTagsButton.setEnabled(false);
+			} else {
+				appVersionTagsComboViewer.getCombo().setEnabled(true);
+				refreshAppVersionTagsButton.setEnabled(true);
+				clearAppVersionTagsButton.setEnabled(true);
+			}
 		}
 	};
 
@@ -158,7 +168,7 @@ public class FilterDialog extends Dialog {
 		}
 	};
 
-	private void setDateTimeFromLocalDateTime(DateTime dateTime, LocalDateTime localDateTime) {
+	private void setDateTimeFromLocalDateTime(final DateTime dateTime, final LocalDateTime localDateTime) {
 		dateTime.setYear(localDateTime.getYear());
 		dateTime.setDay(localDateTime.getDayOfMonth());
 		dateTime.setMonth(localDateTime.getMonthValue() - 1);
@@ -167,7 +177,7 @@ public class FilterDialog extends Dialog {
 		dateTime.setSeconds(localDateTime.getSecond());
 	}
 
-	private void setDateTimeFromCalendar(DateTime dateTime, Calendar calendar) {
+	private void setDateTimeFromCalendar(final DateTime dateTime, final Calendar calendar) {
 		dateTime.setYear(calendar.get(Calendar.YEAR));
 		dateTime.setDay(calendar.get(Calendar.DAY_OF_MONTH));
 		dateTime.setMonth(calendar.get(Calendar.MONTH) - 1);
@@ -193,7 +203,7 @@ public class FilterDialog extends Dialog {
 		return orgUuid;
 	}
 
-	private void createLastDetectedCombo(Composite composite) {
+	private void createLastDetectedCombo(final Composite composite) {
 		lastDetectedCombo = UIElementUtils.createComboViewer(composite);
 
 		Set<String> lastDetectedValues = new LinkedHashSet<>();
@@ -203,7 +213,7 @@ public class FilterDialog extends Dialog {
 		lastDetectedCombo.setSelection(new StructuredSelection(Constants.LAST_DETECTED_ALL));
 	}
 
-	private ComboViewer createContrastComboViewer(Composite composite) {
+	private ComboViewer createContrastComboViewer(final Composite composite) {
 
 		ComboViewer comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 		comboViewer.getControl().setFont(composite.getFont());
@@ -212,7 +222,7 @@ public class FilterDialog extends Dialog {
 		return comboViewer;
 	}
 
-	private void updateServerCombo(final String orgUuid, final boolean setSavedDefaults, Servers servers) {
+	private void updateServerCombo(final String orgUuid, final boolean setSavedDefaults, final Servers servers) {
 		Set<ServerUIAdapter> contrastServers = new LinkedHashSet<>();
 		int count = 0;
 		if (orgUuid != null) {
@@ -296,7 +306,7 @@ public class FilterDialog extends Dialog {
 	}
 
 	@Override
-	protected Control createDialogArea(Composite parent) {
+	protected Control createDialogArea(final Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
 		Composite comboComposite = new Composite(container, SWT.NONE);
 		comboComposite.setLayout(new GridLayout(2, false));
@@ -362,7 +372,7 @@ public class FilterDialog extends Dialog {
 		statusUntrackedButton = createCheckBoxButton(statusComposite, "Untracked");
 	}
 
-	private void createAppVersionTagsSection(Composite container) {
+	private void createAppVersionTagsSection(final Composite container) {
 
 		Composite appVersionTagsCompositeContainer = new Composite(container, SWT.NONE);
 		appVersionTagsCompositeContainer.setLayout(new GridLayout(2, false));
@@ -370,7 +380,7 @@ public class FilterDialog extends Dialog {
 		UIElementUtils.createLabel(appVersionTagsCompositeContainer, "Build Number");
 
 		Composite appVersionTagsComposite = new Composite(appVersionTagsCompositeContainer, SWT.NONE);
-		appVersionTagsComposite.setLayout(new GridLayout(3, false));
+		appVersionTagsComposite.setLayout(new GridLayout(4, false));
 
 		appVersionTagsComboViewer = UIElementUtils.createComboViewer(appVersionTagsComposite);
 
@@ -388,6 +398,7 @@ public class FilterDialog extends Dialog {
 				} else {
 					updateAppVersionTagsComboBox(null);
 				}
+				container.layout();
 			}
 		});
 		clearAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, "Clear");
@@ -397,9 +408,19 @@ public class FilterDialog extends Dialog {
 				updateAppVersionTagsComboBox(null);
 			}
 		});
+
+		if (getSelectedAppId().equals(Constants.ALL_APPLICATIONS)) {
+			appVersionTagsComboViewer.getCombo().setEnabled(false);
+			refreshAppVersionTagsButton.setEnabled(false);
+			clearAppVersionTagsButton.setEnabled(false);
+		} else {
+			appVersionTagsComboViewer.getCombo().setEnabled(true);
+			refreshAppVersionTagsButton.setEnabled(true);
+			clearAppVersionTagsButton.setEnabled(true);
+		}
 	}
 
-	private void updateAppVersionTagsComboBox(List<Filter> filters) {
+	private void updateAppVersionTagsComboBox(final List<Filter> filters) {
 
 		if (filters != null && !filters.isEmpty()) {
 			Set<String> appVersionTagsValues = new LinkedHashSet<>();
@@ -414,7 +435,7 @@ public class FilterDialog extends Dialog {
 
 	}
 
-	private void createLastDetectedSection(Composite container) {
+	private void createLastDetectedSection(final Composite container) {
 		Composite lastDetectedCompositeContainer = new Composite(container, SWT.NONE);
 		lastDetectedCompositeContainer.setLayout(new GridLayout(3, false));
 
@@ -673,7 +694,8 @@ public class FilterDialog extends Dialog {
 		return traceFilterForm;
 	}
 
-	private FilterResource getApplicationTraceFiltersByType(final String orgUuid, final String appId, final String filterType) {
+	private FilterResource getApplicationTraceFiltersByType(final String orgUuid, final String appId,
+			final String filterType) {
 		FilterResource filterResource = null;
 		try {
 			filterResource = extendedContrastSDK.getApplicationTraceFiltersByType(orgUuid, appId, filterType);
