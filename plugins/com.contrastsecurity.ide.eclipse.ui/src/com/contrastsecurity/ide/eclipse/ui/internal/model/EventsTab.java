@@ -15,7 +15,6 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,8 +34,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.TypeNameMatch;
-import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -56,7 +53,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -140,6 +139,32 @@ public class EventsTab extends AbstractTab {
 			}
 		});
 	}
+	
+	private IType getTypeFromActiveProject(Set<IType> inputSet) {
+		
+		IProject iProject = getIProjectFromActiveEditor();
+		if (iProject != null) {
+			for(IType file : inputSet) {
+				if (file.getResource().getProject().equals(iProject)) {
+					return file;
+				}
+			}
+		}
+		return null;
+	}
+
+	private IProject getIProjectFromActiveEditor() {
+		IEditorPart ieditorpart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.getActiveEditor();
+		if (ieditorpart != null) {
+			IEditorInput input = ieditorpart.getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				IResource iResource = ((IFileEditorInput) input).getFile();
+				return iResource.getProject();
+			}
+		}
+		return null;
+	}
 
 	private void searchCompleted(Object result, final String typeName, final int lineNumber,
 			final IStatus status) {
@@ -165,21 +190,38 @@ public class EventsTab extends AbstractTab {
 
 	@SuppressWarnings("unchecked")
 	private void processSearchResult(Object result, String typeName, int lineNumber) {
-		if(result instanceof Set<?>) {
-			IEditorPart editorPart;
-			try {
-				IType file = ((Set<IType>)result).iterator().next();
-				editorPart = EditorUtility.openInEditor(file, true);
-			} catch (PartInitException e1) {
-				ContrastUIActivator.statusDialog("Error", e1.getStatus());
-				return;
+		if (result instanceof Set<?>) {
+			IEditorPart editorPart = null;
+
+			IType iType = getTypeFromActiveProject((Set<IType>) result);
+			
+			for (IType file : (Set<IType>) result) {
+				try {
+					if (!file.equals(iType)) {
+						editorPart = EditorUtility.openInEditor(file, true);
+					}
+				} catch (PartInitException e1) {
+					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					return;
+				}
+				if (editorPart != null)
+					openEditor(editorPart, lineNumber, typeName);
 			}
-			if(editorPart != null)
-				openEditor(editorPart, lineNumber, typeName);
-		}
-		else {
+			
+			if (iType != null) {
+				try {
+					editorPart = EditorUtility.openInEditor(iType, true);
+				} catch (PartInitException e1) {
+					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					return;
+				}
+				if (editorPart != null)
+					openEditor(editorPart, lineNumber, typeName);
+			}
+			
+		} else {
 			List<IFile> matches = (List<IFile>) result;
-			for(IFile file : matches) {
+			for (IFile file : matches) {
 				IEditorPart editorPart;
 				try {
 					editorPart = EditorUtility.openInEditor(file, true);
@@ -187,7 +229,7 @@ public class EventsTab extends AbstractTab {
 					ContrastUIActivator.statusDialog("Error", e1.getStatus());
 					return;
 				}
-				if(editorPart != null)
+				if (editorPart != null)
 					openEditor(editorPart, lineNumber, typeName);
 			}
 		}
@@ -285,29 +327,13 @@ public class EventsTab extends AbstractTab {
 			simpleName = typeName;
 		}
 		char[][] typeNames = new char[][] { simpleName.toCharArray() };
-
-		class ResultException extends RuntimeException {
-			private static final long serialVersionUID = 1L;
-			private final IType fType;
-
-			public ResultException(IType type) {
-				fType = type;
-			}
-		}
-		TypeNameMatchRequestor requestor = new TypeNameMatchRequestor() {
-			@Override
-			public void acceptTypeNameMatch(TypeNameMatch match) {
-				throw new ResultException(match.getType());
-			}
-		};
-		Set<IType> set = new HashSet<>();
-		try {
-			new SearchEngine().searchAllTypeNames(qualifications, typeNames, SearchEngine.createWorkspaceScope(),
-					requestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		} catch (ResultException e) {
-			set.add(e.fType);
-		}
-		return set;
+		
+		ContrastTypeNameMatchRequestor contrastTypeNameMatchRequestor = new ContrastTypeNameMatchRequestor();
+		
+		new SearchEngine().searchAllTypeNames(qualifications, typeNames, SearchEngine.createWorkspaceScope(),
+				contrastTypeNameMatchRequestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+					
+		return contrastTypeNameMatchRequestor.getTypeNameMatches();
 	}
 	
 	/**
