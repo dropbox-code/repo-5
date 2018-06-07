@@ -15,7 +15,6 @@
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,8 +34,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.TypeNameMatch;
-import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -56,7 +53,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -118,11 +117,10 @@ public class EventsTab extends AbstractTab {
 								protected IStatus run(IProgressMonitor monitor) {
 									Set<IType> result = null;
 									try {
-										if(str.contains(".java")) {
+										if (str.contains(".java")) {
 											result = findTypeInWorkspace(typeName);
 											searchCompleted(result, typeName, lineNumber, null);
-										}
-										else {
+										} else {
 											List<IFile> resultFile = findFileInWorkspace(typeName);
 											searchCompleted(resultFile, typeName, lineNumber, null);
 										}
@@ -141,8 +139,33 @@ public class EventsTab extends AbstractTab {
 		});
 	}
 
-	private void searchCompleted(Object result, final String typeName, final int lineNumber,
-			final IStatus status) {
+	private IType getTypeFromActiveProject(Set<IType> inputSet) {
+
+		IProject iProject = getIProjectFromActiveEditor();
+		if (iProject != null) {
+			for (IType file : inputSet) {
+				if (file.getResource().getProject().equals(iProject)) {
+					return file;
+				}
+			}
+		}
+		return null;
+	}
+
+	private IProject getIProjectFromActiveEditor() {
+		IEditorPart ieditorpart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.getActiveEditor();
+		if (ieditorpart != null) {
+			IEditorInput input = ieditorpart.getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				IResource iResource = ((IFileEditorInput) input).getFile();
+				return iResource.getProject();
+			}
+		}
+		return null;
+	}
+
+	private void searchCompleted(Object result, final String typeName, final int lineNumber, final IStatus status) {
 		UIJob job = new UIJob("Search complete") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -165,21 +188,38 @@ public class EventsTab extends AbstractTab {
 
 	@SuppressWarnings("unchecked")
 	private void processSearchResult(Object result, String typeName, int lineNumber) {
-		if(result instanceof Set<?>) {
-			IEditorPart editorPart;
-			try {
-				IType file = ((Set<IType>)result).iterator().next();
-				editorPart = EditorUtility.openInEditor(file, true);
-			} catch (PartInitException e1) {
-				ContrastUIActivator.statusDialog("Error", e1.getStatus());
-				return;
+		if (result instanceof Set<?>) {
+			IEditorPart editorPart = null;
+
+			IType iType = getTypeFromActiveProject((Set<IType>) result);
+
+			for (IType file : (Set<IType>) result) {
+				try {
+					if (!file.equals(iType)) {
+						editorPart = EditorUtility.openInEditor(file, true);
+					}
+				} catch (PartInitException e1) {
+					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					return;
+				}
+				if (editorPart != null)
+					openEditor(editorPart, lineNumber, typeName);
 			}
-			if(editorPart != null)
-				openEditor(editorPart, lineNumber, typeName);
-		}
-		else {
+
+			if (iType != null) {
+				try {
+					editorPart = EditorUtility.openInEditor(iType, true);
+				} catch (PartInitException e1) {
+					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					return;
+				}
+				if (editorPart != null)
+					openEditor(editorPart, lineNumber, typeName);
+			}
+
+		} else {
 			List<IFile> matches = (List<IFile>) result;
-			for(IFile file : matches) {
+			for (IFile file : matches) {
 				IEditorPart editorPart;
 				try {
 					editorPart = EditorUtility.openInEditor(file, true);
@@ -187,12 +227,12 @@ public class EventsTab extends AbstractTab {
 					ContrastUIActivator.statusDialog("Error", e1.getStatus());
 					return;
 				}
-				if(editorPart != null)
+				if (editorPart != null)
 					openEditor(editorPart, lineNumber, typeName);
 			}
 		}
 	}
-	
+
 	private void openEditor(IEditorPart editorPart, final int lineNumber, final String typeName) {
 		if (editorPart != null) {
 			try {
@@ -203,12 +243,11 @@ public class EventsTab extends AbstractTab {
 					provider.connect(editorInput);
 					IDocument document = provider.getDocument(editorInput);
 					try {
-						IRegion line = document.getLineInformation(lineNumber == 0 ? 0: lineNumber - 1);
+						IRegion line = document.getLineInformation(lineNumber == 0 ? 0 : lineNumber - 1);
 						textEditor.selectAndReveal(line.getOffset(), line.getLength());
 					} catch (BadLocationException e) {
 						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(),
-								"Invalid line number",
-								(lineNumber + 1) + " is not valid line number in " + typeName);
+								"Invalid line number", (lineNumber + 1) + " is not valid line number in " + typeName);
 					}
 					provider.disconnect(editorInput);
 				}
@@ -217,12 +256,12 @@ public class EventsTab extends AbstractTab {
 			}
 		}
 	}
-	
+
 	private boolean validateSearchResult(Object result) {
-		if(result instanceof Set<?>)
-			return (result != null && ((Set<?>)result).size() > 0);
+		if (result instanceof Set<?>)
+			return (result != null && ((Set<?>) result).size() > 0);
 		else
-			return (result != null && ((List<?>)result).size() > 0);
+			return (result != null && ((List<?>) result).size() > 0);
 	}
 
 	private String getTypeName(String stacktrace) throws CoreException {
@@ -286,76 +325,67 @@ public class EventsTab extends AbstractTab {
 		}
 		char[][] typeNames = new char[][] { simpleName.toCharArray() };
 
-		class ResultException extends RuntimeException {
-			private static final long serialVersionUID = 1L;
-			private final IType fType;
+		ContrastTypeNameMatchRequestor contrastTypeNameMatchRequestor = new ContrastTypeNameMatchRequestor();
 
-			public ResultException(IType type) {
-				fType = type;
-			}
-		}
-		TypeNameMatchRequestor requestor = new TypeNameMatchRequestor() {
-			@Override
-			public void acceptTypeNameMatch(TypeNameMatch match) {
-				throw new ResultException(match.getType());
-			}
-		};
-		Set<IType> set = new HashSet<>();
-		try {
-			new SearchEngine().searchAllTypeNames(qualifications, typeNames, SearchEngine.createWorkspaceScope(),
-					requestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		} catch (ResultException e) {
-			set.add(e.fType);
-		}
-		return set;
+		new SearchEngine().searchAllTypeNames(qualifications, typeNames, SearchEngine.createWorkspaceScope(),
+				contrastTypeNameMatchRequestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+
+		return contrastTypeNameMatchRequestor.getTypeNameMatches();
 	}
-	
+
 	/**
 	 * Searches for file with a given name.
-	 * @param filename The file name with extension included.
+	 * 
+	 * @param filename
+	 *            The file name with extension included.
 	 * @return IFile object or null if the file is not found.
-	 * @throws CoreException If the request fails.
+	 * @throws CoreException
+	 *             If the request fails.
 	 */
 	private static List<IFile> findFileInWorkspace(String filename) throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
+
 		String[] name = StringUtils.split(filename, "(");
 		List<IFile> matches = new ArrayList<>();
-		
-		for(IProject project : root.getProjects())
+
+		for (IProject project : root.getProjects())
 			findFile(name[name.length - 1], project, matches);
-		
+
 		return matches;
 	}
-	
+
 	/**
 	 * Recursively searches for a file with a given name.
-	 * @param filename The file name with extension.
-	 * @param resource The resource to evaluate with the file name. Allowed types: IProject, IFolder and IFile.
-	 * @return An IFile object or null if the file is not found. 
-	 * @throws CoreException If the request fails.
+	 * 
+	 * @param filename
+	 *            The file name with extension.
+	 * @param resource
+	 *            The resource to evaluate with the file name. Allowed types:
+	 *            IProject, IFolder and IFile.
+	 * @return An IFile object or null if the file is not found.
+	 * @throws CoreException
+	 *             If the request fails.
 	 */
-	private static List<IFile> findFile(final String filename, IResource resource, List<IFile> matches) throws CoreException {
-		if(resource instanceof IFile) {
+	private static List<IFile> findFile(final String filename, IResource resource, List<IFile> matches)
+			throws CoreException {
+		if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			if(StringUtils.equals(filename, file.getName()))
+			if (StringUtils.equals(filename, file.getName()))
 				matches.add(file);
-			
+
 			return matches;
-		}
-		else if(resource instanceof IFolder && !((IFolder) resource).getName().equals("target")) {
+		} else if (resource instanceof IFolder && !((IFolder) resource).getName().equals("target")) {
 			IFolder folder = (IFolder) resource;
-			
-			for(IResource res : folder.members())
+
+			for (IResource res : folder.members())
 				findFile(filename, res, matches);
-		}
-		else if(resource instanceof IProject && ((IProject) resource).isOpen()) {
+		} else if (resource instanceof IProject && ((IProject) resource).isOpen()) {
 			IProject project = (IProject) resource;
-			
-			for(IResource res : project.members())
+
+			for (IResource res : project.members())
 				findFile(filename, res, matches);
 		}
-		
+
 		return matches;
 	}
 
@@ -374,4 +404,4 @@ public class EventsTab extends AbstractTab {
 		return eventSummary;
 	}
 
-}
+}>>>>>>>e1f2606dbe81eac8e210f34194bc01c26e90179f

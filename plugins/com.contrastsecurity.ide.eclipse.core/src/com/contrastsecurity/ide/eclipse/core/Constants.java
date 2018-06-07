@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 
 public interface Constants {
+	
 	static final String TEAM_SERVER_URL = "contrast.we.url";
 	static final String TEAM_SERVER_URL_VALUE = "https://app.contrastsecurity.com/Contrast/api";
 	static final String SERVICE_KEY = "service.key";
@@ -207,5 +208,6 @@ public interface Constants {
 			CLOSE_TAG_TABLE_BODY, OPEN_TAG_TABLE_CELL, CLOSE_TAG_TABLE_CELL, OPEN_TAG_TABLE_CELL_ALT,
 			CLOSE_TAG_TABLE_CELL_ALT, OPEN_TAG_TABLE_HEADER, CLOSE_TAG_TABLE_HEADER, OPEN_TAG_TABLE_HEADER_ROW,
 			CLOSE_TAG_TABLE_HEADER_ROW, OPEN_TAG_TABLE_ROW, CLOSE_TAG_TABLE_ROW };
-
+	
+	public static final String TRACE_FILTER_TYPE_APP_VERSION_TAGS = "appversiontags";
 }

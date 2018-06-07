@@ -26,5 +26,6 @@ public final class UrlConstants {
 	public final static String TRACE_TAGS_DELETE = "/ng/%s/tags/trace/%s";
 	public final static String MARK_STATUS = "/ng/%s/orgtraces/mark";
 	public final static String GET_TRACE = "/ng/%s/orgtraces/filter/%s";
+	public final static String APPLICATION_TRACE_FILTERS = "/ng/%s/traces/%s/filter/%s/listing";
 
 }
