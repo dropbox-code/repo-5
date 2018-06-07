@@ -404,4 +404,4 @@ public class EventsTab extends AbstractTab {
 		return eventSummary;
 	}
 
-}>>>>>>>e1f2606dbe81eac8e210f34194bc01c26e90179f
+}
