@@ -101,7 +101,6 @@ import com.contrastsecurity.models.Traces;
  * Vulnerabilities View
  */
 public class VulnerabilitiesView extends ViewPart {
-
 	/**
 	 * The ID of the view as specified by the extension.
 	 */

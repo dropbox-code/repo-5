@@ -317,3 +317,4 @@ public class OrganizationPreferencesDialog extends TitleAreaDialog {
 		}
 	}
 }
+

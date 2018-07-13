@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 
 public interface Constants {
+	
 	static final String TEAM_SERVER_URL = "contrast.we.url";
 	static final String TEAM_SERVER_URL_VALUE = "https://app.contrastsecurity.com/Contrast/api";
 	static final String SERVICE_KEY = "service.key";

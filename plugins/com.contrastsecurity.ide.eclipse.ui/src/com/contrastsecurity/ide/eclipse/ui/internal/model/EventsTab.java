@@ -117,11 +117,10 @@ public class EventsTab extends AbstractTab {
 								protected IStatus run(IProgressMonitor monitor) {
 									Set<IType> result = null;
 									try {
-										if(str.contains(".java")) {
+										if (str.contains(".java")) {
 											result = findTypeInWorkspace(typeName);
 											searchCompleted(result, typeName, lineNumber, null);
-										}
-										else {
+										} else {
 											List<IFile> resultFile = findFileInWorkspace(typeName);
 											searchCompleted(resultFile, typeName, lineNumber, null);
 										}
@@ -139,12 +138,12 @@ public class EventsTab extends AbstractTab {
 			}
 		});
 	}
-	
+
 	private IType getTypeFromActiveProject(Set<IType> inputSet) {
-		
+
 		IProject iProject = getIProjectFromActiveEditor();
 		if (iProject != null) {
-			for(IType file : inputSet) {
+			for (IType file : inputSet) {
 				if (file.getResource().getProject().equals(iProject)) {
 					return file;
 				}
@@ -166,8 +165,7 @@ public class EventsTab extends AbstractTab {
 		return null;
 	}
 
-	private void searchCompleted(Object result, final String typeName, final int lineNumber,
-			final IStatus status) {
+	private void searchCompleted(Object result, final String typeName, final int lineNumber, final IStatus status) {
 		UIJob job = new UIJob("Search complete") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -194,7 +192,7 @@ public class EventsTab extends AbstractTab {
 			IEditorPart editorPart = null;
 
 			IType iType = getTypeFromActiveProject((Set<IType>) result);
-			
+
 			for (IType file : (Set<IType>) result) {
 				try {
 					if (!file.equals(iType)) {
@@ -207,7 +205,7 @@ public class EventsTab extends AbstractTab {
 				if (editorPart != null)
 					openEditor(editorPart, lineNumber, typeName);
 			}
-			
+
 			if (iType != null) {
 				try {
 					editorPart = EditorUtility.openInEditor(iType, true);
@@ -218,7 +216,7 @@ public class EventsTab extends AbstractTab {
 				if (editorPart != null)
 					openEditor(editorPart, lineNumber, typeName);
 			}
-			
+
 		} else {
 			List<IFile> matches = (List<IFile>) result;
 			for (IFile file : matches) {
@@ -234,7 +232,7 @@ public class EventsTab extends AbstractTab {
 			}
 		}
 	}
-	
+
 	private void openEditor(IEditorPart editorPart, final int lineNumber, final String typeName) {
 		if (editorPart != null) {
 			try {
@@ -245,12 +243,11 @@ public class EventsTab extends AbstractTab {
 					provider.connect(editorInput);
 					IDocument document = provider.getDocument(editorInput);
 					try {
-						IRegion line = document.getLineInformation(lineNumber == 0 ? 0: lineNumber - 1);
+						IRegion line = document.getLineInformation(lineNumber == 0 ? 0 : lineNumber - 1);
 						textEditor.selectAndReveal(line.getOffset(), line.getLength());
 					} catch (BadLocationException e) {
 						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(),
-								"Invalid line number",
-								(lineNumber + 1) + " is not valid line number in " + typeName);
+								"Invalid line number", (lineNumber + 1) + " is not valid line number in " + typeName);
 					}
 					provider.disconnect(editorInput);
 				}
@@ -259,12 +256,12 @@ public class EventsTab extends AbstractTab {
 			}
 		}
 	}
-	
+
 	private boolean validateSearchResult(Object result) {
-		if(result instanceof Set<?>)
-			return (result != null && ((Set<?>)result).size() > 0);
+		if (result instanceof Set<?>)
+			return (result != null && ((Set<?>) result).size() > 0);
 		else
-			return (result != null && ((List<?>)result).size() > 0);
+			return (result != null && ((List<?>) result).size() > 0);
 	}
 
 	private String getTypeName(String stacktrace) throws CoreException {
@@ -327,61 +324,68 @@ public class EventsTab extends AbstractTab {
 			simpleName = typeName;
 		}
 		char[][] typeNames = new char[][] { simpleName.toCharArray() };
-		
+
 		ContrastTypeNameMatchRequestor contrastTypeNameMatchRequestor = new ContrastTypeNameMatchRequestor();
-		
+
 		new SearchEngine().searchAllTypeNames(qualifications, typeNames, SearchEngine.createWorkspaceScope(),
 				contrastTypeNameMatchRequestor, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-					
+
 		return contrastTypeNameMatchRequestor.getTypeNameMatches();
 	}
-	
+
 	/**
 	 * Searches for file with a given name.
-	 * @param filename The file name with extension included.
+	 * 
+	 * @param filename
+	 *            The file name with extension included.
 	 * @return IFile object or null if the file is not found.
-	 * @throws CoreException If the request fails.
+	 * @throws CoreException
+	 *             If the request fails.
 	 */
 	private static List<IFile> findFileInWorkspace(String filename) throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
+
 		String[] name = StringUtils.split(filename, "(");
 		List<IFile> matches = new ArrayList<>();
-		
-		for(IProject project : root.getProjects())
+
+		for (IProject project : root.getProjects())
 			findFile(name[name.length - 1], project, matches);
-		
+
 		return matches;
 	}
-	
+
 	/**
 	 * Recursively searches for a file with a given name.
-	 * @param filename The file name with extension.
-	 * @param resource The resource to evaluate with the file name. Allowed types: IProject, IFolder and IFile.
-	 * @return An IFile object or null if the file is not found. 
-	 * @throws CoreException If the request fails.
+	 * 
+	 * @param filename
+	 *            The file name with extension.
+	 * @param resource
+	 *            The resource to evaluate with the file name. Allowed types:
+	 *            IProject, IFolder and IFile.
+	 * @return An IFile object or null if the file is not found.
+	 * @throws CoreException
+	 *             If the request fails.
 	 */
-	private static List<IFile> findFile(final String filename, IResource resource, List<IFile> matches) throws CoreException {
-		if(resource instanceof IFile) {
+	private static List<IFile> findFile(final String filename, IResource resource, List<IFile> matches)
+			throws CoreException {
+		if (resource instanceof IFile) {
 			IFile file = (IFile) resource;
-			if(StringUtils.equals(filename, file.getName()))
+			if (StringUtils.equals(filename, file.getName()))
 				matches.add(file);
-			
+
 			return matches;
-		}
-		else if(resource instanceof IFolder && !((IFolder) resource).getName().equals("target")) {
+		} else if (resource instanceof IFolder && !((IFolder) resource).getName().equals("target")) {
 			IFolder folder = (IFolder) resource;
-			
-			for(IResource res : folder.members())
+
+			for (IResource res : folder.members())
 				findFile(filename, res, matches);
-		}
-		else if(resource instanceof IProject && ((IProject) resource).isOpen()) {
+		} else if (resource instanceof IProject && ((IProject) resource).isOpen()) {
 			IProject project = (IProject) resource;
-			
-			for(IResource res : project.members())
+
+			for (IResource res : project.members())
 				findFile(filename, res, matches);
 		}
-		
+
 		return matches;
 	}
 
