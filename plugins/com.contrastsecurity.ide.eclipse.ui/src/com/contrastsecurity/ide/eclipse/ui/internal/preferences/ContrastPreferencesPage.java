@@ -61,20 +61,22 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	public static final String ID = "com.contrastsecurity.ide.eclipse.ui.internal.preferences.ContrastPreferencesPage";
 	private static final String BLANK = "";
 	private final static String URL_SUFFIX = "/Contrast/api";
-	
 	private Text teamServerText;
+	private Text usernameText;
 	private Text serviceKeyText;
 	private Text apiKeyText;
-	private Text usernameText;
-	private Button testConnection;
 	private Label testConnectionLabel;
 	private Text organizationUuidText;
+	private Button addOrganizationBtn;
+	
+	//
 	
 	private Combo organizationCombo;
-	
-	private Button addOrganizationBtn;
+	private Button testConnection;
 	private Button editOrganizationBtn;
 	private Button deleteOrganizationBtn;
+	
+	//
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -120,16 +122,28 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		composite.setLayoutData(gd);
 		
-		UIElementUtils.createLabel(composite, "Contrast URL:");
-		teamServerText = UIElementUtils.createText(composite, 2, 1);
+		Group defaultOrganizationGroup = new Group(composite, SWT.NONE);
+		defaultOrganizationGroup.setLayout(new GridLayout(2, false));
+		defaultOrganizationGroup.setText("Add Organization");
+		gd = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
+		defaultOrganizationGroup.setLayoutData(gd);
+		
+		UIElementUtils.createLabel(defaultOrganizationGroup, "Contrast URL:");
+		teamServerText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 		teamServerText.setToolTipText("This should be the address of your TeamServer from which vulnerability data should be retrieved.\n If you’re using our SaaS, it’s okay to leave this in its default.");
 
-		UIElementUtils.createLabel(composite, "Username:");
-		usernameText = UIElementUtils.createText(composite, 2, 1);
+		UIElementUtils.createLabel(defaultOrganizationGroup, "Username:");
+		usernameText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 		
-		UIElementUtils.createLabel(composite, "Service Key:");
-		serviceKeyText = UIElementUtils.createText(composite, 2, 1);
+		UIElementUtils.createLabel(defaultOrganizationGroup, "Service Key:");
+		serviceKeyText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 		serviceKeyText.setToolTipText("You can find your Service Key at the bottom of your Account Profile, under \"Your Keys\".");
+
+		UIElementUtils.createLabel(defaultOrganizationGroup, "API Key:");
+		apiKeyText = UIElementUtils.createText(defaultOrganizationGroup, 2,1,  SWT.PASSWORD | SWT.BORDER);
+		
+		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
+		organizationUuidText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 		
 		UIElementUtils.createLabel(composite, "Organization: ");
 		createOrganizationCombo(composite);
@@ -150,21 +164,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		
 		gd = new GridData(SWT.CENTER, SWT.FILL, false, false, 3, 1);
 		testConnectionLabel = UIElementUtils.createBasicLabel(composite, gd, "");
-
-		Group defaultOrganizationGroup = new Group(composite, SWT.NONE);
-		defaultOrganizationGroup.setLayout(new GridLayout(2, false));
-		defaultOrganizationGroup.setText("Selected Organization");
-		gd = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
-		defaultOrganizationGroup.setLayoutData(gd);
-
-		UIElementUtils.createLabel(defaultOrganizationGroup, "API Key:");
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		apiKeyText = UIElementUtils.createBasicText(defaultOrganizationGroup, gd, SWT.PASSWORD | SWT.BORDER);
-		apiKeyText.setEditable(false);
-		
-		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
-		organizationUuidText = UIElementUtils.createBasicText(defaultOrganizationGroup, gd, SWT.BORDER);
-		organizationUuidText.setEditable(false);
 		
 		initPreferences();
 		enableTestConnection();
