@@ -60,11 +60,13 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
+import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.internal.model.TagLabelProvider;
 import com.contrastsecurity.ide.eclipse.ui.util.UIElementUtils;
 import com.contrastsecurity.models.Organization;
+import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
 
 public class ContrastPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
@@ -158,12 +160,14 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
 		organizationUuidText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 		
-		addOrganizationBtn = UIElementUtils.createButton(defaultOrganizationGroup, "Add");
+		gd = new GridData(SWT.LEFT_TO_RIGHT, SWT.CENTER, false, false, 1, 1);
+		addOrganizationBtn = UIElementUtils.createButton(defaultOrganizationGroup, gd, "Add");
 		
 		
 		tableViewer = createTableViewer(composite);
 		
-		deleteOrganizationBtn = UIElementUtils.createButton(composite, "Remove");
+		gd = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		deleteOrganizationBtn = UIElementUtils.createButton(composite, gd, "Remove");
 		
 		
 		UIElementUtils.createLabel(composite, "Organization: ");
@@ -522,9 +526,33 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 		TableColumn orgNameColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
 		orgNameColumn.setText("Organization");
-//		tagColumn.setWidth(290);
 
 		return tableViewer;
 	}
+	
+	private void retrieveOrganizationName() throws IOException, UnauthorizedException {
+		
+		final String url = teamServerText.getText();
+		URL u;
+        try {
+            u = new URL(url);
+        } catch (MalformedURLException e1) {
+        	MessageDialog.openError(getShell(), "Exception", "Invalid URL.");
+			testConnectionLabel.setText("Connection failed!");
+			return;
+        }
+        if (!u.getProtocol().startsWith("http")) {
+        	MessageDialog.openError(getShell(), "Exception", "Invalid protocol.");
+			testConnectionLabel.setText("Connection failed!");
+			return;
+        }
+		
+		ExtendedContrastSDK sdk = ContrastCoreActivator.getContrastSDK(usernameText.getText(), apiKeyText.getText(), serviceKeyText.getText(), url);
 
+		Organizations organizations = sdk.getProfileOrganizations();
+		if(organizations.getOrganizations() != null && !organizations.getOrganizations().isEmpty()) {
+//			orgList = organizations.getOrganizations();
+		}
+	}
+	
 }
