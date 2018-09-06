@@ -23,13 +23,19 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.TableLayout;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -37,9 +43,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -52,6 +62,7 @@ import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
+import com.contrastsecurity.ide.eclipse.ui.internal.model.TagLabelProvider;
 import com.contrastsecurity.ide.eclipse.ui.util.UIElementUtils;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -77,6 +88,8 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Button deleteOrganizationBtn;
 	
 	//
+	
+	private TableViewer tableViewer;
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -115,7 +128,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	@Override
 	protected Control createContents(Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NULL);
-		final GridLayout layout = new GridLayout(3, false);
+		final GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
@@ -144,6 +157,14 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		
 		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
 		organizationUuidText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
+		
+		addOrganizationBtn = UIElementUtils.createButton(defaultOrganizationGroup, "Add");
+		
+		
+		tableViewer = createTableViewer(composite);
+		
+		deleteOrganizationBtn = UIElementUtils.createButton(composite, "Remove");
+		
 		
 		UIElementUtils.createLabel(composite, "Organization: ");
 		createOrganizationCombo(composite);
@@ -257,9 +278,9 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		orgComposite.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 3, 1));
 		GridData gd = new GridData(SWT.RIGHT_TO_LEFT, SWT.FILL, false, false, 1, 1);
 		
-		addOrganizationBtn = UIElementUtils.createButton(orgComposite, gd, "Add");
+//		addOrganizationBtn = UIElementUtils.createButton(orgComposite, gd, "Add");
 		editOrganizationBtn = UIElementUtils.createButton(orgComposite, gd, "Edit");
-		deleteOrganizationBtn = UIElementUtils.createButton(orgComposite, gd, "Delete");
+//		deleteOrganizationBtn = UIElementUtils.createButton(orgComposite, gd, "Delete");
 		
 		addOrganizationBtn.addSelectionListener(new SelectionListener() {
 			
@@ -484,6 +505,26 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	@Override
 	public void init(IWorkbench workbench) {
 		// Nothing to do
+	}
+	
+	private TableViewer createTableViewer(Composite composite) {
+		TableViewer tableViewer = new TableViewer(composite,
+				SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		tableViewer.getTable().setLayoutData(gd);
+		tableViewer.setLabelProvider(new TagLabelProvider());
+
+		tableViewer.getTable().setHeaderVisible(true);
+		tableViewer.getTable().setLinesVisible(true);
+		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+		TableLayout layout = new TableLayout();
+		tableViewer.getTable().setLayout(layout);
+
+		TableColumn orgNameColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
+		orgNameColumn.setText("Organization");
+//		tagColumn.setWidth(290);
+
+		return tableViewer;
 	}
 
 }
