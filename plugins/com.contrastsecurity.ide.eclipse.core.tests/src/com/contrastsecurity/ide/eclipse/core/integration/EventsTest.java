@@ -1,18 +1,16 @@
 package com.contrastsecurity.ide.eclipse.core.integration;
 
-import java.io.IOException;
-
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotEquals;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.extended.EventResource;
 import com.contrastsecurity.ide.eclipse.core.extended.EventSummaryResource;
@@ -48,6 +46,9 @@ public class EventsTest {
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
 	private static String ORGANIZATION_UUID;
+	
+	private static String ORGANIZATION_NAME = "new_org";
+	
 	/**
 	 * Trace (vulnerability) UUID. Required to run when testing retrieval of an event.
 	 */
@@ -68,12 +69,8 @@ public class EventsTest {
 	}
 	
 	@Before
-	public void init() {
-		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-		prefs.put(Constants.USERNAME, USERNAME);
-		prefs.put(Constants.API_KEY, API_KEY);
-		prefs.put(Constants.SERVICE_KEY, SERVICE_KEY);
-		prefs.put(Constants.TEAM_SERVER_URL, REST_API_URL);
+	public void init() {		
+		ContrastCoreActivator.saveNewOrganization(ORGANIZATION_NAME, REST_API_URL, USERNAME, SERVICE_KEY, API_KEY, ORGANIZATION_UUID);
 	}
 	
 	@Test
