@@ -164,6 +164,17 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 		
 		String[] configArray = Util.getListFromString(config);
 		
+		// Compatibility fix for the previous plugin version
+		if (configArray.length == 2) {
+			removeOrganization(ArrayUtils.indexOf(getOrganizationList(), organization));
+			
+			saveNewOrganization(organization, prefs.get(Constants.TEAM_SERVER_URL, ""), 
+					prefs.get(Constants.USERNAME, ""), 
+					prefs.get(Constants.SERVICE_KEY, ""), configArray[0], configArray[1]);
+			config = prefs.get(organization, "");
+			configArray = Util.getListFromString(config);
+		}
+		
 		return new OrganizationConfig(configArray[0], configArray[1], configArray[2], configArray[3], configArray[4]);
 	}
 		

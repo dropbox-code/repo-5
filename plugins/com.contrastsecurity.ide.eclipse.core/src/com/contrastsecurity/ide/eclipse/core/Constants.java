@@ -24,11 +24,11 @@ public interface Constants {
 	
 	static final String TEAM_SERVER_URL = "contrast.we.url";
 	static final String TEAM_SERVER_URL_VALUE = "https://app.contrastsecurity.com/Contrast/api";
-//	static final String SERVICE_KEY = "service.key";
-//	static final String API_KEY = "api.key";
-//	static final String USERNAME = "username";
+	static final String SERVICE_KEY = "service.key";
+	static final String API_KEY = "api.key";
+	static final String USERNAME = "username";
 	static final String ORGNAME = "orgname";
-//	static final String ORGUUID = "orguuid";
+	static final String ORGUUID = "orguuid";
 	static final String SERVER_ID = "serverId";
 	static final String APPLICATION_ID = "applicationId";
 
