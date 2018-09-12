@@ -174,7 +174,12 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 	
 	public static String getSelectedOrganizationUuid() {
-		return getOrganizationConfiguration(getSelectedOrganization()).getOrganizationUUIDKey();
+		if (getOrganizationConfiguration(getSelectedOrganization()) != null) {
+			return getOrganizationConfiguration(getSelectedOrganization()).getOrganizationUUIDKey();
+		} else {
+			return null;
+		}
+		
 	}
 	
 	public static boolean editOrganization(final String organization, final String apiKey, final String organizationUuid) throws OrganizationNotFoundException {

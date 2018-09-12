@@ -115,7 +115,7 @@ public class UIElementUtils {
 	}
 	
 	public static Text createText(Composite parent, int hSpan, int vSpan, int style) {
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false, hSpan, vSpan);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, hSpan, vSpan);
 		return createBasicText(parent, gd, style);
 	}
 	

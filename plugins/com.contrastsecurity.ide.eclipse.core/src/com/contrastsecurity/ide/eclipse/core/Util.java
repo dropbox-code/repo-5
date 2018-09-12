@@ -58,6 +58,10 @@ public class Util {
 		
 		OrganizationConfig organizationConfig = ContrastCoreActivator.getOrganizationConfiguration(ContrastCoreActivator.getSelectedOrganization());
 		
+		if (organizationConfig == null) {
+			return false;
+		}
+		
 		String apiKey = organizationConfig.getApiKey();
 		String serviceKey = organizationConfig.getServiceKey();
 		String username = organizationConfig.getUsername();

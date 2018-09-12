@@ -85,16 +85,10 @@ public class ContrastCoreActivatorTest {
 		assertEquals(0, ContrastCoreActivator.getOrganizationList().length);
 	}
 	
-//	@Test
-//	public void saveAndRetrieveSelectedPrefs() {
-//		assertTrue(ContrastCoreActivator.saveSelectedPreferences(TEAM_SERVER_URL, SERVICE_KEY, API_KEY, USERNAME, EXTRA_ORGANIZATION, ORGANIZATION_UUID));
-//		
-//		assertEquals(TEAM_SERVER_URL, ContrastCoreActivator.getTeamServerUrl());
-//		assertEquals(API_KEY, ContrastCoreActivator.getSelectedApiKey());
-//		assertEquals(SERVICE_KEY, ContrastCoreActivator.getServiceKey());
-//		assertEquals(USERNAME, ContrastCoreActivator.getUsername());
-//		assertEquals(EXTRA_ORGANIZATION, ContrastCoreActivator.getSelectedOrganization());
-//		assertEquals(ORGANIZATION_UUID, ContrastCoreActivator.getSelectedOrganizationUuid());
-//	}
+	@Test
+	public void saveAndRetrieveSelectedPrefs() {
+		assertTrue(ContrastCoreActivator.saveSelectedPreferences(EXTRA_ORGANIZATION));
+		assertEquals(EXTRA_ORGANIZATION, ContrastCoreActivator.getSelectedOrganization());
+	}
 
 }
