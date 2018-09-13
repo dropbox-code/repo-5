@@ -812,8 +812,11 @@ public class VulnerabilitiesView extends ViewPart {
 				if (!selectedOrganization.equals(ContrastCoreActivator.getSelectedOrganization())) {
 					if (currentTraceFilterForm != null) {
 						currentTraceFilterForm.setServerIds(null);
-						prefs.put(Constants.APPLICATION_ID, Constants.ALL_APPLICATIONS);
+						currentTraceFilterForm.setAppVersionTags(null);
 					}
+					prefs.put(Constants.APPLICATION_ID, Constants.ALL_APPLICATIONS);
+					prefs.put(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, "");
+					
 					sdk = ContrastCoreActivator.getContrastSDK();
 					startRefreshJob();
 				}
