@@ -4,21 +4,22 @@
 
 ### Getting Started
 
-- Install Java JDK (minimal version 7) and maven 3.3.x
-- clone repository
-- cd ide-plugin-eclipse2
-- call
+#### Build Plugin
 
-- cd targets; mvn clean install
-- cd ..; mvn clean install -Djarsigner.skip=true 
-- mvn clean verify
+* Install Java JDK (minimal version 7) and maven 3.3.x
+* clone repository
+* `cd ide-plugin-eclipse2`
+* `cd targets && mvn clean install`
+* `cd .. && mvn clean install -Djarsigner.skip=true -DskipTests`
 
-- start Eclipse (current target version is Mars, but I have tested with Neon)
-- select Help>Install New Software>Add
-- click Archive...
-- select updatesite/target/contrastide.updatesite-(version)-SNAPSHOT.zip
-- select Contrast IDE
-- restart Eclipse
+#### Install Plugin
+
+* open Eclipse
+* select Help>Install New Software>Add
+* click Archive...
+* select updatesite/target/contrastide.updatesite-(version)-SNAPSHOT.zip
+* select Contrast IDE
+* restart Eclipse
 
 ## Testing
 
