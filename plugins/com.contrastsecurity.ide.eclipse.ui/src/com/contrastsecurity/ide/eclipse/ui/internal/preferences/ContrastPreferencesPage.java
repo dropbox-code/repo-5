@@ -77,6 +77,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
 		setTitle("Contrast IDE");
+		noDefaultAndApplyButton();
 	}
 
 	/*
@@ -140,7 +141,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		UIElementUtils.createLabel(defaultOrganizationGroup, "API Key:");
 		apiKeyText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1, SWT.PASSWORD | SWT.BORDER);
 
-		UIElementUtils.createLabel(defaultOrganizationGroup, "UUID:");
+		UIElementUtils.createLabel(defaultOrganizationGroup, "Organization ID:");
 		organizationUuidText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 
 		gd = new GridData(SWT.LEFT_TO_RIGHT, SWT.CENTER, false, false, 1, 1);
