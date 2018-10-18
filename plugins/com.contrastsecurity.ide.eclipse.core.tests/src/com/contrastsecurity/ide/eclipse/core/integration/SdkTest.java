@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,7 +16,6 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.FilterForm;
 import com.contrastsecurity.http.ServerFilterForm;
 import com.contrastsecurity.http.TraceFilterForm;
-import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.extended.EventDetails;
 import com.contrastsecurity.ide.eclipse.core.extended.EventResource;
@@ -64,6 +62,8 @@ public class SdkTest {
 	 * Organization UUID. Required to run when testing retrieval of an event.
 	 */
 	private static String ORGANIZATION_UUID;
+	
+	private static String ORGANIZATION_NAME = "new_org";
 
 	ExtendedContrastSDK sdk;
 
@@ -78,11 +78,9 @@ public class SdkTest {
 
 	@Before
 	public void init() {
-		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-		prefs.put(Constants.USERNAME, USERNAME);
-		prefs.put(Constants.API_KEY, API_KEY);
-		prefs.put(Constants.SERVICE_KEY, SERVICE_KEY);
-		prefs.put(Constants.TEAM_SERVER_URL, REST_API_URL);
+		
+		ContrastCoreActivator.saveNewOrganization(ORGANIZATION_NAME, REST_API_URL, USERNAME, SERVICE_KEY, API_KEY, ORGANIZATION_UUID);
+		
 		sdk = ContrastCoreActivator.getContrastSDK();
 	}
 

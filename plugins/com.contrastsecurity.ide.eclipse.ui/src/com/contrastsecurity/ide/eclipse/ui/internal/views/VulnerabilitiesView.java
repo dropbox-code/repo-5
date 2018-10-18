@@ -806,9 +806,23 @@ public class VulnerabilitiesView extends ViewPart {
 			public void run() {
 				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getSite().getShell(),
 						ContrastPreferencesPage.ID, null, null);
+				String selectedOrganization = ContrastCoreActivator.getSelectedOrganization();
 				dialog.open();
-				sdk = ContrastCoreActivator.getContrastSDK();
-				startRefreshJob();
+				// check if selected organization has been changed in the dialog
+				if (!selectedOrganization.equals(ContrastCoreActivator.getSelectedOrganization())) {
+					currentOffset = 0;
+					if (currentTraceFilterForm != null) {
+						currentTraceFilterForm.setServerIds(null);
+						currentTraceFilterForm.setAppVersionTags(null);
+						currentTraceFilterForm.setOffset(currentOffset);
+					}
+					prefs.put(Constants.APPLICATION_ID, Constants.ALL_APPLICATIONS);
+					prefs.put(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, "");
+					prefs.putInt(Constants.CURRENT_OFFSET, currentOffset);
+					
+					sdk = ContrastCoreActivator.getContrastSDK();
+					startRefreshJob();
+				}
 			}
 		};
 		openPreferencesPage.setText("Contrast Preferences Page");

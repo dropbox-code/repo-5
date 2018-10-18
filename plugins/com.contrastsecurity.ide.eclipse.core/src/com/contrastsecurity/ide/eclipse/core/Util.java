@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.TraceFilterForm;
+import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -42,12 +43,11 @@ public class Util {
 	@Deprecated
 	public static String getDefaultOrganizationUuid() throws IOException, UnauthorizedException {
 		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-		String uuid = prefs.get(Constants.ORGUUID, null);
+		String uuid = ContrastCoreActivator.getSelectedOrganizationUuid();
 		if (uuid == null) {
 			Organization organization = getDefaultOrganization(ContrastCoreActivator.getContrastSDK());
 			if (organization != null) {
 				prefs.put(Constants.ORGNAME, organization.getName());
-				prefs.put(Constants.ORGUUID, organization.getOrgUuid());
 				return organization.getOrgUuid();
 			}
 		}
@@ -55,11 +55,17 @@ public class Util {
 	}
 
 	public static boolean hasConfiguration() {
-		IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
-		// String uuid = prefs.get(Constants.ORGUUID, null);
-		String apiKey = prefs.get(Constants.API_KEY, null);
-		String serviceKey = prefs.get(Constants.SERVICE_KEY, null);
-		String username = prefs.get(Constants.USERNAME, null);
+		
+		OrganizationConfig organizationConfig = ContrastCoreActivator.getOrganizationConfiguration(ContrastCoreActivator.getSelectedOrganization());
+		
+		if (organizationConfig == null) {
+			return false;
+		}
+		
+		String apiKey = organizationConfig.getApiKey();
+		String serviceKey = organizationConfig.getServiceKey();
+		String username = organizationConfig.getUsername();
+		
 		return apiKey != null && serviceKey != null && username != null && !apiKey.isEmpty() && !serviceKey.isEmpty()
 				&& !username.isEmpty();
 	}
