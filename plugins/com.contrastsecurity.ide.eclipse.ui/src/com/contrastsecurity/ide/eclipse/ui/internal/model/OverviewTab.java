@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.unbescape.html.HtmlEscape;
 
 import com.contrastsecurity.ide.eclipse.core.Constants;
+import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.Chapter;
 import com.contrastsecurity.ide.eclipse.core.extended.PropertyResource;
 import com.contrastsecurity.ide.eclipse.core.extended.Risk;
@@ -106,6 +107,7 @@ public class OverviewTab extends AbstractTab {
 					textArea.setLayoutData(gd);
 					textArea.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
 					areaText = parseMustache(areaText);
+					areaText = Util.filterHeaders(areaText, "\n");
 					textArea.setText(areaText);
 					//new Label(control, SWT.NONE);
 				}

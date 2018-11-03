@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Display;
 import org.unbescape.html.HtmlEscape;
 
 import com.contrastsecurity.ide.eclipse.core.Constants;
+import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 
@@ -61,8 +62,9 @@ public class HttpRequestTab extends Composite {
 		this.httpRequest = httpRequest;
 		area.setText(Constants.BLANK);
 		if (httpRequest != null && httpRequest.getHttpRequest() != null
-				&& httpRequest.getHttpRequest().getFormattedText() != null) {
-			area.setText(httpRequest.getHttpRequest().getText().replace(Constants.MUSTACHE_NL, Constants.BLANK));
+				&& httpRequest.getHttpRequest().getText() != null) {
+			
+			area.setText(Util.filterHeaders(httpRequest.getHttpRequest().getText(), "\n"));
 		} else if (httpRequest != null && httpRequest.getReason() != null) {
 			area.setText(httpRequest.getReason());
 		}

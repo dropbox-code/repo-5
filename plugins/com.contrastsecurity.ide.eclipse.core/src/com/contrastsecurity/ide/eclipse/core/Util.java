@@ -140,4 +140,31 @@ public class Util {
 
 		return buffer.toString();
 	}
+	
+	public static String filterHeaders(String data, String separator) {
+		String[] lines = data.split(separator);
+
+		ArrayList<String> filtered = new ArrayList<>();
+
+		for (String line : lines) {
+			boolean filteredLine = true;
+
+			if (line.toLowerCase().contains("authorization:")) {
+				filteredLine = false;
+			} else if (line.toLowerCase().contains("intuit_tid:")) {
+				filteredLine = false;
+			} else if (line.toLowerCase().contains(":")) {
+				if (line.split(":")[0].toLowerCase().contains("token")) {
+					filteredLine = false;
+				}
+			}
+
+			if (filteredLine) {
+				filtered.add(line);
+			}
+
+		}
+
+		return String.join(separator, filtered);
+	}
 }
