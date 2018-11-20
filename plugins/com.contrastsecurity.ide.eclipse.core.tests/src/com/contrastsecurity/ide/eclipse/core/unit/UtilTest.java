@@ -31,7 +31,7 @@ public class UtilTest {
     @Test
     public void filterHeadersTest() {
         String authorizationString = "Authorization: Basic Z3Vl...Q6Z3Vlc3Q=";
-        String intuitTidString = "intuit_tid: iasjdfjas9023423234lkj24";
+        String intuitTidString = "_tid: iasjdfjas9023423234lkj24";
         String tokenString = "token : afskjfasdfljljasdfljasdf";
 
         String goodString1 = "/plugin_extracted/plugin/DBCrossSiteScripting/jsp/EditProfile.jsp";

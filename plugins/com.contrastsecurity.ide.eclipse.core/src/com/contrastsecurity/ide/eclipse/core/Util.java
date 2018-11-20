@@ -143,22 +143,25 @@ public class Util {
 	
 	public static String filterHeaders(String data, String separator) {
 		String[] lines = data.split(separator);
+		String[] headers = { "authorization:", "_tid:", ":" };
 
 		ArrayList<String> filtered = new ArrayList<>();
 
 		for (String line : lines) {
 			boolean filteredLine = true;
 
-			if (line.toLowerCase().contains("authorization:")) {
-				filteredLine = false;
-			} else if (line.toLowerCase().contains("intuit_tid:")) {
-				filteredLine = false;
-			} else if (line.toLowerCase().contains(":")) {
-				if (line.split(":")[0].toLowerCase().contains("token")) {
-					filteredLine = false;
+			for (String header : headers) {
+
+				if (line.toLowerCase().contains(header)) {
+					if (!header.equals(":")) {
+						filteredLine = false;
+					} else {
+						if (line.split(":")[0].toLowerCase().contains("token")) {
+							filteredLine = false;
+						}
+					}
 				}
 			}
-
 			if (filteredLine) {
 				filtered.add(line);
 			}
