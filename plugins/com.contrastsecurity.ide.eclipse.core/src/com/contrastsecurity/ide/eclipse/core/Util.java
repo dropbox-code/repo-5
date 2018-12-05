@@ -140,4 +140,34 @@ public class Util {
 
 		return buffer.toString();
 	}
+	
+	public static String filterHeaders(String data, String separator) {
+		String[] lines = data.split(separator);
+		String[] headers = { "authorization:", "_tid:", ":" };
+
+		ArrayList<String> filtered = new ArrayList<>();
+
+		for (String line : lines) {
+			boolean filteredLine = true;
+
+			for (String header : headers) {
+
+				if (line.toLowerCase().contains(header)) {
+					if (!header.equals(":")) {
+						filteredLine = false;
+					} else {
+						if (line.split(":")[0].toLowerCase().contains("token")) {
+							filteredLine = false;
+						}
+					}
+				}
+			}
+			if (filteredLine) {
+				filtered.add(line);
+			}
+
+		}
+
+		return String.join(separator, filtered);
+	}
 }
