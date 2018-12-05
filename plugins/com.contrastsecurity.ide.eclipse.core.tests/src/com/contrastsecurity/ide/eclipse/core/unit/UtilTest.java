@@ -31,7 +31,7 @@ public class UtilTest {
     @Test
     public void filterHeadersTest() {
         String authorizationString = "Authorization: Basic Z3Vl...Q6Z3Vlc3Q=";
-        String intuitTidString = "_tid: iasjdfjas9023423234lkj24";
+        String tidString = "_tid: iasjdfjas9023423234lkj24";
         String tokenString = "token : afskjfasdfljljasdfljasdf";
 
         String goodString1 = "/plugin_extracted/plugin/DBCrossSiteScripting/jsp/EditProfile.jsp";
@@ -40,7 +40,7 @@ public class UtilTest {
 
         String separator = "\n";
         String data = goodString1 + separator + authorizationString + separator + goodString2 + separator +
-                intuitTidString + separator + goodString3 + separator + tokenString;
+                tidString + separator + goodString3 + separator + tokenString;
 
         String filtered = Util.filterHeaders(data, separator);
         assertEquals(goodString1 + separator + goodString2 + separator + goodString3, filtered);
