@@ -13,6 +13,7 @@
  *     Contrast Security - initial API and implementation
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui;
+import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -25,7 +26,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+
+import java.util.ResourceBundle;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.File;
 
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.ui.cache.ContrastCache;
@@ -43,6 +50,8 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 	private static ContrastUIActivator plugin;
 	
 	private static ContrastCache contrastCache = new ContrastCache();
+
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	/**
 	 * The constructor
@@ -83,12 +92,16 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 	 *
 	 * @param path the path
 	 * @return the image descriptor
+	 * @throws MalformedURLException 
 	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	public static ImageDescriptor getImageDescriptor(String path) throws MalformedURLException {
+		Bundle bundle = Platform.getBundle(PLUGIN_ID);
+		URL fileURL = bundle.getEntry(path); //$NON-NLS-1$
+		ImageDescriptor createFromURL = ImageDescriptor.createFromURL(fileURL);
+		return createFromURL;
 	}
 	
-	public static Image getImage(String path) {
+	public static Image getImage(String path) throws MalformedURLException {
 		ImageRegistry registry = getDefault().getImageRegistry();
 		Image image = registry.get(path);
 		if (image == null) {
@@ -112,19 +125,24 @@ public class ContrastUIActivator extends AbstractUIPlugin {
 		plugin.getLog().log(new Status(IStatus.WARNING, PLUGIN_ID, message));
 	}
 	
-	public static Image getSeverityImage(Trace element) {
+	public static Image getSeverityImage(Trace element) throws MalformedURLException {
+		String fileName = null;
 		switch (element.getSeverity()) {
 		case "Note":
-			return ContrastUIActivator.getImage("/icons/note.png");
+			fileName = resource.getString("NOTE_ICON");
+			return ContrastUIActivator.getImage(fileName);
 		case "High":
-			return ContrastUIActivator.getImage("/icons/high.png");
+			fileName = resource.getString("HIGH_ICON");
+			return ContrastUIActivator.getImage(fileName);
 		case "Medium":
-			return ContrastUIActivator.getImage("/icons/medium.png");
+			fileName = resource.getString("MEDIUM_ICON");
+			return ContrastUIActivator.getImage(fileName);
 		case "Low":
-			return ContrastUIActivator.getImage("/icons/low.png");
+			fileName = resource.getString("LOW_ICON");
+			return ContrastUIActivator.getImage(fileName);
 		case "Critical":
-			return ContrastUIActivator.getImage("/icons/critical.png");
-		}
+			fileName = resource.getString("CRITICAL_ICON");
+			return ContrastUIActivator.getImage(fileName);}
 		return null;
 	}
 	

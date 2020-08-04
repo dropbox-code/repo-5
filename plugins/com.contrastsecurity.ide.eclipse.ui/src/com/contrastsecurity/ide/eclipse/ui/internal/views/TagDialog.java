@@ -14,11 +14,13 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.dialogs.Dialog;
@@ -66,6 +68,8 @@ public class TagDialog extends Dialog {
 
 	private List<String> newTraceTags = null;
 
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+
 	private ISelectionChangedListener tagsComboViewerListener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
@@ -94,7 +98,7 @@ public class TagDialog extends Dialog {
 		Composite container = (Composite) super.createDialogArea(parent);
 		Composite comboComposite = new Composite(container, SWT.NONE);
 		comboComposite.setLayout(new GridLayout(2, false));
-		UIElementUtils.createLabel(comboComposite, "Apply existing tag");
+		UIElementUtils.createLabel(comboComposite, resource.getString("APPLY_EXISTING_TAG"));
 		tagsComboViewer = UIElementUtils.createComboViewer(comboComposite);
 		populateTagsComboViewer(tagsComboViewer, traceTagsResource, orgTagsResource);
 		tagsComboViewer.addSelectionChangedListener(tagsComboViewerListener);
@@ -109,10 +113,10 @@ public class TagDialog extends Dialog {
 
 		Composite createTagComposite = new Composite(container, SWT.NONE);
 		createTagComposite.setLayout(new GridLayout(3, false));
-		UIElementUtils.createLabel(createTagComposite, "Create and apply a new tag");
+		UIElementUtils.createLabel(createTagComposite, resource.getString("CREATE_AND_APPLY_NEW_TAG"));
 		createTagText = new Text(createTagComposite, SWT.BORDER);
 
-		Button createTagButton = createButton(createTagComposite, "Create");
+		Button createTagButton = createButton(createTagComposite, resource.getString("CREATE_TAG"));
 
 		createTagButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -125,7 +129,7 @@ public class TagDialog extends Dialog {
 		Composite appliedTagsComposite = new Composite(container, SWT.NONE);
 		appliedTagsComposite.setLayout(new GridLayout(2, false));
 
-		UIElementUtils.createLabel(appliedTagsComposite, "Applied tags");
+		UIElementUtils.createLabel(appliedTagsComposite, resource.getString("APPLIED_TAGS"));
 		tableViewer = createTableViewer(container);
 
 		String[] traceTagsArray = traceTagsResource.getTags().toArray(new String[traceTagsResource.getTags().size()]);
@@ -150,7 +154,7 @@ public class TagDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Tag Vulnerability");
+		newShell.setText(resource.getString("TAG_VULNERABILITY"));
 	}
 
 	@Override
@@ -178,10 +182,10 @@ public class TagDialog extends Dialog {
 		tableViewer.getTable().setLayout(layout);
 
 		TableColumn tagColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
-		tagColumn.setText("Tag");
+		tagColumn.setText(resource.getString("TAG_VULNERABILITY"));
 		tagColumn.setWidth(290);
 		TableColumn removeColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
-		removeColumn.setText("Remove");
+		removeColumn.setText(resource.getString("REMOVE_TAG"));
 		removeColumn.setWidth(70);
 
 		tableViewer.getTable().addMouseListener(new MouseListener() {
@@ -206,7 +210,13 @@ public class TagDialog extends Dialog {
 			@Override
 			public void handleEvent(Event event) {
 				if (event.index == 1) {
-					Image tmpImage = ContrastUIActivator.getImage("/icons/remove.png");
+					Image tmpImage = null;
+					try {
+						tmpImage = ContrastUIActivator.getImage("/icons/remove.png");
+					} catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					int tmpWidth = 0;
 					int tmpHeight = 0;
 					int tmpX = 0;

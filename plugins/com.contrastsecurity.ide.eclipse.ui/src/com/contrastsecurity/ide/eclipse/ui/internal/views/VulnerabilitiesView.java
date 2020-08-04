@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.jobs.Job;
@@ -149,9 +150,12 @@ public class VulnerabilitiesView extends ViewPart {
 	private int currentOffset = 0;
 	private static final int PAGE_LIMIT = 20;
 	private int total = 0;
+	
 	IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 
 	TraceFilterForm currentTraceFilterForm;
+
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	private String traceSort = Constants.SORT_DESCENDING + Constants.SORT_BY_SEVERITY;
 
@@ -220,7 +224,12 @@ public class VulnerabilitiesView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		currentTraceFilterForm = getTraceFilterFormFromEclipsePreferences();
-		createList(parent);
+		try {
+			createList(parent);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// refreshTraces();
 		// viewer.setLabelProvider(new TraceLabelProvider());
 		getSite().setSelectionProvider(table);
@@ -228,11 +237,11 @@ public class VulnerabilitiesView extends ViewPart {
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
-		refreshJob = new RefreshJob("Refresh ...", this);
+		refreshJob = new RefreshJob(resource.getString("REFRESH_LABEL"), this);
 		refreshJob.schedule();
 	}
 
-	private void createList(Composite parent) {
+	private void createList(Composite parent) throws MalformedURLException {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout());
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -275,17 +284,17 @@ public class VulnerabilitiesView extends ViewPart {
 		refreshAction.setEnabled(Util.hasConfiguration());
 	}
 
-	private VulnerabilityPage createNoVulnerabilitiesPage(PageBook book) {
+	private VulnerabilityPage createNoVulnerabilitiesPage(PageBook book) throws MalformedURLException {
 		VulnerabilityPage noVulnerabilitiesPage = new VulnerabilityPage(book, SWT.NONE, this);
-		noVulnerabilitiesPage.getLabel().setText("0 Vulnerabilities");
+		noVulnerabilitiesPage.getLabel().setText(resource.getString("ZERO_VULNERABILITIES_LABEL"));
 		Label label = new Label(noVulnerabilitiesPage, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		label.setLayoutData(gd);
-		label.setText("No vulnerabilities were found.");
+		label.setText(resource.getString("NO_VULNERABILITIES_WERE_FOUND_LABEL"));
 		return noVulnerabilitiesPage;
 	}
 
-	private VulnerabilityPage createMainPage(PageBook book) {
+	private VulnerabilityPage createMainPage(PageBook book) throws MalformedURLException {
 		VulnerabilityPage mainPage = new MainPage(book, SWT.NONE, this);
 		createViewer(mainPage);
 		return mainPage;
@@ -311,7 +320,7 @@ public class VulnerabilitiesView extends ViewPart {
 		table.setLabelProvider(new VulnerabilityLabelProvider());
 		TableColumn column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(80);
-		column.setText("Severity");
+		column.setText(resource.getString("SEVERITY_LABEL"));
 
 		column.addSelectionListener(new SelectionListener() {
 
@@ -335,7 +344,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 		column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(600);
-		column.setText("Vulnerability");
+		column.setText(resource.getString("VULNERABILITY_LABEL"));
 
 		column.addSelectionListener(new SelectionListener() {
 
@@ -359,7 +368,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 		column = new TableColumn(table.getTable(), SWT.NONE);
 		column.setWidth(400);
-		column.setText("Application");
+		column.setText(resource.getString("APPLICATION_LABEL"));
 
 		table.getTable().addMouseListener(new MouseListener() {
 
@@ -491,7 +500,12 @@ public class VulnerabilitiesView extends ViewPart {
 				detailsPage.setDefaultSelection(tab);
 				activePage = detailsPage;
 				refreshAction.setEnabled(false);
-				detailsPage.setTrace(trace);
+				try {
+					detailsPage.setTrace(trace);
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		});
@@ -621,7 +635,7 @@ public class VulnerabilitiesView extends ViewPart {
 					@Override
 					public void run() {
 						if (table != null && !table.getTable().isDisposed()) {
-							statusLabel.setText("Server error: " + e.getMessage());
+							statusLabel.setText(resource.getString("SERVER_ERROR") + e.getMessage());
 						} else {
 							refreshJob.cancel();
 						}
@@ -687,7 +701,7 @@ public class VulnerabilitiesView extends ViewPart {
 
 			addListeners(mainPage);
 			refreshAction.setEnabled(true);
-			currentPage.getLabel().setText(traces.getTraces().size() + " Vulnerabilities");
+			currentPage.getLabel().setText(traces.getTraces().size() + " " + resource.getString("VULNERABILITIES_LABEL"));
 		} else {
 			if (activePage != noVulnerabilitiesPage) {
 				book.showPage(noVulnerabilitiesPage);
@@ -708,7 +722,7 @@ public class VulnerabilitiesView extends ViewPart {
 	}
 
 	private void noOrgUuid(Exception e) {
-		statusLabel.setText("Server error: " + e.getMessage());
+		statusLabel.setText(resource.getString("SERVER_ERROR") + e.getMessage());
 		table.refresh();
 		if (currentPage == noVulnerabilitiesPage || currentPage == mainPage) {
 			addListeners(currentPage);
@@ -718,7 +732,7 @@ public class VulnerabilitiesView extends ViewPart {
 	private void startRefreshTraces() {
 		showLoadingPage();
 		table.setInput(new Trace[0]);
-		currentPage.getLabel().setText("0 Vulnerabilities");
+		currentPage.getLabel().setText(resource.getString("ZERO_VULNERABILITIES_LABEL"));
 		refreshAction.setEnabled(false);
 		removeListeners(mainPage);
 		removeListeners(noVulnerabilitiesPage);
@@ -826,8 +840,8 @@ public class VulnerabilitiesView extends ViewPart {
 				}
 			}
 		};
-		openPreferencesPage.setText("Contrast Preferences Page");
-		openPreferencesPage.setToolTipText("Open Contrast Preferences Page");
+		openPreferencesPage.setText(resource.getString("CONTRAST_PREFERENCES_LABEL"));
+		openPreferencesPage.setToolTipText(resource.getString("OPEN_CONTRAST_PREFERENCES_LABEL"));
 		openPreferencesPage.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		refreshAction = new Action() {
@@ -835,8 +849,8 @@ public class VulnerabilitiesView extends ViewPart {
 				startRefreshJob();
 			}
 		};
-		refreshAction.setText("Refresh");
-		refreshAction.setToolTipText("Refresh vulnerabilities from server");
+		refreshAction.setText(resource.getString("REFRESH_LABEL"));
+		refreshAction.setToolTipText(resource.getString("REFRESH_TOOLTIP"));
 		refreshAction.setImageDescriptor(
 				ContrastUIActivator.imageDescriptorFromPlugin(ContrastUIActivator.PLUGIN_ID, "/icons/refresh_tab.gif"));
 		doubleClickAction = new Action() {
@@ -938,10 +952,14 @@ public class VulnerabilitiesView extends ViewPart {
 			Long lastDetectedFrom = prefs.getLong(Constants.LAST_DETECTED_FROM, 0);
 			Long lastDetectedTo = prefs.getLong(Constants.LAST_DETECTED_TO, 0);
 
-			switch (lastDetected) {
-			case Constants.LAST_DETECTED_ALL:
-				break;
-			case Constants.LAST_DETECTED_CUSTOM:
+			
+			if(lastDetected.equals(resource.getString("LAST_DETECTED_ALL"))) {
+				if (lastDetectedFrom != 0) {
+					Date fromDate = new Date(lastDetectedFrom);
+					form.setStartDate(fromDate);
+				}
+			}
+			else if(lastDetected.equals(resource.getString("LAST_DETECTED_CUSTOM"))) {
 				if (lastDetectedFrom != 0) {
 					Date fromDate = new Date(lastDetectedFrom);
 					form.setStartDate(fromDate);
@@ -950,13 +968,11 @@ public class VulnerabilitiesView extends ViewPart {
 					Date toDate = new Date(lastDetectedTo);
 					form.setEndDate(toDate);
 				}
-				break;
-			default:
+			} else {
 				if (lastDetectedFrom != 0) {
 					Date fromDate = new Date(lastDetectedFrom);
 					form.setStartDate(fromDate);
 				}
-				break;
 			}
 		}
 

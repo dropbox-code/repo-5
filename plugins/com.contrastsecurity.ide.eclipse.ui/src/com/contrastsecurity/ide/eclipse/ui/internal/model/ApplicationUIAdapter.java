@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.util.ResourceBundle;
+
 import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.models.Application;
 
@@ -21,6 +23,9 @@ public class ApplicationUIAdapter implements IContrastLabelProvider {
 
 	private Application application;
 	private String name;
+
+
+	ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	public ApplicationUIAdapter(Application application, String name) {
 		super();

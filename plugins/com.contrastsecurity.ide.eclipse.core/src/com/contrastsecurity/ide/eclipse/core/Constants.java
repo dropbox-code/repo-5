@@ -129,6 +129,13 @@ public interface Constants {
 	static final String VULNERABILITY_STATUS_BEING_TRACKED = "Being+Tracked";
 	static final String VULNERABILITY_STATUS_UNTRACKED = "Untracked";
 	static final String VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING = "NotAProblem";
+	
+
+	static final String URL = "Url is only accessible by trusted powers";
+	static final String FP = "False Positive";
+	static final String IC = "Goes through an internal security protocol";
+	static final String	EC = "Attack is defended by an external control";
+	static final String	OT= "Other";
 
 	static final String CURRENT_OFFSET = "currentOffset";
 

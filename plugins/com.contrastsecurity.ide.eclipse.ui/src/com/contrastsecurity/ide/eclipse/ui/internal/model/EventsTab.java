@@ -17,6 +17,7 @@ package com.contrastsecurity.ide.eclipse.ui.internal.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFile;
@@ -69,6 +70,7 @@ public class EventsTab extends AbstractTab {
 
 	private EventSummaryResource eventSummary;
 	private TreeViewer viewer;
+	ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	public EventsTab(Composite parent, int style) {
 		super(parent, style);
@@ -108,11 +110,11 @@ public class EventsTab extends AbstractTab {
 								typeName = getTypeName(str);
 								lineNumber = getLineNumber(str);
 							} catch (CoreException e1) {
-								ErrorDialog.openError(ContrastUIActivator.getActiveWorkbenchShell(), "Error",
-										"Stacktrace Error", e1.getStatus());
+								ErrorDialog.openError(ContrastUIActivator.getActiveWorkbenchShell(), resource.getString("ERROR"),
+										resource.getString("STACKTRACE_ERROR"), e1.getStatus());
 								return;
 							}
-							Job search = new Job("Searching for code in workspace...") {
+							Job search = new Job(resource.getString("SEARCHING_FOR_CODE")) {
 								@Override
 								protected IStatus run(IProgressMonitor monitor) {
 									Set<IType> result = null;
@@ -166,15 +168,15 @@ public class EventsTab extends AbstractTab {
 	}
 
 	private void searchCompleted(Object result, final String typeName, final int lineNumber, final IStatus status) {
-		UIJob job = new UIJob("Search complete") {
+		UIJob job = new UIJob(resource.getString("SEARCH_COMPLETE")) {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (!validateSearchResult(result)) {
 					if (status == null) {
 						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(), "Information",
-								"Source not found for " + typeName);
+								resource.getString("SOURCE_NOT_FOUND_FOR") + typeName);
 					} else {
-						ContrastUIActivator.statusDialog("Source not found", status);
+						ContrastUIActivator.statusDialog(resource.getString("SOURCE_NOT_FOUND"), status);
 					}
 				} else {
 					processSearchResult(result, typeName, lineNumber);
@@ -199,7 +201,7 @@ public class EventsTab extends AbstractTab {
 						editorPart = EditorUtility.openInEditor(file, true);
 					}
 				} catch (PartInitException e1) {
-					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					ContrastUIActivator.statusDialog(resource.getString("ERROR"), e1.getStatus());
 					return;
 				}
 				if (editorPart != null)
@@ -210,7 +212,7 @@ public class EventsTab extends AbstractTab {
 				try {
 					editorPart = EditorUtility.openInEditor(iType, true);
 				} catch (PartInitException e1) {
-					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					ContrastUIActivator.statusDialog(resource.getString("ERROR"), e1.getStatus());
 					return;
 				}
 				if (editorPart != null)
@@ -224,7 +226,7 @@ public class EventsTab extends AbstractTab {
 				try {
 					editorPart = EditorUtility.openInEditor(file, true);
 				} catch (PartInitException e1) {
-					ContrastUIActivator.statusDialog("Error", e1.getStatus());
+					ContrastUIActivator.statusDialog(resource.getString("ERROR"), e1.getStatus());
 					return;
 				}
 				if (editorPart != null)
@@ -247,7 +249,7 @@ public class EventsTab extends AbstractTab {
 						textEditor.selectAndReveal(line.getOffset(), line.getLength());
 					} catch (BadLocationException e) {
 						MessageDialog.openInformation(ContrastUIActivator.getActiveWorkbenchShell(),
-								"Invalid line number", (lineNumber + 1) + " is not valid line number in " + typeName);
+								resource.getString("INVALID_LINE"), (lineNumber + 1) + resource.getString("INVALID_LINE_FILE") + typeName);
 					}
 					provider.disconnect(editorInput);
 				}
@@ -287,7 +289,7 @@ public class EventsTab extends AbstractTab {
 			return typeName;
 		}
 		IStatus status = new Status(IStatus.ERROR, ContrastUIActivator.PLUGIN_ID, 0,
-				"Unable to parse type name from stacktrace", null);
+				resource.getString("UNABLE_TO_PARSE"), null);
 		throw new CoreException(status);
 	}
 
@@ -303,12 +305,12 @@ public class EventsTab extends AbstractTab {
 				return Integer.parseInt(numText);
 			} catch (NumberFormatException e) {
 				IStatus status = new Status(IStatus.ERROR, ContrastUIActivator.PLUGIN_ID, 0,
-						"Unable to parse line number from stacktrace", e);
+					resource.getString("UNABLE_TO_PARSE"), e);
 				throw new CoreException(status);
 			}
 		}
 		IStatus status = new Status(IStatus.ERROR, ContrastUIActivator.PLUGIN_ID, 0,
-				"Unable to parse line number from stacktrace", null);
+			resource.getString("UNABLE_TO_PARSE"), null);
 		throw new CoreException(status);
 	}
 

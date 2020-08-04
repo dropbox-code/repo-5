@@ -20,9 +20,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import java.util.ResourceBundle;
+
 import com.contrastsecurity.ide.eclipse.ui.internal.views.VulnerabilitiesView;
 
 public class LoadingPage extends AbstractPage {
+	ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	public LoadingPage(Composite parent, int style, VulnerabilitiesView vulnerabilitiesView) {
 		super(parent, style, vulnerabilitiesView);
@@ -41,7 +44,7 @@ public class LoadingPage extends AbstractPage {
 		Label textLabel = new Label(comboComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		textLabel.setLayoutData(gd);
-		textLabel.setText("Loading...");
+		textLabel.setText(resource.getString("LOADING"));
 	}
 
 }

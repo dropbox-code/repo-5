@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.util.ResourceBundle;
+
 import org.eclipse.jface.viewers.OwnerDrawLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -32,7 +34,10 @@ import com.contrastsecurity.ide.eclipse.core.extended.EventResource;
 
 public class EventLabelProvider extends OwnerDrawLabelProvider {
 
-	private static final String INTERESTING_SECURITY_EVENT_OCCURED_ON_DATA = "INTERESTING SECURITY EVENT OCCURED ON DATA";
+
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+
+	private static final String INTERESTING_SECURITY_EVENT_OCCURED_ON_DATA = resource.getString("SECURITY_EVENT");
 	private TreeViewer viewer;
 
 	public EventLabelProvider(TreeViewer viewer) {
