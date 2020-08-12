@@ -51,7 +51,7 @@ public class MarkStatusDialog extends Dialog {
 	
 	private final static String URL = resource.getString("TRUSTED_URL_LABEL");
 	private final static String FP = resource.getString("FALSE_POSITIVE_LABEL");
-	private final static String IC= resource.getString("VULNERABILITY_STATUS_CONFIRMED_LABEL");
+	private final static String IC= resource.getString("INTERNAL_CONTROL_LABEL");
 	private final static String EC = resource.getString("EXTERNAL_CONTROL_LABEL");
 	private final static String OT = resource.getString("OTHER_LABEL");
 	
@@ -113,7 +113,7 @@ public class MarkStatusDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				status = visualStatus = statusCombo.getText();
 				
-				if (status.equals(NOT_A_PROBLEM)) {
+				if (status.equals(NOT_A_PROBLEM) || status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING) || status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM)) {
 					reasonCombo.setEnabled(true);
 					status = Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING;					
 				} else if (status.equals(CONFIRMED)) {
@@ -168,8 +168,11 @@ public class MarkStatusDialog extends Dialog {
 		request = new TraceStatusRequest();
 		request.setTraces(traces);
 		request.setStatus(status);
-		if(StringUtils.isNotBlank(noteText.getText()))
+		if(StringUtils.isNotBlank(noteText.getText())) {
 			request.setNote(noteText.getText());
+		}
+
+
 		if(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING.equals(status)) {
 			String substatusRequest = "Other";
 			if(reasonCombo.getText().equals(URL)) {

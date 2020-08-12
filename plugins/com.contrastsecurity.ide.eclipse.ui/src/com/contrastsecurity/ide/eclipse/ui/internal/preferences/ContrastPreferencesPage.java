@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,6 +74,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Button addOrganizationBtn;
 	private Button deleteOrganizationBtn;
 	private TableViewer tableViewer;
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -121,31 +123,29 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 		Group defaultOrganizationGroup = new Group(composite, SWT.NONE);
 		defaultOrganizationGroup.setLayout(new GridLayout(2, false));
-		defaultOrganizationGroup.setText("Add Organization");
+		defaultOrganizationGroup.setText(resource.getString("ADD_ORGANIZATION"));
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
 		defaultOrganizationGroup.setLayoutData(gd);
 
 		UIElementUtils.createLabel(defaultOrganizationGroup, "Contrast URL:");
 		teamServerText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
-		teamServerText.setToolTipText(
-				"This should be the address of your TeamServer from which vulnerability data should be retrieved.\n Ex: https://app.contrastsecurity.com/Contrast/api");
+		teamServerText.setToolTipText(resource.getString("URL_INFORMATION"));
 
-		UIElementUtils.createLabel(defaultOrganizationGroup, "Username:");
+		UIElementUtils.createLabel(defaultOrganizationGroup, resource.getString("USERNAME"));
 		usernameText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 
-		UIElementUtils.createLabel(defaultOrganizationGroup, "Service Key:");
+		UIElementUtils.createLabel(defaultOrganizationGroup, resource.getString("SERVICE_KEY"));
 		serviceKeyText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
-		serviceKeyText.setToolTipText(
-				"You can find your Service Key at the bottom of your Account Profile, under \"Your Keys\".");
+		serviceKeyText.setToolTipText(resource.getString("SERVICE_KEY_INFO"));
 
-		UIElementUtils.createLabel(defaultOrganizationGroup, "API Key:");
+		UIElementUtils.createLabel(defaultOrganizationGroup, resource.getString("API_KEY"));
 		apiKeyText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1, SWT.PASSWORD | SWT.BORDER);
 
-		UIElementUtils.createLabel(defaultOrganizationGroup, "Organization ID:");
+		UIElementUtils.createLabel(defaultOrganizationGroup, resource.getString("ORG_ID"));
 		organizationUuidText = UIElementUtils.createText(defaultOrganizationGroup, 2, 1);
 
 		gd = new GridData(SWT.LEFT_TO_RIGHT, SWT.CENTER, false, false, 1, 1);
-		addOrganizationBtn = UIElementUtils.createButton(defaultOrganizationGroup, gd, "Add");
+		addOrganizationBtn = UIElementUtils.createButton(defaultOrganizationGroup, gd, resource.getString("ADD"));
 
 		gd = new GridData(SWT.CENTER, SWT.FILL, false, false, 3, 1);
 		testConnectionLabel = UIElementUtils.createBasicLabel(defaultOrganizationGroup, gd, "");
@@ -161,7 +161,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		});
 
 		gd = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-		deleteOrganizationBtn = UIElementUtils.createButton(composite, gd, "Remove");
+		deleteOrganizationBtn = UIElementUtils.createButton(composite, gd, resource.getString("REMOVE"));
 
 		addOrganizationBtn.addSelectionListener(new SelectionListener() {
 
@@ -277,13 +277,13 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		try {
 			u = new URL(url);
 		} catch (MalformedURLException e1) {
-			MessageDialog.openError(getShell(), "Exception", "Invalid URL.");
-			testConnectionLabel.setText("Connection failed!");
+			MessageDialog.openError(getShell(), resource.getString("EXCEPTION"), resource.getString("INVALID_URL"));
+			testConnectionLabel.setText(resource.getString("CONNECTION_FAILED"));
 			return;
 		}
 		if (!u.getProtocol().startsWith("http")) {
-			MessageDialog.openError(getShell(), "Exception", "Invalid protocol.");
-			testConnectionLabel.setText("Connection failed!");
+			MessageDialog.openError(getShell(), resource.getString("EXCEPTION"), resource.getString("INVALID_PROTOCOL"));
+			testConnectionLabel.setText(resource.getString("CONNECTION_FAILED"));
 			return;
 		}
 		IRunnableWithProgress op = new IRunnableWithProgress() {
@@ -297,20 +297,16 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 						try {
 							Organization organization = Util.getDefaultOrganization(sdk);
 							if (organization == null || organization.getOrgUuid() == null) {
-								testConnectionLabel
-										.setText("Connection is correct, but no default organizations found.");
+								testConnectionLabel.setText(resource.getString("NO_ORG_FOUND"));
 							} else {
-								testConnectionLabel.setText("Connection confirmed!");
+								testConnectionLabel.setText(resource.getString("CONFIRMED_CONNECTION"));
 							}
 						} catch (IOException e1) {
-							showErrorMessage(e1, getShell(), "Connection error",
-									"Could not connect to Contrast. Please verify that the URL is correct and try again.");
+							showErrorMessage(e1, getShell(), resource.getString("CONNECTION_ERROR"), resource.getString("CONTRAST_ERROR"));
 						} catch (UnauthorizedException e1) {
-							showErrorMessage(e1, getShell(), "Access denied",
-									"Verify your credentials and make sure you have access to the selected organization.");
+							showErrorMessage(e1, getShell(), resource.getString("ACCESS_DENIED"), resource.getString("VERIFY_CREDENTIALS_ERROR"));
 						} catch (Exception e1) {
-							showErrorMessage(e1, getShell(), "Unknown error",
-									"Unknown exception. Please inform an admin about this.");
+							showErrorMessage(e1, getShell(), resource.getString("UNKNOWN_ERROR"), resource.getString("UNKNOWN_ERROR_INFO"));
 						} finally {
 							composite.layout(true, true);
 							composite.redraw();
@@ -332,7 +328,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 	private void showErrorMessage(final Exception e, final Shell shell, final String title, final String message) {
 		ContrastUIActivator.log(e);
-		testConnectionLabel.setText("Connection failed!");
+		testConnectionLabel.setText(resource.getString("CONNECTION_FAILED"));
 
 		new Thread(new Runnable() {
 			public void run() {
@@ -376,7 +372,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		tableViewer.getTable().setLayout(layout);
 
 		TableColumn orgNameColumn = new TableColumn(tableViewer.getTable(), SWT.NONE);
-		orgNameColumn.setText("Organization");
+		orgNameColumn.setText(resource.getString("ORGANIZATION"));
 		orgNameColumn.setWidth(180);
 
 		String[] list = ContrastCoreActivator.getOrganizationList();
@@ -402,13 +398,13 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 		try {
 			u = new URL(url);
 		} catch (MalformedURLException e1) {
-			MessageDialog.openError(getShell(), "Exception", "Invalid URL.");
-			testConnectionLabel.setText("Connection failed!");
+			MessageDialog.openError(getShell(), resource.getString("EXCEPTION"), resource.getString("INVALID_URL"));
+			testConnectionLabel.setText(resource.getString("CONNECTION_FAILED"));
 			return;
 		}
 		if (!u.getProtocol().startsWith("http")) {
-			MessageDialog.openError(getShell(), "Exception", "Invalid protocol.");
-			testConnectionLabel.setText("Connection failed!");
+			MessageDialog.openError(getShell(), resource.getString("EXCEPTION"), resource.getString("INVALID_PROTOCOL"));
+			testConnectionLabel.setText(resource.getString("CONNECTION_FAILED"));
 			return;
 		}
 
@@ -457,21 +453,18 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 												tableViewer.getTable().setSelection(0);
 											}
 										} else {
-											testConnectionLabel.setText("Organization already exists");
+											testConnectionLabel.setText(resource.getString("ORGANIZATION_EXISTS"));
 										}
 										break;
 									}
 								}
 							}
 						} catch (IOException e1) {
-							showErrorMessage(e1, getShell(), "Connection error",
-									"Could not connect to Contrast. Please verify that the URL is correct and try again.");
+							showErrorMessage(e1, getShell(), resource.getString("CONNECTION_ERROR"), resource.getString("CONTRAST_ERROR"));
 						} catch (UnauthorizedException e1) {
-							showErrorMessage(e1, getShell(), "Access denied",
-									"Verify your credentials and make sure you have access to the selected organization.");
+							showErrorMessage(e1, getShell(), resource.getString("ACCESS_DENIED"), resource.getString("VERIFY_CREDENTIALS_ERROR"));
 						} catch (Exception e1) {
-							showErrorMessage(e1, getShell(), "Unknown error",
-									"Unknown exception. Please inform an admin about this.");
+							showErrorMessage(e1, getShell(), resource.getString("UKNOWN_ERROR"), resource.getString("UNKNOWN_ERROR_INFO"));
 						} finally {
 							composite.layout(true, true);
 							composite.redraw();
