@@ -16,6 +16,8 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,7 +26,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.Dialog;
@@ -81,6 +86,7 @@ public class FilterDialog extends Dialog {
 	private Servers servers;
 	private Applications applications;
 
+
 	private Button statusAutoRemediatedButton;
 	private Button statusNotAProblemButton;
 	private Button statusFixedButton;
@@ -95,6 +101,18 @@ public class FilterDialog extends Dialog {
 
 	private final IEclipsePreferences prefs = ContrastCoreActivator.getPreferences();
 
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+
+	private static final String[] lastDetectedList = {
+			resource.getString("LAST_DETECTED_ALL"),
+			resource.getString("LAST_DETECTED_HOUR"),
+			resource.getString("LAST_DETECTED_DAY"),
+			resource.getString("LAST_DETECTED_WEEK"),
+			resource.getString("LAST_DETECTED_MONTH"),
+			resource.getString("LAST_DETECTED_YEAR"),
+			resource.getString("LAST_DETECTED_CUSTOM")
+		};
+	
 	private final ISelectionChangedListener serverComboBoxListener = new ISelectionChangedListener() {
 
 		@Override
@@ -127,43 +145,35 @@ public class FilterDialog extends Dialog {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 
-			final String selection = (String) ((IStructuredSelection) lastDetectedCombo.getSelection())
-					.getFirstElement();
+			final String selection = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
 
-			if (!selection.equals((Constants.LAST_DETECTED_CUSTOM))) {
+			if (!selection.equals((resource.getString("LAST_DETECTED_CUSTOM")))) {
 				dateTimeFrom.setEnabled(false);
 				dateTimeTo.setEnabled(false);
 			}
 			LocalDateTime localDateTime = LocalDateTime.now();
-			switch (selection) {
-			case Constants.LAST_DETECTED_ALL:
+			if (selection.equals(resource.getString("LAST_DETECTED_ALL"))) {
 				prefs.remove(Constants.LAST_DETECTED_FROM);
 				prefs.remove(Constants.LAST_DETECTED_TO);
-				break;
-			case Constants.LAST_DETECTED_HOUR:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_HOUR"))) {
 				LocalDateTime localDateTimeMinusHour = localDateTime.minusHours(1);
 				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusHour);
-				break;
-			case Constants.LAST_DETECTED_DAY:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_DAY"))) {
 				LocalDateTime localDateTimeMinusDay = localDateTime.minusDays(1);
 				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusDay);
-				break;
-			case Constants.LAST_DETECTED_WEEK:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_WEEK"))) {
 				LocalDateTime localDateTimeMinusWeek = localDateTime.minusWeeks(1);
 				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusWeek);
-				break;
-			case Constants.LAST_DETECTED_MONTH:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_MONTH"))) {
 				LocalDateTime localDateTimeMinusMonth = localDateTime.minusMonths(1);
 				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusMonth);
-				break;
-			case Constants.LAST_DETECTED_YEAR:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_YEAR"))) {
 				LocalDateTime localDateTimeMinusYear = localDateTime.minusYears(1);
 				setDateTimeFromLocalDateTime(dateTimeFrom, localDateTimeMinusYear);
-				break;
-			case Constants.LAST_DETECTED_CUSTOM:
+			} else if (selection.equals(resource.getString("LAST_DETECTED_CUSTOM"))) {
 				dateTimeFrom.setEnabled(true);
 				dateTimeTo.setEnabled(true);
-				break;
+
 			}
 		}
 	};
@@ -207,10 +217,12 @@ public class FilterDialog extends Dialog {
 		lastDetectedCombo = UIElementUtils.createComboViewer(composite);
 
 		Set<String> lastDetectedValues = new LinkedHashSet<>();
-		lastDetectedValues.addAll(Arrays.asList(Constants.LAST_DETECTED_CONSTANTS));
+		
+		lastDetectedValues.addAll(Arrays.asList(lastDetectedList));
 
 		lastDetectedCombo.setInput(lastDetectedValues);
-		lastDetectedCombo.setSelection(new StructuredSelection(Constants.LAST_DETECTED_ALL));
+
+		lastDetectedCombo.setSelection(new StructuredSelection(resource.getString("LAST_DETECTED_ALL")));
 	}
 
 	private ComboViewer createContrastComboViewer(final Composite composite) {
@@ -234,7 +246,7 @@ public class FilterDialog extends Dialog {
 				}
 			}
 		}
-		ServerUIAdapter allServers = new ServerUIAdapter(null, "All Servers(" + count + ")");
+		ServerUIAdapter allServers = new ServerUIAdapter(null, resource.getString("ALL_SERVERS_LABEL") + "(" + count + ")");
 		contrastServers.add(allServers);
 		serverCombo.setInput(contrastServers);
 
@@ -287,7 +299,7 @@ public class FilterDialog extends Dialog {
 				}
 			}
 		}
-		ApplicationUIAdapter allApplications = new ApplicationUIAdapter(null, "All Applications(" + count + ")");
+		ApplicationUIAdapter allApplications = new ApplicationUIAdapter(null, resource.getString("ALL_APPLICATIONS_LABEL") + "(" + count + ")");
 		contrastApplications.add(allApplications);
 		applicationCombo.setInput(contrastApplications);
 
@@ -311,7 +323,7 @@ public class FilterDialog extends Dialog {
 		Composite comboComposite = new Composite(container, SWT.NONE);
 		comboComposite.setLayout(new GridLayout(2, false));
 
-		UIElementUtils.createLabel(comboComposite, "Server");
+		UIElementUtils.createLabel(comboComposite, resource.getString("SERVER_LABEL"));
 		String orgUuid = getOrgUuid();
 
 		serverCombo = createContrastComboViewer(comboComposite);
@@ -319,7 +331,7 @@ public class FilterDialog extends Dialog {
 
 		serverCombo.addSelectionChangedListener(serverComboBoxListener);
 
-		UIElementUtils.createLabel(comboComposite, "Application");
+		UIElementUtils.createLabel(comboComposite, resource.getString("APPLICATION_LABEL"));
 
 		applicationCombo = createContrastComboViewer(comboComposite);
 		updateApplicationCombo(orgUuid, true, applications);
@@ -348,28 +360,28 @@ public class FilterDialog extends Dialog {
 		Composite statusCompositeContainer = new Composite(container, SWT.NONE);
 		statusCompositeContainer.setLayout(new GridLayout(2, false));
 
-		UIElementUtils.createLabel(statusCompositeContainer, "Status");
+		UIElementUtils.createLabel(statusCompositeContainer, resource.getString("STATUS_LABEL"));
 
 		Composite statusComposite = new Composite(statusCompositeContainer, SWT.NONE);
 		statusComposite.setLayout(new GridLayout(3, false));
 
-		statusAutoRemediatedButton = createCheckBoxButton(statusComposite, "Auto-Remediated");
+		statusAutoRemediatedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_AUTO_REMEDIATED_LABEL"));
 
-		statusNotAProblemButton = createCheckBoxButton(statusComposite, "Not a Problem");
+		statusNotAProblemButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_NOT_A_PROBLEM_STRING_LABEL"));
 
-		statusFixedButton = createCheckBoxButton(statusComposite, "Fixed");
+		statusFixedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_FIXED_LABEL"));
 
-		statusConfirmedButton = createCheckBoxButton(statusComposite, "Confirmed");
+		statusConfirmedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_CONFIRMED_LABEL"));
 
-		statusRemediatedButton = createCheckBoxButton(statusComposite, "Remediated");
+		statusRemediatedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_REMEDIATED_LABEL"));
 
-		statusBeingTrackedButton = createCheckBoxButton(statusComposite, "Being Tracked");
+		statusBeingTrackedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_BEING_TRACKED_LABEL"));
 
-		statusSuspiciousButton = createCheckBoxButton(statusComposite, "Suspicious");
+		statusSuspiciousButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_SUSPICIOUS_LABEL"));
 
-		statusReportedButton = createCheckBoxButton(statusComposite, "Reported");
+		statusReportedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_REPORTED_LABEL"));
 
-		statusUntrackedButton = createCheckBoxButton(statusComposite, "Untracked");
+		statusUntrackedButton = createCheckBoxButton(statusComposite, resource.getString("VULNERABILITY_STATUS_UNTRACKED_LABEL"));
 	}
 
 	private void createAppVersionTagsSection(final Composite container) {
@@ -377,14 +389,14 @@ public class FilterDialog extends Dialog {
 		Composite appVersionTagsCompositeContainer = new Composite(container, SWT.NONE);
 		appVersionTagsCompositeContainer.setLayout(new GridLayout(2, false));
 
-		UIElementUtils.createLabel(appVersionTagsCompositeContainer, "Build Number");
+		UIElementUtils.createLabel(appVersionTagsCompositeContainer, resource.getString("BUILD_NUMBER_LABEL"));
 
 		Composite appVersionTagsComposite = new Composite(appVersionTagsCompositeContainer, SWT.NONE);
 		appVersionTagsComposite.setLayout(new GridLayout(3, false));
 
 		appVersionTagsComboViewer = UIElementUtils.createComboViewer(appVersionTagsComposite);
 
-		refreshAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, "Refresh");
+		refreshAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, resource.getString("REFRESH_LABEL"));
 		refreshAppVersionTagsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -401,7 +413,7 @@ public class FilterDialog extends Dialog {
 				container.layout();
 			}
 		});
-		clearAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, "Clear");
+		clearAppVersionTagsButton = UIElementUtils.createButton(appVersionTagsComposite, resource.getString("CLEAR_LABEL"));
 		clearAppVersionTagsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -439,18 +451,19 @@ public class FilterDialog extends Dialog {
 		Composite lastDetectedCompositeContainer = new Composite(container, SWT.NONE);
 		lastDetectedCompositeContainer.setLayout(new GridLayout(3, false));
 
-		UIElementUtils.createLabel(lastDetectedCompositeContainer, "Last Detected");
+		UIElementUtils.createLabel(lastDetectedCompositeContainer, resource.getString("LAST_DETECTED_LABEL"));
 
 		createLastDetectedCombo(lastDetectedCompositeContainer);
 
 		Composite lastDetectedComposite = new Composite(lastDetectedCompositeContainer, SWT.NONE);
 		lastDetectedComposite.setLayout(new GridLayout(2, false));
 
-		UIElementUtils.createLabel(lastDetectedComposite, "From");
+
+		UIElementUtils.createLabel(lastDetectedComposite, resource.getString("FROM_LABEL"));
 
 		dateTimeFrom = new DateTime(lastDetectedComposite, SWT.DROP_DOWN);
-
-		UIElementUtils.createLabel(lastDetectedComposite, "To");
+		
+		UIElementUtils.createLabel(lastDetectedComposite, resource.getString("UNTIL_LABEL"));
 
 		dateTimeTo = new DateTime(lastDetectedComposite, SWT.DROP_DOWN);
 
@@ -463,7 +476,7 @@ public class FilterDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Filter");
+		newShell.setText(resource.getString("FILTER_LABEL"));
 	}
 
 	private void saveFilter() {
@@ -489,20 +502,16 @@ public class FilterDialog extends Dialog {
 				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
 		Calendar calendarTo = new GregorianCalendar(dateTimeTo.getYear(), dateTimeTo.getMonth(), dateTimeTo.getDay(),
 				dateTimeTo.getHours(), dateTimeTo.getMinutes());
-
-		switch (lastDetected) {
-		case Constants.LAST_DETECTED_ALL:
+		
+		if (lastDetected.equals(resource.getString("LAST_DETECTED_ALL"))) {
 			prefs.remove(Constants.LAST_DETECTED_FROM);
 			prefs.remove(Constants.LAST_DETECTED_TO);
-			break;
-		case Constants.LAST_DETECTED_CUSTOM:
+		} else if (lastDetected.equals(resource.getString("LAST_DETECTED_CUSTOM"))) {
 			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
 			prefs.putLong(Constants.LAST_DETECTED_TO, calendarTo.getTimeInMillis());
-			break;
-		default:
+		} else {
 			prefs.putLong(Constants.LAST_DETECTED_FROM, calendarFrom.getTimeInMillis());
 			prefs.remove(Constants.LAST_DETECTED_TO);
-			break;
 		}
 		prefs.put(Constants.TRACE_FILTER_TYPE_APP_VERSION_TAGS, getSelectedAppVersionTag());
 	}
@@ -526,11 +535,8 @@ public class FilterDialog extends Dialog {
 			Long lastDetectedFrom = prefs.getLong(Constants.LAST_DETECTED_FROM, 0);
 			Long lastDetectedTo = prefs.getLong(Constants.LAST_DETECTED_TO, 0);
 
-			switch (lastDetected) {
-			case Constants.LAST_DETECTED_ALL:
-				break;
-			case Constants.LAST_DETECTED_CUSTOM:
-
+			if (lastDetected.equals(resource.getString("LAST_DETECTED_ALL"))) {
+			} else if (lastDetected.equals(resource.getString("LAST_DETECTED_CUSTOM"))) {
 				if (lastDetectedFrom != 0) {
 					Calendar calendarFrom = Calendar.getInstance();
 					calendarFrom.setTimeInMillis(lastDetectedFrom);
@@ -542,14 +548,12 @@ public class FilterDialog extends Dialog {
 					calendarTo.setTimeInMillis(lastDetectedTo);
 					setDateTimeFromCalendar(dateTimeTo, calendarTo);
 				}
-				break;
-			default:
+			} else {
 				if (lastDetectedFrom != 0) {
 					Calendar calendarFrom = Calendar.getInstance();
 					calendarFrom.setTimeInMillis(lastDetectedFrom);
 					setDateTimeFromCalendar(dateTimeFrom, calendarFrom);
 				}
-				break;
 			}
 		}
 
@@ -581,7 +585,7 @@ public class FilterDialog extends Dialog {
 		form.setStatus(statuses);
 
 		String lastDetected = (String) ((IStructuredSelection) lastDetectedCombo.getSelection()).getFirstElement();
-
+	
 		Calendar calendarFrom = new GregorianCalendar(dateTimeFrom.getYear(), dateTimeFrom.getMonth(),
 				dateTimeFrom.getDay(), dateTimeFrom.getHours(), dateTimeFrom.getMinutes());
 
@@ -590,16 +594,12 @@ public class FilterDialog extends Dialog {
 		Date fromDate = new Date(calendarFrom.getTimeInMillis());
 		Date toDate = new Date(calendarTo.getTimeInMillis());
 
-		switch (lastDetected) {
-		case Constants.LAST_DETECTED_ALL:
-			break;
-		case Constants.LAST_DETECTED_CUSTOM:
+		if (lastDetected.equals(resource.getString("LAST_DETECTED_ALL"))) {
+		} else if (lastDetected.equals(resource.getString("LAST_DETECTED_CUSTOM"))) {
 			form.setStartDate(fromDate);
 			form.setEndDate(toDate);
-			break;
-		default:
+		} else {
 			form.setStartDate(fromDate);
-			break;
 		}
 		form.setOffset(currentOffset);
 

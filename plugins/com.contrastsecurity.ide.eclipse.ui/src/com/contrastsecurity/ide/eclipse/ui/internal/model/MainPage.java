@@ -14,13 +14,15 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.net.MalformedURLException;
+
 import org.eclipse.swt.widgets.Composite;
 
 import com.contrastsecurity.ide.eclipse.ui.internal.views.VulnerabilitiesView;
 
 public class MainPage extends VulnerabilityPage {
 	
-	public MainPage(Composite parent, int style, VulnerabilitiesView vulnerabilitiesView) {
+	public MainPage(Composite parent, int style, VulnerabilitiesView vulnerabilitiesView) throws MalformedURLException {
 		super(parent, style, vulnerabilitiesView);
 	}
 	

@@ -16,6 +16,7 @@ package com.contrastsecurity.ide.eclipse.ui.internal.views;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.dialogs.Dialog;
@@ -35,23 +36,47 @@ import com.contrastsecurity.ide.eclipse.ui.internal.model.StatusConstants;
 import com.contrastsecurity.ide.eclipse.ui.util.UIElementUtils;
 
 public class MarkStatusDialog extends Dialog {
+
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+
+
+	private final static String TITLE_TEXT = resource.getString("MARK_AS_LABEL");
 	
-	private final static String TITLE_TEXT = "Mark as";
+	private final static String NOT_A_PROBLEM = resource.getString("VULNERABILITY_STATUS_NOT_A_PROBLEM_STRING_LABEL");
+	private final static String SUSPICIOUS = resource.getString("VULNERABILITY_STATUS_SUSPICIOUS_LABEL");
+	private final static String CONFIRMED = resource.getString("VULNERABILITY_STATUS_CONFIRMED_LABEL");
+	private final static String REMEDIATED = resource.getString("VULNERABILITY_STATUS_REMEDIATED_LABEL");
+	private final static String REPORTED = resource.getString("VULNERABILITY_STATUS_REPORTED_LABEL");
+	private final static String FIXED = resource.getString("VULNERABILITY_STATUS_FIXED_LABEL");
+	
+	private final static String URL = resource.getString("TRUSTED_URL_LABEL");
+	private final static String FP = resource.getString("FALSE_POSITIVE_LABEL");
+	private final static String IC= resource.getString("INTERNAL_CONTROL_LABEL");
+	private final static String EC = resource.getString("EXTERNAL_CONTROL_LABEL");
+	private final static String OT = resource.getString("OTHER_LABEL");
+	
+	
+	//For combo box 
 	private final static String[] STATUS_LIST = {
-			StatusConstants.CONFIRMED,
-			StatusConstants.SUSPICICIOUS,
-			StatusConstants.NOT_A_PROBLEM,
-			StatusConstants.REMEDIATED,
-			StatusConstants.REPORTED,
-			StatusConstants.FIXED
+			NOT_A_PROBLEM,
+			SUSPICIOUS,
+			CONFIRMED,
+			REMEDIATED,
+			REPORTED,
+			FIXED
 	};
+	
+
+	//For combo box 
 	private final static String[] REASON_LIST = { 
-			"Url is only accessible by trusted powers", 
-			"False positive",
-			"Goes through an internal security protocol",
-			"Attack is defended by an external control",
-			"Other"
-			};
+			URL, 
+			FP,
+			IC,
+			EC,
+			OT
+	};
+
+	
 	
 	private String traceId;
 	private String status;
@@ -74,26 +99,39 @@ public class MarkStatusDialog extends Dialog {
 		Composite contentComposite = new Composite(container, SWT.NONE);
 
 		contentComposite.setLayout(new GridLayout(2, false));
-		
-		UIElementUtils.createLabel(contentComposite, "Mark as");
+
+		UIElementUtils.createLabel(contentComposite, resource.getString("MARK_AS_LABEL"));
 		statusCombo = UIElementUtils.createCombo(contentComposite, STATUS_LIST);
-		UIElementUtils.createLabel(contentComposite, "Reason");
+		UIElementUtils.createLabel(contentComposite, resource.getString("REASON_LABEL"));
 		reasonCombo = UIElementUtils.createCombo(contentComposite, REASON_LIST);
-		UIElementUtils.createLabel(contentComposite, "Comment");
+		UIElementUtils.createLabel(contentComposite, resource.getString("COMMENT_LABEL"));
 		noteText = UIElementUtils.createMultiText(contentComposite, 10);
-		
+
 		statusCombo.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				status = visualStatus = statusCombo.getText();
 				
-				if(StatusConstants.NOT_A_PROBLEM.equals(status)) {
+				if (status.equals(NOT_A_PROBLEM) || status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING) || status.equals(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM)) {
 					reasonCombo.setEnabled(true);
-					status = Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING;
-				}
-				else
+					status = Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING;					
+				} else if (status.equals(CONFIRMED)) {
 					reasonCombo.setEnabled(false);
+					status = Constants.VULNERABILITY_STATUS_CONFIRMED;
+				} else if (status.equals(SUSPICIOUS)) {
+					reasonCombo.setEnabled(false);
+					status = Constants.VULNERABILITY_STATUS_SUSPICIOUS;
+				} else if (status.equals(REMEDIATED)) {
+					reasonCombo.setEnabled(false);
+					status = Constants.VULNERABILITY_STATUS_REMEDIATED;
+				} else if (status.equals(REPORTED)) {
+					reasonCombo.setEnabled(false);
+					status = Constants.VULNERABILITY_STATUS_REPORTED;
+				} else if (status.equals(FIXED)) {
+					reasonCombo.setEnabled(false);
+					status = Constants.VULNERABILITY_STATUS_FIXED;
+				}
 			}
 			
 			@Override
@@ -130,10 +168,31 @@ public class MarkStatusDialog extends Dialog {
 		request = new TraceStatusRequest();
 		request.setTraces(traces);
 		request.setStatus(status);
-		if(StringUtils.isNotBlank(noteText.getText()))
+		if(StringUtils.isNotBlank(noteText.getText())) {
 			request.setNote(noteText.getText());
-		if(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING.equals(status))
-			request.setSubstatus(reasonCombo.getText());
+		}
+
+
+		if(Constants.VULNERABILITY_STATUS_NOT_A_PROBLEM_API_REQUEST_STRING.equals(status)) {
+			String substatusRequest = "Other";
+			if(reasonCombo.getText().equals(URL)) {
+				substatusRequest = Constants.URL;
+			}
+			else if(reasonCombo.getText().equals(FP)) {
+				substatusRequest = Constants.FP;
+			}
+			else if(reasonCombo.getText().equals(IC)) {
+				substatusRequest = Constants.IC;
+			}
+			else if(reasonCombo.getText().equals(EC)) {
+				substatusRequest = Constants.EC;
+			} else {
+				substatusRequest = Constants.OT;
+			}
+			
+			request.setSubstatus(substatusRequest);
+		}
+		
 		
 		super.okPressed();
 	}

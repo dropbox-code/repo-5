@@ -17,6 +17,7 @@ package com.contrastsecurity.ide.eclipse.ui.internal.model;
 import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -37,6 +38,7 @@ import com.contrastsecurity.ide.eclipse.core.extended.Risk;
 import com.contrastsecurity.ide.eclipse.core.extended.StoryResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 
+
 public class OverviewTab extends AbstractTab {
 
 	private StoryResource story;
@@ -46,6 +48,10 @@ public class OverviewTab extends AbstractTab {
 	}
 	
 	public void setStory(StoryResource story) {
+		
+		ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle"); 
+		
+	
 		this.story = story;
 		Composite control = getControl();
 		Control[] children = control.getChildren();
@@ -58,7 +64,7 @@ public class OverviewTab extends AbstractTab {
 			Label headerLabel = new Label(control, SWT.WRAP | SWT.LEFT);
 			GridData gridData = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
 			headerLabel.setLayoutData(gridData);
-			headerLabel.setText(Constants.TRACE_STORY_HEADER_CHAPTERS);
+			headerLabel.setText(resource.getString("TRACE_STORY_HEADER_CHAPTERS"));
 			
 			Font font = headerLabel.getFont();
             FontData[] fontDataArray = font.getFontData();
@@ -120,7 +126,7 @@ public class OverviewTab extends AbstractTab {
 					Label riskHeaderLabel = new Label(control, SWT.WRAP | SWT.LEFT);
 					GridData riskGridData = new GridData(SWT.HORIZONTAL, SWT.TOP, true, false, 1, 1);
 					riskHeaderLabel.setLayoutData(riskGridData);
-					riskHeaderLabel.setText(Constants.TRACE_STORY_HEADER_RISK);
+					riskHeaderLabel.setText(resource.getString("TRACE_STORY_HEADER_RISK"));
 					
 					Font riskFont = riskHeaderLabel.getFont();
 	                FontData[] riskFontDataArray = riskFont.getFontData();
@@ -136,6 +142,7 @@ public class OverviewTab extends AbstractTab {
 					label.setLayoutData(gd);
 					riskText = parseMustache(riskText);
 					label.setText(riskText);
+					
 					//new Label(control, SWT.NONE);
 				}
 			}

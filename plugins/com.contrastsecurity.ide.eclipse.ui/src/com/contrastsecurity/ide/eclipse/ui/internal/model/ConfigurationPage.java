@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.util.ResourceBundle;
+
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -41,15 +43,17 @@ public class ConfigurationPage extends AbstractPage {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		comboComposite.setLayoutData(gd);
 
+		ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+
 		Label textLabel = new Label(comboComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		textLabel.setLayoutData(gd);
-		textLabel.setText("Contrast is not configured to report to a Team Server");
+		textLabel.setText(resource.getString("CONTRAST_NOT_CONFIGURED"));
 		
 		final Label preferencesLink = new Label(comboComposite, SWT.NONE);
 		gd = new GridData(SWT.END, SWT.FILL, false, false);
 		preferencesLink.setLayoutData(gd);
-		preferencesLink.setText("Contrast Preferences");
+		preferencesLink.setText(resource.getString("PREFERENCES_LABEL"));
 		preferencesLink.setForeground(Constants.LINK_COLOR);
 		preferencesLink.addMouseTrackListener(new MouseTrackListener() {
 

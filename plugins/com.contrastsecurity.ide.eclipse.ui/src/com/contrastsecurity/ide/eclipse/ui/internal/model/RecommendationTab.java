@@ -17,6 +17,7 @@ package com.contrastsecurity.ide.eclipse.ui.internal.model;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +59,8 @@ public class RecommendationTab extends AbstractTab {
 	public RecommendationResource getRecommendationResource() {
 		return recommendationResource;
 	}
+
+	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
 
 	public void setRecommendationResource(RecommendationResource recommendationResource) {
 		this.recommendationResource = recommendationResource;
@@ -127,7 +130,7 @@ public class RecommendationTab extends AbstractTab {
 			Composite cweComposite = new Composite(control, SWT.NONE);
 			cweComposite.setLayout(new RowLayout());
 
-			Label cweHeaderLabel = createLabel(cweComposite, "CWE:");
+			Label cweHeaderLabel = createLabel(cweComposite, resource.getString("CWE_LABEL"));
 			cweHeaderLabel.setLayoutData(new RowData(100, 15));
 			Link cweLink = createLinkFromUrlString(cweComposite, recommendationResource.getCwe());
 			cweLink.setLayoutData(new RowData());
@@ -135,7 +138,7 @@ public class RecommendationTab extends AbstractTab {
 			Composite owaspComposite = new Composite(control, SWT.NONE);
 			owaspComposite.setLayout(new RowLayout());
 
-			Label owaspHeaderLabel = createLabel(owaspComposite, "OWASP:");
+			Label owaspHeaderLabel = createLabel(owaspComposite, resource.getString("OWASP_LABEL"));
 			owaspHeaderLabel.setLayoutData(new RowData(100, 15));
 			Link owaspLink = createLinkFromUrlString(owaspComposite, recommendationResource.getOwasp());
 			owaspLink.setLayoutData(new RowData());
@@ -147,7 +150,7 @@ public class RecommendationTab extends AbstractTab {
 				Composite referencesComposite = new Composite(control, SWT.NONE);
 				referencesComposite.setLayout(new RowLayout());
 
-				Label referencesHeaderLabel = createLabel(referencesComposite, "References:");
+				Label referencesHeaderLabel = createLabel(referencesComposite, resource.getString("REFERENCES_LABEL"));
 				referencesHeaderLabel.setLayoutData(new RowData(100, 15));
 
 				String firstLink = StringUtils.substringBefore(ruleReferencesText, Constants.MUSTACHE_NL);

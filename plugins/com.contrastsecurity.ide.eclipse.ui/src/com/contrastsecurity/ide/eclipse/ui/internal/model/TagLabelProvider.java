@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.ui.internal.model;
 
+import java.net.MalformedURLException;
+
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
@@ -22,7 +24,7 @@ import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 
 public class TagLabelProvider extends StyledCellLabelProvider {
 
-	private Image getImage(int columnIndex) {
+	private Image getImage(int columnIndex) throws MalformedURLException {
 		if (columnIndex == 1) {
 			return ContrastUIActivator.getImage("/icons/remove.png");
 		} else {
@@ -30,7 +32,7 @@ public class TagLabelProvider extends StyledCellLabelProvider {
 		}
 	}
 
-	private String getText(Object element, int columnIndex) {
+	private String getText(Object element, int columnIndex) throws MalformedURLException {
 		String elementToReturn = null;
 		if (element instanceof String) {
 			switch (columnIndex) {
@@ -55,7 +57,13 @@ public class TagLabelProvider extends StyledCellLabelProvider {
 		int index = cell.getColumnIndex();
 		switch (index) {
 		case 0:
-			String title = getText(element, index);
+			String title = null;
+			try {
+				title = getText(element, index);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			cell.setText(title);
 			break;
 		case 1:
