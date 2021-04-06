@@ -5,4 +5,4 @@ script:
   - mvn clean integration-test -Djarsigner.skip=true
   - mvn clean compile package -Djarsigner.skip=true
 jdk:
-  - oraclejdk9
+  - openjdk11
