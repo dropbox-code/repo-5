@@ -169,8 +169,7 @@ public class RecommendationTab extends AbstractTab {
 			}
 			CustomRuleReferences customRuleReferences = recommendationResource.getCustomRuleReferences();
 			if (StringUtils.isNotEmpty(customRuleReferences.getText())) {
-				String customRuleReferencesText = parseMustache(customRuleReferences.getText());
-				createLabel(control, customRuleReferencesText);
+				formatLinks(control, customRuleReferences.getFormattedText());
 			}
 		}
 
@@ -336,29 +335,34 @@ public class RecommendationTab extends AbstractTab {
 			return null;
 	}
 
-	// private String formatLinks(String text) {
-	//
-	// String formattedText = text;
-	// String[] links = StringUtils.substringsBetween(formattedText,
-	// Constants.OPEN_TAG_LINK,
-	// Constants.CLOSE_TAG_LINK);
-	//
-	// if (links != null && links.length > 0) {
-	// for (String link : links) {
-	//
-	// int indexOfDelimiter = link.indexOf(Constants.LINK_DELIM);
-	// String formattedLink = "<a href=\"" + link.substring(0, indexOfDelimiter) +
-	// "\">"
-	// + link.substring(indexOfDelimiter + Constants.LINK_DELIM.length()) + "</a>";
-	//
-	// formattedText = formattedText.substring(0, formattedText.indexOf(link)) +
-	// formattedLink
-	// + formattedText.substring(formattedText.indexOf(link) + link.length());
-	// }
-	// }
-	//
-	// return formattedText;
-	// }
+	private void formatLinks(Composite composite, String text) {
+		String linkStartKey = "https://";
+		String linkEndKey = "{{{nl}}}";
+		
+		String labelText = text.replaceAll("<br>", "\n").replaceAll("<b>", "\n").replaceAll("</b>", "").replaceAll("</br>", "");
+		
+		while (labelText.contains(linkStartKey)){
+			int linkStart = labelText.indexOf(linkStartKey);
+            int linkEnd = labelText.indexOf(linkEndKey);
+
+			if (linkStart >= 0 && linkEnd >= 0){
+				Label label = new Label(composite, SWT.WRAP | SWT.LEFT);
+				label.setText(labelText.substring(0, linkStart));	
+			
+				Link link = createLinkFromUrlString(composite, labelText.substring(linkStart, linkEnd));
+		
+				labelText = labelText.subSequence(linkEnd+linkEndKey.length(), labelText.length()).toString();
+			}
+			else{
+				Label label = new Label(composite, SWT.WRAP | SWT.LEFT);
+
+				label.setText(parseMustache(text));
+				labelText = "";
+			}
+		}
+	 
+	 
+	 }
 
 	private String parseMustache(String text) {
 		if (text != null) {
