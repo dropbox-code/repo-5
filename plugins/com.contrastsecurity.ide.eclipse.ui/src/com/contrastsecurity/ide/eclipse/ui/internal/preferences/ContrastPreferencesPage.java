@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2014 Software Analytics and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU General Public License, version 2 
+ * are made available under the terms of the GNU General Public License, version 2
  * (GPL-2.0) which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl-2.0.txt
  *
@@ -52,6 +52,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
+import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
@@ -75,6 +76,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Button deleteOrganizationBtn;
 	private TableViewer tableViewer;
 	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
+	static ResourceBundle versionResource = ResourceBundle.getBundle("META-INF/MANIFEFST.MF");
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -292,8 +294,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 					@Override
 					public void run() {
-						ContrastSDK sdk = new ContrastSDK(usernameText.getText(), serviceKeyText.getText(),
-								apiKeyText.getText(), url);
+						ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(versionResource.getString("Bundle-Version")).build();
 						try {
 							Organization organization = Util.getDefaultOrganization(sdk);
 							if (organization == null || organization.getOrgUuid() == null) {
