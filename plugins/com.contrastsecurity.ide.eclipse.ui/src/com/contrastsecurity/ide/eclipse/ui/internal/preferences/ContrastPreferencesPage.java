@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.jar.Manifest;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,7 +56,6 @@ import com.contrastsecurity.exceptions.UnauthorizedException;
 import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
-import com.contrastsecurity.ide.eclipse.core.extended.ExtendedContrastSDK;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
 import com.contrastsecurity.ide.eclipse.ui.util.UIElementUtils;
 import com.contrastsecurity.models.Organization;
@@ -76,7 +76,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Button deleteOrganizationBtn;
 	private TableViewer tableViewer;
 	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
-	static ResourceBundle versionResource = ResourceBundle.getBundle("META-INF/MANIFEFST.MF");
 
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
@@ -294,7 +293,8 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 					@Override
 					public void run() {
-						ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(versionResource.getString("Bundle-Version")).build();
+						Manifest manifest = new Manifest();
+						ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(manifest.getAttributes("Bundle-Version").toString()).build();
 						try {
 							Organization organization = Util.getDefaultOrganization(sdk);
 							if (organization == null || organization.getOrgUuid() == null) {
@@ -416,7 +416,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 					@Override
 					public void run() {
 
-						ExtendedContrastSDK sdk = ContrastCoreActivator.getContrastSDK(usernameText.getText(),
+						ContrastSDK sdk = ContrastCoreActivator.getContrastSDK(usernameText.getText(),
 								apiKeyText.getText(), serviceKeyText.getText(), url);
 
 						try {

@@ -29,11 +29,12 @@ import com.contrastsecurity.ide.eclipse.core.Constants;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.core.extended.HttpRequestResource;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
+import com.contrastsecurity.models.HttpRequestResponse;
 
 public class HttpRequestTab extends Composite {
 
 	private StyledText area;
-	private HttpRequestResource httpRequest;
+	private HttpRequestResponse httpRequest;
 
 	public HttpRequestTab(Composite parent, int style) {
 		super(parent, style);
@@ -54,11 +55,11 @@ public class HttpRequestTab extends Composite {
 		return area;
 	}
 
-	public HttpRequestResource getHttpRequest() {
+	public HttpRequestResponse getHttpRequest() {
 		return httpRequest;
 	}
 
-	public void setHttpRequest(HttpRequestResource httpRequest) {
+	public void setHttpRequest(HttpRequestResponse httpRequest) {
 		this.httpRequest = httpRequest;
 		area.setText(Constants.BLANK);
 		if (httpRequest != null && httpRequest.getHttpRequest() != null

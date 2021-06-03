@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.core/com.contrastsecurity.ide.eclipse.core.iml" filepath="$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.core/com.contrastsecurity.ide.eclipse.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.core.tests/com.contrastsecurity.ide.eclipse.core.tests.iml" filepath="$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.core.tests/com.contrastsecurity.ide.eclipse.core.tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/features/com.contrastsecurity.ide.eclipse.feature/com.contrastsecurity.ide.eclipse.feature.iml" filepath="$PROJECT_DIR$/features/com.contrastsecurity.ide.eclipse.feature/com.contrastsecurity.ide.eclipse.feature.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.ui/com.contrastsecurity.ide.eclipse.ui.iml" filepath="$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.ui/com.contrastsecurity.ide.eclipse.ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.ui.tests/com.contrastsecurity.ide.eclipse.ui.tests.iml" filepath="$PROJECT_DIR$/plugins/com.contrastsecurity.ide.eclipse.ui.tests/com.contrastsecurity.ide.eclipse.ui.tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/com.contrastsecurity.ide.rest.sdk/com.contrastsecurity.ide.rest.sdk.iml" filepath="$PROJECT_DIR$/plugins/com.contrastsecurity.ide.rest.sdk/com.contrastsecurity.ide.rest.sdk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/updatesite/contrastide.updatesite.iml" filepath="$PROJECT_DIR$/updatesite/contrastide.updatesite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/features/features.iml" filepath="$PROJECT_DIR$/features/features.iml" />
+      <module fileurl="file://$PROJECT_DIR$/targets/mars.iml" filepath="$PROJECT_DIR$/targets/mars.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parent.iml" filepath="$PROJECT_DIR$/parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/plugins.iml" filepath="$PROJECT_DIR$/plugins/plugins.iml" />
+    </modules>
+  </component>
+</project>
