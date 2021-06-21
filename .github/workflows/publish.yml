@@ -25,9 +25,7 @@ jobs:
       run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - name: Bump Version
       run: mvn org.eclipse.tycho:tycho-versions-plugin:1.0.0:set-version -DnewVersion=${{ steps.project.outputs.version }} 
-    - name: Build with Maven
-      run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Djarsigner.skip=true -B -V
-    - name: Publish
+    - name: Build
       run: mvn clean integration-test -Djarsigner.skip=true && mvn clean compile package -Djarsigner.skip=true
       env:
         GITHUB_TOKEN: ${{ github.token }}
