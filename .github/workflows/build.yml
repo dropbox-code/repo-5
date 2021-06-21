@@ -1,9 +1,5 @@
 name: Build Maven Package
 
-on:
-  workflow_dispatch:
-    types: [created]
-
 jobs:
   build:
 
