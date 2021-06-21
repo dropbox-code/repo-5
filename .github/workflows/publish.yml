@@ -1,4 +1,4 @@
-name: Maven Package
+name: Build Maven Package & Push to S3
 
 on:
   workflow_dispatch:
