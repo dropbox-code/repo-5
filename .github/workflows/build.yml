@@ -19,4 +19,4 @@ jobs:
         distribution: 'adopt'
         server-id: 'ossrh'
     - name: Build with Maven
-      run: mvn verify -DskipTests=true -Dmaven.javadoc.skip=true -Djarsigner.skip=true -B -VB
+      run: mvn clean integration-test -Djarsigner.skip=true
