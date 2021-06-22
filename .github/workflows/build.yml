@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -18,5 +18,11 @@ jobs:
         java-version: '8'
         distribution: 'adopt'
         server-id: 'ossrh'
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       run: mvn verify -DskipTests=true -Dmaven.javadoc.skip=true -Djarsigner.skip=true -B -V
