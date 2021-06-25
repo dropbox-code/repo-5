@@ -1,4 +1,4 @@
-name: Upload to S3
+cname: Upload to S3
 
 on:
   workflow_dispatch:
@@ -21,11 +21,10 @@ jobs:
         java-version: '8'
         distribution: 'adopt'
         server-id: 'ossrh'
-    - name: Extract Project version
-      id: project
-      run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) 
     - name: Bump Version
-      run: mvn unleash:perform-tycho -B -Dunleash.versionUpgradeStrategy=DEFAULT 
+      run: mvn unleash:perform-tycho -B -Dunleash.versionUpgradeStrategy=DEFAULT -Dunleash.releaseArgs=jarsigner.skip=true
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
     - name: Clean
       run: cd targets && mvn clean verify
     - name: Build Artifact
