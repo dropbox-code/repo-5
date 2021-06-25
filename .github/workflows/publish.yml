@@ -25,7 +25,7 @@ jobs:
       id: project
       run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) 
     - name: Bump Version
-      run: mvn org.eclipse.tycho:tycho-versions-plugin:1.0.0:set-version -DremoveSnapshot=true
+      run: mvn unleash:perform-tycho -B -Dunleash.versionUpgradeStrategy=DEFAULT 
     - name: Clean
       run: cd targets && mvn clean verify
     - name: Build Artifact
