@@ -1,4 +1,4 @@
-name: Upload to S3
+cccname: Upload to S3
 
 on:
   workflow_dispatch:
@@ -21,13 +21,15 @@ jobs:
         java-version: '8'
         distribution: 'adopt'
         server-id: 'ossrh'
-    - name: Remove Snapshot
-      run: mvn versions:set -DremoveSnapshot=true
     - name: Extract Project version
       id: project
       run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) 
     - name: Bump Version
-      run: mvn org.eclipse.tycho:tycho-versions-plugin:1.0.0:set-version -DnewVersion=${{ steps.project.outputs.version }} 
+      run: mvn org.eclipse.tycho:tycho-versions-plugin:1.0.0:set-version -DnewVersion=${{ steps.project.outputs.version }}
+    - name: Clean
+      run: cd targets && mvn clean verify
+    - name: Build Artifact
+      run: cd .. && mvn clean verify -Djarsigner.skip=true -DskipTests
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
