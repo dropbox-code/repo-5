@@ -21,7 +21,7 @@ jobs:
         java-version: '8'
         distribution: 'adopt'
         server-id: 'ossrh'
-    = name: Remove Snapshot
+    - name: Remove Snapshot
       run: mvn versions:set -DremoveSnapshot=true
     - name: Extract Project version
       id: project
