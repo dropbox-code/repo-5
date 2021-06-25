@@ -23,7 +23,7 @@ jobs:
         server-id: 'ossrh'
     - name: Extract Project version
       id: project
-      run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+      run: echo ::set-output name=version::$(mvn help:evaluate -DremoveSnapshot=true -Dexpression=project.version -q -DforceStdout) 
     - name: Bump Version
       run: mvn org.eclipse.tycho:tycho-versions-plugin:1.0.0:set-version -DnewVersion=${{ steps.project.outputs.version }} 
     - name: Build
