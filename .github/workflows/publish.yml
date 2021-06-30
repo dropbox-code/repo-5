@@ -8,26 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Set up JDK 8
-      uses: actions/setup-java@v2
-      with:
-        java-version: "8"
-        distribution: "adopt"
-        server-id: "ossrh"
-    - name: Bump Version and Build Artifact
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn unleash:perform-tycho -B -Dunleash.releaseArgs="jarsigner.skip=true, skipTests=true" -Dunleash.versionUpgradeStrategy=DEFAULT -Dworkflow=customWorkflow -Dunleash.scmUsername=$GITHUB_ACTOR -Dunleash.scmPassword=$GITHUB_TOKEN
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
-        aws-region: us-east-1
-    - name: Upload to s3 bucket
-      run: |
-        aws s3 sync ./updatesite/target/repository/plugins s3://contrast-eclipse-plugin/plugins
-        aws s3 sync ./updatesite/target/repository/features s3://contrast-eclipse-plugin/features
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: "8"
+          distribution: "adopt"
+          server-id: "ossrh"
+      - name: Bump Version and Build Artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn unleash:perform-tycho -B -Dunleash.releaseArgs="jarsigner.skip=true, skipTests=true" -Dunleash.versionUpgradeStrategy=DEFAULT -Dworkflow=customWorkflow -Dunleash.scmUsername=$GITHUB_ACTOR -Dunleash.scmPassword=$GITHUB_TOKEN
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: us-east-1
+      - name: Upload to s3 bucket
+        run: |
+          aws s3 sync ./updatesite/target/repository/plugins s3://contrast-eclipse-plugin/plugins
+          aws s3 sync ./updatesite/target/repository/features s3://contrast-eclipse-plugin/features
