@@ -14,6 +14,11 @@
  *******************************************************************************/
 package com.contrastsecurity.ide.eclipse.core;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ResourceBundle;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -272,14 +277,24 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 	}
 
 	public static ContrastSDK getContrastSDK(final String username, final String apiKey,
-			final String serviceKey, final String teamServerUrl) {
+											 final String serviceKey, final String teamServerUrl) {
 
-		Manifest manifest = new Manifest();
-		ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(manifest.getAttributes("Bundle-Version").toString()).build();
+		URL url = ContrastCoreActivator.class.getClassLoader().getResource("META-INF/MANIFEST.MF");
+		try {
+			Manifest manifest = new Manifest(url.openStream());
+			Attributes att = manifest.getMainAttributes();
 
-		sdk.setReadTimeout(5000);
+			ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(att.getValue("Bundle-Version")).build();
 
-		return sdk;
+			sdk.setReadTimeout(5000);
+
+			return sdk;
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
