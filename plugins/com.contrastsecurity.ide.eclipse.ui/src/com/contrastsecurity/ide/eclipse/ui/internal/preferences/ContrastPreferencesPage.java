@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -76,7 +78,6 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 	private Button deleteOrganizationBtn;
 	private TableViewer tableViewer;
 	static ResourceBundle resource = ResourceBundle.getBundle("OSGI-INF/l10n.bundle");
-
 	public ContrastPreferencesPage() {
 		setPreferenceStore(ContrastCoreActivator.getDefault().getPreferenceStore());
 		setTitle("Contrast IDE");
@@ -293,25 +294,40 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 
 					@Override
 					public void run() {
-						Manifest manifest = new Manifest();
-						ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(manifest.getAttributes("Bundle-Version").toString()).build();
-						try {
-							Organization organization = Util.getDefaultOrganization(sdk);
-							if (organization == null || organization.getOrgUuid() == null) {
-								testConnectionLabel.setText(resource.getString("NO_ORG_FOUND"));
-							} else {
-								testConnectionLabel.setText(resource.getString("CONFIRMED_CONNECTION"));
+						
+						URLClassLoader cl = (URLClassLoader) ContrastCoreActivator.class.getClassLoader();
+						URL urlString = cl.findResource("META-INF/MANIFEST.MF");
+						
+							Manifest manifest;
+							try {
+								manifest = new Manifest(urlString.openStream());
+								
+								Attributes att = manifest.getMainAttributes();						
+								
+								ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(att.getValue("Bundle-Version")).build();
+								try {
+									Organization organization = Util.getDefaultOrganization(sdk);
+									if (organization == null || organization.getOrgUuid() == null) {
+										testConnectionLabel.setText(resource.getString("NO_ORG_FOUND"));
+									} else {
+										testConnectionLabel.setText(resource.getString("CONFIRMED_CONNECTION"));
+									}
+								} catch (IOException e1) {
+									showErrorMessage(e1, getShell(), resource.getString("CONNECTION_ERROR"), resource.getString("CONTRAST_ERROR"));
+								} catch (UnauthorizedException e1) {
+									showErrorMessage(e1, getShell(), resource.getString("ACCESS_DENIED"), resource.getString("VERIFY_CREDENTIALS_ERROR"));
+								} catch (Exception e1) {
+									showErrorMessage(e1, getShell(), resource.getString("UNKNOWN_ERROR"), resource.getString("UNKNOWN_ERROR_INFO"));
+								} finally {
+									composite.layout(true, true);
+									composite.redraw();
+								}
+								
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (IOException e1) {
-							showErrorMessage(e1, getShell(), resource.getString("CONNECTION_ERROR"), resource.getString("CONTRAST_ERROR"));
-						} catch (UnauthorizedException e1) {
-							showErrorMessage(e1, getShell(), resource.getString("ACCESS_DENIED"), resource.getString("VERIFY_CREDENTIALS_ERROR"));
-						} catch (Exception e1) {
-							showErrorMessage(e1, getShell(), resource.getString("UNKNOWN_ERROR"), resource.getString("UNKNOWN_ERROR_INFO"));
-						} finally {
-							composite.layout(true, true);
-							composite.redraw();
-						}
+					
 					}
 				});
 
