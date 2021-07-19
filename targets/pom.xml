@@ -22,11 +22,7 @@
 	<parent>
 		<groupId>com.contrastsecurity.ide.eclipse</groupId>
 		<artifactId>parent</artifactId>
-<<<<<<< HEAD
 		<version>3.0.4-SNAPSHOT</version>
-=======
-		<version>3.0.3-SNAPSHOT</version>
->>>>>>> 7ce19cd00c4ab4a3572fd2df083e3782097d3edb
 	</parent>
 
 </project>
