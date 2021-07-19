@@ -304,7 +304,7 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 								
 								Attributes att = manifest.getMainAttributes();						
 								
-								ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(att.getValue("Bundle-Version")).build();
+								ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_INTEGRATION).withVersion(att.getValue("Bundle-Version")).build();
 								try {
 									Organization organization = Util.getDefaultOrganization(sdk);
 									if (organization == null || organization.getOrgUuid() == null) {

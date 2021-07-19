@@ -284,7 +284,7 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			Manifest manifest = new Manifest(url.openStream());
 			Attributes att = manifest.getMainAttributes();
 
-			ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl).withIntegrationName(IntegrationName.ECLIPSE_IDE).withVersion(att.getValue("Bundle-Version")).build();
+			ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl).withIntegrationName(IntegrationName.ECLIPSE_INTEGRATION).withVersion(att.getValue("Bundle-Version")).build();
 
 			sdk.setReadTimeout(5000);
 
