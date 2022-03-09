@@ -55,7 +55,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.contrastsecurity.exceptions.UnauthorizedException;
-import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.ide.eclipse.ui.ContrastUIActivator;
@@ -63,6 +62,7 @@ import com.contrastsecurity.ide.eclipse.ui.util.UIElementUtils;
 import com.contrastsecurity.models.Organization;
 import com.contrastsecurity.models.Organizations;
 import com.contrastsecurity.sdk.ContrastSDK;
+import com.contrastsecurity.sdk.UserAgentProduct;
 
 public class ContrastPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -304,7 +304,10 @@ public class ContrastPreferencesPage extends PreferencePage implements IWorkbenc
 								
 								Attributes att = manifest.getMainAttributes();						
 								
-								ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText()).withApiUrl(url).withIntegrationName(IntegrationName.ECLIPSE_INTEGRATION).withVersion(att.getValue("Bundle-Version")).build();
+								ContrastSDK sdk = new ContrastSDK.Builder(usernameText.getText(), serviceKeyText.getText(), apiKeyText.getText())
+					                    .withApiUrl(url)
+					                    .withUserAgentProduct(UserAgentProduct.of("ECLIPSE_INTEGRATION", att.getValue("Bundle-Version")))
+					                    .build();
 								try {
 									Organization organization = Util.getDefaultOrganization(sdk);
 									if (organization == null || organization.getOrgUuid() == null) {

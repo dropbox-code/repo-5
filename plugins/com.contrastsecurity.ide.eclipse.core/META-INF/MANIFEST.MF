@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: com.contrastsecurity.ide.eclipse.core;singleton:=true
-Bundle-Version: 3.0.5.qualifier
+Bundle-Version: 3.0.6.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.ui,
@@ -13,5 +13,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-Activator: com.contrastsecurity.ide.eclipse.core.ContrastCoreActivator
 Bundle-ActivationPolicy: lazy
 Export-Package: com.contrastsecurity.ide.eclipse.core,
- com.contrastsecurity.ide.eclipse.core.extended,
  com.contrastsecurity.ide.eclipse.core.internal.preferences
