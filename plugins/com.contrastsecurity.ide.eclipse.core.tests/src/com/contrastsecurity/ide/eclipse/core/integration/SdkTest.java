@@ -31,6 +31,7 @@ import com.contrastsecurity.models.Server;
 import com.contrastsecurity.models.Servers;
 import com.contrastsecurity.models.Trace;
 import com.contrastsecurity.models.TraceFilter;
+import com.contrastsecurity.models.TraceFilterBody;
 import com.contrastsecurity.models.TraceListing;
 import com.contrastsecurity.models.Traces;
 import com.contrastsecurity.sdk.ContrastSDK;
@@ -105,7 +106,8 @@ public class SdkTest {
 
 		if (!applications.getApplications().isEmpty()) {
 			for (Application application : applications.getApplications()) {
-				Traces traces = sdk.getTraces(ORGANIZATION_UUID, application.getId(), null);
+				TraceFilterBody filter = null;
+				Traces traces = sdk.getTraces(ORGANIZATION_UUID, application.getId(), filter);
 				for (Trace trace : traces.getTraces()) {
 					assertTrue(trace.getTitle().length() > 0);
 				}
@@ -344,7 +346,9 @@ public class SdkTest {
 		Applications applications = sdk.getApplications(ORGANIZATION_UUID);
 		if (!applications.getApplications().isEmpty()) {
 			for (Application app : applications.getApplications()) {
-				Traces traces = sdk.getTraces(ORGANIZATION_UUID, app.getId(), null);
+				TraceFilterBody filter = null;
+				Traces traces = sdk.getTraces(ORGANIZATION_UUID, app.getId(), filter);
+				
 				assertTrue(!traces.getTraces().isEmpty());
 				for (Trace trace : traces.getTraces()) {
 					assertTrue(trace.getCategory().length() > 0);

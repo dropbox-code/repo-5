@@ -32,9 +32,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.contrastsecurity.ide.eclipse.core.internal.preferences.OrganizationConfig;
-import com.contrastsecurity.http.IntegrationName;
 import com.contrastsecurity.ide.eclipse.core.Util;
 import com.contrastsecurity.sdk.ContrastSDK;
+import com.contrastsecurity.sdk.UserAgentProduct;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -284,7 +284,9 @@ public class ContrastCoreActivator extends AbstractUIPlugin {
 			Manifest manifest = new Manifest(url.openStream());
 			Attributes att = manifest.getMainAttributes();
 
-			ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl).withIntegrationName(IntegrationName.ECLIPSE_INTEGRATION).withVersion(att.getValue("Bundle-Version")).build();
+			ContrastSDK sdk = new ContrastSDK.Builder(username, serviceKey, apiKey).withApiUrl(teamServerUrl)
+					.withUserAgentProduct(UserAgentProduct.of("ECLIPSE_INTEGRATION", att.getValue("Bundle-Version")))
+					.build();
 
 			sdk.setReadTimeout(5000);
 
