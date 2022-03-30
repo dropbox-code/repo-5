@@ -21,4 +21,11 @@
 	<groupId>com.contrastsecurity.ide.eclipse.plugins</groupId>
 	<artifactId>com.contrastsecurity.ide.rest.sdk</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<dependencies>
+		<dependency>
+			<groupId>com.contrastsecurity</groupId>
+			<artifactId>contrast-sdk-java</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+	</dependencies>
 </project>
