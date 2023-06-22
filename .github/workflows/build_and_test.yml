@@ -31,6 +31,7 @@ jobs:
           - ubuntu-22.04
           - macos-11
           - macos-12
+          - macos-13
         java:
           - 8
           - 11
@@ -42,7 +43,7 @@ jobs:
             java: 8
             cxx: g++
           - os: ubuntu-20.04
-            java: 19
+            java: 21-ea
             cxx: g++
     env:
       MAVEN_OPTS: -Xmx2g
@@ -79,8 +80,16 @@ jobs:
         cat /home/runner/work/orc/orc/build/java/rat.txt
 
   windows:
-    name: "Build on Windows"
+    name: "C++ ${{ matrix.simd }} Test on Windows"
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        simd:
+          - General
+          - AVX512
+    env:
+      ORC_USER_SIMD_LEVEL: AVX512
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -89,12 +98,40 @@ jobs:
       with:
         msbuild-architecture: x64
     - name: "Test"
+      shell: bash
       run: |
         mkdir build
         cd build
-        cmake .. -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Debug -DBUILD_LIBHDFSPP=OFF -DBUILD_TOOLS=OFF -DBUILD_JAVA=OFF
+        if [ "${{ matrix.simd }}" = "General" ]; then
+          cmake .. -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Debug -DBUILD_LIBHDFSPP=OFF -DBUILD_TOOLS=OFF -DBUILD_JAVA=OFF
+        else
+          cmake .. -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Debug -DBUILD_LIBHDFSPP=OFF -DBUILD_TOOLS=OFF -DBUILD_JAVA=OFF -DBUILD_ENABLE_AVX512=ON
+        fi
         cmake --build . --config Debug
         ctest -C Debug --output-on-failure
+
+  simdUbuntu:
+    name: "SIMD programming using C++ intrinsic functions on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+        cxx:
+          - clang++
+    env:
+      ORC_USER_SIMD_LEVEL: AVX512
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: "Test"
+      run: |
+        mkdir -p ~/.m2
+        mkdir build
+        cd build
+        cmake -DBUILD_JAVA=OFF -DBUILD_ENABLE_AVX512=ON ..
+        make package test-out
 
   doc:
     name: "Javadoc generation"
@@ -129,3 +166,17 @@ jobs:
       with:
         clang-format-version: '13'
         check-path: ${{ matrix.path }}
+
+  license-check:
+    name: "License Check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check license header
+        uses: apache/skywalking-eyes@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config: .github/.licenserc.yaml
+

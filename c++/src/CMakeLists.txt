@@ -1,14 +1,19 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX17_FLAGS} ${WARN_FLAGS}")
 
@@ -161,12 +166,15 @@ set(SOURCE_FILES
   Adaptor.cc
   BlockBuffer.cc
   BloomFilter.cc
+  BpackingDefault.cc
   ByteRLE.cc
   ColumnPrinter.cc
   ColumnReader.cc
   ColumnWriter.cc
   Common.cc
   Compression.cc
+  ConvertColumnReader.cc
+  CpuInfoUtil.cc
   Exceptions.cc
   Int128.cc
   LzoDecompressor.cc
@@ -179,6 +187,7 @@ set(SOURCE_FILES
   RleDecoderV2.cc
   RleEncoderV2.cc
   RLE.cc
+  SchemaEvolution.cc
   Statistics.cc
   StripeStream.cc
   Timezone.cc
@@ -190,6 +199,12 @@ if(BUILD_LIBHDFSPP)
   set(SOURCE_FILES ${SOURCE_FILES} OrcHdfsFile.cc)
   add_definitions(-DBUILD_LIBHDFSPP)
 endif(BUILD_LIBHDFSPP)
+
+if(BUILD_ENABLE_AVX512)
+  set(SOURCE_FILES
+    ${SOURCE_FILES}
+    BpackingAvx512.cc)
+endif(BUILD_ENABLE_AVX512)
 
 add_library (orc STATIC ${SOURCE_FILES})
 

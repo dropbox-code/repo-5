@@ -66,6 +66,15 @@ namespace orc {
     return createReader(std::move(stream), options);
   }
 
+  std::unique_ptr<Reader> createReaderWithTailLocation(MemoryPool* memoryPool,
+                                                       std::unique_ptr<InputStream> stream,
+                                                       uint64_t tailLocation) {
+    ReaderOptions options;
+    options.setMemoryPool(*memoryPool);
+    options.setTailLocation(tailLocation);
+    return createReader(std::move(stream), options);
+  }
+
   std::unique_ptr<RowReader> createRowReader(Reader* reader, const std::string& timezone = "GMT",
                                              bool useTightNumericVector = false) {
     RowReaderOptions rowReaderOpts;
@@ -1897,8 +1906,9 @@ namespace orc {
   TEST_P(WriterTest, testWriteFixedWidthNumericVectorBatch) {
     MemoryOutputStream memStream(DEFAULT_MEM_STREAM_SIZE);
     MemoryPool* pool = getDefaultPool();
-    std::unique_ptr<Type> type(Type::buildTypeFromString(
-        "struct<col1:double,col2:float,col3:int,col4:smallint,col5:tinyint,col6:bigint>"));
+    std::unique_ptr<Type> type(
+        Type::buildTypeFromString("struct<col1:double,col2:float,col3:int,col4:smallint,col5:"
+                                  "tinyint,col6:bigint,col7:boolean>"));
 
     uint64_t stripeSize = 16 * 1024;
     uint64_t compressionBlockSize = 1024;
@@ -1921,6 +1931,7 @@ namespace orc {
     ShortVectorBatch* shortBatch = dynamic_cast<ShortVectorBatch*>(structBatch->fields[3]);
     ByteVectorBatch* byteBatch = dynamic_cast<ByteVectorBatch*>(structBatch->fields[4]);
     LongVectorBatch* longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[5]);
+    ByteVectorBatch* boolBatch = dynamic_cast<ByteVectorBatch*>(structBatch->fields[6]);
     structBatch->resize(rowCount);
     doubleBatch->resize(rowCount);
     floatBatch->resize(rowCount);
@@ -1928,6 +1939,7 @@ namespace orc {
     shortBatch->resize(rowCount);
     byteBatch->resize(rowCount);
     longBatch->resize(rowCount);
+    boolBatch->resize(rowCount);
 
     for (uint64_t i = 0; i < rowCount; ++i) {
       structBatch->notNull[i] = 1;
@@ -1937,6 +1949,7 @@ namespace orc {
       shortBatch->notNull[i] = 1;
       byteBatch->notNull[i] = 1;
       longBatch->notNull[i] = 1;
+      boolBatch->notNull[i] = 1;
 
       doubleBatch->data[i] = data[i];
       floatBatch->data[i] = static_cast<float>(data[i]);
@@ -1944,6 +1957,7 @@ namespace orc {
       shortBatch->data[i] = static_cast<int16_t>(i);
       byteBatch->data[i] = static_cast<int8_t>(i);
       longBatch->data[i] = static_cast<int64_t>(i);
+      boolBatch->data[i] = static_cast<bool>((i % 17) % 2);
     }
 
     structBatch->numElements = rowCount;
@@ -1953,6 +1967,7 @@ namespace orc {
     shortBatch->numElements = rowCount;
     byteBatch->numElements = rowCount;
     longBatch->numElements = rowCount;
+    boolBatch->numElements = rowCount;
 
     writer->add(*batch);
     writer->close();
@@ -1974,6 +1989,7 @@ namespace orc {
     shortBatch = dynamic_cast<ShortVectorBatch*>(structBatch->fields[3]);
     byteBatch = dynamic_cast<ByteVectorBatch*>(structBatch->fields[4]);
     longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[5]);
+    boolBatch = dynamic_cast<ByteVectorBatch*>(structBatch->fields[6]);
     for (uint64_t i = 0; i < rowCount; ++i) {
       EXPECT_TRUE(std::abs(data[i] - doubleBatch->data[i]) < 0.000001);
       EXPECT_TRUE(std::abs(static_cast<float>(data[i]) - static_cast<float>(floatBatch->data[i])) <
@@ -1982,6 +1998,117 @@ namespace orc {
       EXPECT_EQ(shortBatch->data[i], static_cast<int16_t>(i));
       EXPECT_EQ(byteBatch->data[i], static_cast<int8_t>(i));
       EXPECT_EQ(longBatch->data[i], static_cast<int64_t>(i));
+      EXPECT_EQ(boolBatch->data[i], static_cast<bool>((i % 17) % 2));
+    }
+    EXPECT_FALSE(rowReader->next(*batch));
+  }
+
+  TEST_P(WriterTest, writeIntFileFlush) {
+    MemoryOutputStream memStream(DEFAULT_MEM_STREAM_SIZE);
+    MemoryPool* pool = getDefaultPool();
+    std::unique_ptr<Type> type(Type::buildTypeFromString("struct<col1:int>"));
+
+    uint64_t stripeSize = 1024;            // 1K
+    uint64_t compressionBlockSize = 1024;  // 1k
+
+    std::unique_ptr<Writer> writer =
+        createWriter(stripeSize, compressionBlockSize, CompressionKind_ZLIB, *type, pool,
+                     &memStream, fileVersion);
+    std::unique_ptr<ColumnVectorBatch> batch = writer->createRowBatch(65535);
+    StructVectorBatch* structBatch = dynamic_cast<StructVectorBatch*>(batch.get());
+    LongVectorBatch* longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[0]);
+
+    std::vector<uint64_t> offsets;
+    for (uint64_t j = 0; j < 10; ++j) {
+      for (uint64_t i = 0; i < 65535; ++i) {
+        longBatch->data[i] = static_cast<int64_t>(i);
+      }
+      structBatch->numElements = 65535;
+      longBatch->numElements = 65535;
+
+      writer->add(*batch);
+      // force writing a stripe
+      uint64_t offset = writer->writeIntermediateFooter();
+      offsets.push_back(offset);
+    }
+
+    writer->close();
+
+    for (uint64_t o = 0; o < 10; ++o) {
+      auto inStream =
+          std::make_unique<MemoryInputStream>(memStream.getData(), memStream.getLength());
+      std::unique_ptr<Reader> reader =
+          createReaderWithTailLocation(pool, std::move(inStream), offsets[o]);
+      std::unique_ptr<RowReader> rowReader = createRowReader(reader.get());
+      EXPECT_EQ(o + 1, reader->getNumberOfStripes());
+      EXPECT_EQ(65535 * (o + 1), reader->getNumberOfRows());
+
+      batch = rowReader->createRowBatch(65535);
+      for (uint64_t j = 0; j < o + 1; ++j) {
+        EXPECT_TRUE(rowReader->next(*batch));
+        EXPECT_EQ(65535, batch->numElements);
+
+        for (uint64_t i = 0; i < 65535; ++i) {
+          structBatch = dynamic_cast<StructVectorBatch*>(batch.get());
+          longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[0]);
+          EXPECT_EQ(i, longBatch->data[i]);
+        }
+      }
+      EXPECT_FALSE(rowReader->next(*batch));
+    }
+  }
+
+  TEST_P(WriterTest, writeIntFileFlushNoClose) {
+    MemoryOutputStream memStream(DEFAULT_MEM_STREAM_SIZE);
+    MemoryPool* pool = getDefaultPool();
+    std::unique_ptr<Type> type(Type::buildTypeFromString("struct<col1:int>"));
+
+    uint64_t stripeSize = 1024;            // 1K
+    uint64_t compressionBlockSize = 1024;  // 1k
+
+    std::unique_ptr<Writer> writer =
+        createWriter(stripeSize, compressionBlockSize, CompressionKind_ZLIB, *type, pool,
+                     &memStream, fileVersion);
+    std::unique_ptr<ColumnVectorBatch> batch = writer->createRowBatch(65535);
+    StructVectorBatch* structBatch = dynamic_cast<StructVectorBatch*>(batch.get());
+    LongVectorBatch* longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[0]);
+
+    std::vector<uint64_t> offsets;
+    for (uint64_t j = 0; j < 10; ++j) {
+      for (uint64_t i = 0; i < 65535; ++i) {
+        longBatch->data[i] = static_cast<int64_t>(i);
+      }
+      structBatch->numElements = 65535;
+      longBatch->numElements = 65535;
+
+      writer->add(*batch);
+      if (j < 8) {
+        // force writing a stripe
+        uint64_t offset = writer->writeIntermediateFooter();
+        offsets.push_back(offset);
+      }
+    }
+
+    // DO NOT CLOSE THE FILE INTENTIONALLY!
+    // writer->close();
+
+    auto inStream = std::make_unique<MemoryInputStream>(memStream.getData(), memStream.getLength());
+    std::unique_ptr<Reader> reader =
+        createReaderWithTailLocation(pool, std::move(inStream), offsets.back());
+    std::unique_ptr<RowReader> rowReader = createRowReader(reader.get());
+    EXPECT_EQ(8, reader->getNumberOfStripes());
+    EXPECT_EQ(8 * 65535, reader->getNumberOfRows());
+
+    batch = rowReader->createRowBatch(65535);
+    for (uint64_t j = 0; j < 8; ++j) {
+      EXPECT_TRUE(rowReader->next(*batch));
+      EXPECT_EQ(65535, batch->numElements);
+
+      for (uint64_t i = 0; i < 65535; ++i) {
+        structBatch = dynamic_cast<StructVectorBatch*>(batch.get());
+        longBatch = dynamic_cast<LongVectorBatch*>(structBatch->fields[0]);
+        EXPECT_EQ(i, longBatch->data[i]);
+      }
     }
     EXPECT_FALSE(rowReader->next(*batch));
   }

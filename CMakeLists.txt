@@ -1,14 +1,19 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
 cmake_minimum_required (VERSION 3.12.0)
 if (POLICY CMP0048)
@@ -21,8 +26,8 @@ endif ()
 project(ORC C CXX)
 
 # Version number of package
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "9")
+SET(CPACK_PACKAGE_VERSION_MAJOR "2")
+SET(CPACK_PACKAGE_VERSION_MINOR "0")
 SET(CPACK_PACKAGE_VERSION_PATCH "0-SNAPSHOT")
 SET(ORC_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake_modules")
@@ -65,6 +70,10 @@ option(BUILD_POSITION_INDEPENDENT_LIB
 
 option(BUILD_CPP_ENABLE_METRICS
     "Enable the metrics collection at compile phase"
+    OFF)
+
+option(BUILD_ENABLE_AVX512
+    "Enable build with AVX512 at compile time"
     OFF)
 
 # Make sure that a build type is selected
@@ -116,12 +125,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set (WARN_FLAGS "${WARN_FLAGS} -Wno-covered-switch-default")
   set (WARN_FLAGS "${WARN_FLAGS} -Wno-missing-noreturn -Wno-unknown-pragmas")
   set (WARN_FLAGS "${WARN_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")
-  set (WARN_FLAGS "${WARN_FLAGS} -Wconversion")
+  set (WARN_FLAGS "${WARN_FLAGS} -Wno-conversion")
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0")
+    set (WARN_FLAGS "${WARN_FLAGS} -Wno-unused-macros")
+  endif()
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0")
-    set (WARN_FLAGS "${WARN_FLAGS} -Wno-reserved-identifier")
+    set (WARN_FLAGS "${WARN_FLAGS} -Wno-reserved-identifier -Wno-suggest-destructor-override -Wno-suggest-override")
   endif()
   if (CMAKE_HOST_APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "12.0")
-    set (WARN_FLAGS "${WARN_FLAGS} -Wno-c++2a-compat -Wno-unknown-warning-option")
+    set (WARN_FLAGS "${WARN_FLAGS} -Wno-c++2a-compat -Wno-unknown-warning-option -Wno-suggest-override -Wno-suggest-destructor-override")
   elseif (CMAKE_HOST_APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "11.0")
     set (WARN_FLAGS "${WARN_FLAGS} -Wno-c++2a-compat")
   endif ()
@@ -135,7 +147,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   else ()
     set (CXX17_FLAGS "-std=c++17")
   endif ()
-  set (WARN_FLAGS "-Wall -Wno-unknown-pragmas -Wconversion")
+  set (WARN_FLAGS "-Wall -Wno-unknown-pragmas -Wno-conversion")
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "12.0")
     set (WARN_FLAGS "${WARN_FLAGS} -Wno-array-bounds -Wno-stringop-overread") # To compile protobuf in Fedora37
   endif ()
@@ -169,6 +181,21 @@ enable_testing()
 
 INCLUDE(CheckSourceCompiles)
 INCLUDE(ThirdpartyToolchain)
+
+if (BUILD_ENABLE_AVX512 AND NOT (CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|X86|x86|i[3456]86|x64"))
+  message(WARNING "Only X86 platform support AVX512")
+  set (BUILD_ENABLE_AVX512 "OFF")
+endif ()
+
+message(STATUS "BUILD_ENABLE_AVX512: ${BUILD_ENABLE_AVX512}")
+#
+# macOS doesn't fully support AVX512, it has a different way dealing with AVX512 than Windows and Linux.
+#
+# Here can find the description:
+# https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/osfmk/i386/fpu.c#L174
+if (BUILD_ENABLE_AVX512 AND NOT APPLE)
+  INCLUDE(ConfigSimdLevel)
+endif ()
 
 set (EXAMPLE_DIRECTORY ${CMAKE_SOURCE_DIR}/examples)
 
