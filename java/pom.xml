@@ -62,11 +62,11 @@
   <properties>
     <checkstyle.version>10.12.0</checkstyle.version>
     <example.dir>${project.basedir}/../../examples</example.dir>
-    <hadoop.version>3.3.5</hadoop.version>
+    <hadoop.version>3.3.6</hadoop.version>
     <java.version>1.8</java.version>
-    <junit.version>5.9.3</junit.version>
+    <junit.version>5.10.0</junit.version>
     <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-    <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
+    <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
@@ -140,12 +140,12 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
+        <version>3.13.0</version>
       </dependency>
       <dependency>
         <groupId>io.airlift</groupId>
         <artifactId>aircompressor</artifactId>
-        <version>0.24</version>
+        <version>0.25</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -220,7 +220,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>32.0.1-jre</version>
+        <version>32.1.2-jre</version>
         <scope>test</scope>
       </dependency>
       <dependency>
