@@ -1,0 +1,2 @@
+image = "gcr-proxy"
+folder = "."

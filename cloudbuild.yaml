@@ -1,0 +1,24 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args: ["/workspace/docker-build.sh"]
+    env:
+      [
+        "PROJECTS=$PROJECT_ID",
+        "IMAGES=$_IMAGE",
+        "SHORT_SHA=$SHORT_SHA",
+        "BRANCH_NAME=$BRANCH_NAME",
+        "DOCKER_DIR=.",
+      ]
+    dir: "${_DIR}"
+
+substitutions:
+  _IMAGE: "gcr-proxy"
+  _DIR: "."
+
+timeout: 1800s
+
+logsBucket: gs://${PROJECT_ID}_cloudbuild/logs
+
+images:
+  - "gcr.io/${PROJECT_ID}/${_IMAGE}"
