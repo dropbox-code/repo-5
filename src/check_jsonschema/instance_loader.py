@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import types
 import typing as t
 
 from check_jsonschema.cli.param_types import CustomLazyFile
@@ -51,6 +52,8 @@ class InstanceLoader:
                 except ParseError as err:
                     data = err
                 else:
+                    if isinstance(data, types.GeneratorType):
+                        data = list(data)
                     data = self._data_transform(data)
             finally:
                 file.close()
