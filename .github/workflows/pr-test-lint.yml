@@ -1069,7 +1069,7 @@ jobs:
       run: make test/lint/proto
     - continue-on-error: true
       name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v6.1.0
+      uses: golangci/golangci-lint-action@v6.1.1
       with:
         version: latest
     - name: after
