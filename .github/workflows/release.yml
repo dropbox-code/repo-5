@@ -266,7 +266,7 @@ jobs:
       run: python -m build
     - continue-on-error: true
       name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.14
+      uses: pypa/gh-action-pypi-publish@v1.10.3
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/octoenergy/django-stubs.$(date
         +%s)
@@ -535,7 +535,7 @@ jobs:
       run: python -m build ext/
     - continue-on-error: true
       name: Publish ext to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.14
+      uses: pypa/gh-action-pypi-publish@v1.10.3
       with:
         packages-dir: ext/dist/
     - name: after
