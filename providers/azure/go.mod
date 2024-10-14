@@ -8,7 +8,7 @@ replace github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/security/armsecuri
 go 1.23.0
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.15.0
 	github.com/Azure/azure-sdk-for-go/sdk/data/aztables v1.2.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/advisor/armadvisor v1.2.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/applicationinsights/armapplicationinsights v1.2.0
