@@ -5,12 +5,12 @@ replace go.mondoo.com/cnquery/v11 => ../..
 go 1.23.0
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.15.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/google/uuid v1.6.0
 	github.com/microsoft/kiota-abstractions-go v1.7.0
 	github.com/microsoft/kiota-authentication-azure-go v1.1.0
-	github.com/microsoftgraph/msgraph-sdk-go v1.49.0
+	github.com/microsoftgraph/msgraph-sdk-go v1.50.0
 	github.com/microsoftgraph/msgraph-sdk-go-core v1.2.1
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
