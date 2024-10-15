@@ -251,7 +251,7 @@ jobs:
       with:
         go-version-file: go.mod
     - continue-on-error: true
-      uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
+      uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200
       with:
         args: check
     - name: after
