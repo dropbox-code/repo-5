@@ -50,7 +50,7 @@
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.0.0",
-    "nyc": "^15.0.0",
+    "nyc": "^17.1.0",
     "semantic-release": "^19.0.3",
     "tape": "^5.0.0"
   }
