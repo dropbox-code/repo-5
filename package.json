@@ -23,7 +23,7 @@
 		"@slack/web-api": "7.0.4",
 		"drizzle-orm": "0.33.0",
 		"handlebars": "4.7.8",
-		"hubot": "11.1.4",
+		"hubot": "11.3.0",
 		"jssm": "github:mhsdef/jssm#node-ts-esm-yaaay",
 		"luxon": "3.5.0",
 		"pg": "8.13.0",
