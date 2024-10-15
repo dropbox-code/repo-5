@@ -26,7 +26,7 @@ setup(
     install_requires=[
         "pandas",
         "cloudpickle==1.6.0",
-        "delta-sharing==0.4.0",
+        "delta-sharing==1.2.0",
         "mlflow-skinny==1.26.1",
     ],
     classifiers=[
