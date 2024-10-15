@@ -261,7 +261,7 @@ jobs:
         JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         JF_URL: https://beyondtrust.jfrog.io
       name: Run XRay scan
-      uses: jfrog/frogbot@004036218e8600cb17aa29fb975eb1d222c6a595
+      uses: jfrog/frogbot@76c8ca83828dc8fc81bf7ee0b02e038b2d4c453c
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/BeyondTrust/go-client-library-passwordsafe.$(date
         +%s)
