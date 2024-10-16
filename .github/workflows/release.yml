@@ -252,7 +252,7 @@ jobs:
         fetch-depth: 0
     - continue-on-error: true
       name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         cache: yarn
         node-version: '20'
