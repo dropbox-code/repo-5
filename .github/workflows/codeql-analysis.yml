@@ -261,7 +261,7 @@ jobs:
         python-version: '3.10'
     - continue-on-error: true
       name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
     - continue-on-error: true
@@ -273,7 +273,7 @@ jobs:
         '
     - continue-on-error: true
       name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/monzo/python-starlark-go.$(date
         +%s)
