@@ -245,7 +245,7 @@ jobs:
 
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
-      uses: thehanimo/pr-title-checker@v1.3.7
+      uses: thehanimo/pr-title-checker@v1.4.2
       with:
         GITHUB_TOKEN: ${{ secrets.RC_TITLE_CHECKER }}
     - name: after
