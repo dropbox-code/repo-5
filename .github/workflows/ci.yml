@@ -3697,7 +3697,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Send context to seperate pipeline
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         client-payload: '{"tag": "${{ github.ref_name }}"}'
         event-type: new_release
@@ -3705,7 +3705,7 @@ jobs:
         token: ${{ secrets.DISTRIBUTION_TOKEN }}
     - continue-on-error: true
       name: Update docs
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         client-payload: '{"tag": "${{ github.ref_name }}"}'
         event-type: new_release
