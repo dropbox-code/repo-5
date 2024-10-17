@@ -598,7 +598,7 @@ jobs:
     - continue-on-error: true
       id: update
       name: Check if update available ${{ matrix.base_image.version }}
-      uses: lucacome/docker-image-update-checker@v1
+      uses: lucacome/docker-image-update-checker@v2
       with:
         base-image: ${{ matrix.base_image.version }}
         image: opentracing/nginx-opentracing:${{ steps.dist.outputs.tag }}
