@@ -160,7 +160,7 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
@@ -181,7 +181,7 @@ require (
 	github.com/0xPolygon/agglayer v0.0.1
 	github.com/0xPolygon/cdk-data-availability v0.0.5
 	github.com/apolloconfig/agollo/v4 v4.0.9
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 	github.com/prometheus/client_golang v1.18.0
 	github.com/segmentio/kafka-go v0.4.47
