@@ -523,7 +523,7 @@ jobs:
       run: coverage html --show-contexts --title "Coverage for ${{ github.sha }}"
     - continue-on-error: true
       name: Store coverage HTML
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-html
         path: htmlcov
@@ -816,7 +816,7 @@ jobs:
       run: coverage run -m pytest tests
     - continue-on-error: true
       name: Store coverage files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage
         path: coverage
