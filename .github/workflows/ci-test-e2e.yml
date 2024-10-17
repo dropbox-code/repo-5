@@ -397,7 +397,7 @@ jobs:
       working-directory: ./apps/meteor
     - continue-on-error: true
       if: inputs.type == 'ui' && inputs.release == 'ee'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         directory: ./apps/meteor
         flags: e2e

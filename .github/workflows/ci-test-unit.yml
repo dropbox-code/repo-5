@@ -262,7 +262,7 @@ jobs:
       name: Unit Test
       run: yarn testunit
     - continue-on-error: true
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         flags: unit
         token: ${{ secrets.CODECOV_TOKEN }}
