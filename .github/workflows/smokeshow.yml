@@ -251,7 +251,7 @@ jobs:
     - continue-on-error: true
       run: pip install smokeshow
     - continue-on-error: true
-      uses: dawidd6/action-download-artifact@v2.27.0
+      uses: dawidd6/action-download-artifact@v3.1.4
       with:
         commit: ${{ github.event.workflow_run.head_sha }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
