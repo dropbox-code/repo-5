@@ -257,7 +257,7 @@ jobs:
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
       name: Launch MongoDB
-      uses: supercharge/mongodb-github-action@v1.10.0
+      uses: supercharge/mongodb-github-action@1.11.0
       with:
         mongodb-replica-set: rs0
         mongodb-version: ${{ matrix.mongodb-version }}
