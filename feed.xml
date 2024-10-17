@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://yuchenakaleslie.github.io//feed.xml" rel="self" type="application/atom+xml" /><link href="https://yuchenakaleslie.github.io//" rel="alternate" type="text/html" hreflang="en" /><updated>2024-10-17T22:46:05+00:00</updated><id>https://yuchenakaleslie.github.io//feed.xml</id><title type="html">blank</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+</subtitle><entry><title type="html"></title><link href="https://yuchenakaleslie.github.io//blog/2024/2023-05-15-3-VAE-implementations/" rel="alternate" type="text/html" title="" /><published>2024-10-17T22:46:05+00:00</published><updated>2024-10-17T22:46:05+00:00</updated><id>https://yuchenakaleslie.github.io//blog/2024/2023-05-15-3-VAE-implementations</id><content type="html" xml:base="https://yuchenakaleslie.github.io//blog/2024/2023-05-15-3-VAE-implementations/"><![CDATA[<p>This theme implements a built-in Jekyll feature, the use of Rouge, for syntax highlighting.
+It supports more than 100 languages.
+This example is in C++.
+All you have to do is wrap your code in markdown code tags:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="p">```</span><span class="nl">c++
+</span><span class="n">code</span> <span class="n">code</span> <span class="n">code</span>
+<span class="p">```</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="err">\</span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="n">string</span> <span class="n">myString</span><span class="p">;</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"input a string: "</span><span class="p">;</span>
+    <span class="n">getline</span><span class="p">(</span><span class="n">cin</span><span class="p">,</span> <span class="n">myString</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="n">myString</span><span class="p">.</span><span class="n">length</span><span class="p">();</span>
+
+    <span class="kt">char</span> <span class="n">charArray</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span> <span class="o">*</span> <span class="p">[</span><span class="n">length</span><span class="p">];</span>
+
+    <span class="n">charArray</span> <span class="o">=</span> <span class="n">myString</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">charArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>By default, it does not display line numbers. If you want to display line numbers for every code block, you can set <code class="language-plaintext highlighter-rouge">kramdown.syntax_highlighter_opts.block.line_numbers</code> to true in your <code class="language-plaintext highlighter-rouge">_config.yml</code> file.</p>
+
+<p>If you want to display line numbers for a specific code block, all you have to do is wrap your code in a liquid tag:</p>
+
+<p>{% highlight c++ linenos %}  <br /> code code code <br /> {% endhighlight %}</p>
+
+<p>The keyword <code class="language-plaintext highlighter-rouge">linenos</code> triggers display of line numbers.
+Produces something like this:</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="k">const</span> <span class="err">\</span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="n">string</span> <span class="n">myString</span><span class="p">;</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"input a string: "</span><span class="p">;</span>
+    <span class="n">getline</span><span class="p">(</span><span class="n">cin</span><span class="p">,</span> <span class="n">myString</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="n">myString</span><span class="p">.</span><span class="n">length</span><span class="p">();</span>
+
+    <span class="kt">char</span> <span class="n">charArray</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span> <span class="o">*</span> <span class="p">[</span><span class="n">length</span><span class="p">];</span>
+
+    <span class="n">charArray</span> <span class="o">=</span> <span class="n">myString</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">){</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">charArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></figure>]]></content><author><name></name></author></entry><entry><title type="html">Deploy Python Web apps</title><link href="https://yuchenakaleslie.github.io//blog/2023/Deploy-Python-Webapps/" rel="alternate" type="text/html" title="Deploy Python Web apps" /><published>2023-06-26T16:40:16+00:00</published><updated>2023-06-26T16:40:16+00:00</updated><id>https://yuchenakaleslie.github.io//blog/2023/Deploy-Python-Webapps</id><content type="html" xml:base="https://yuchenakaleslie.github.io//blog/2023/Deploy-Python-Webapps/"><![CDATA[<blockquote>
+    Full-stack web application for deploying a Deep Learning model, with Flask and Docker. Further discussion on operational management such as CI/CD will be added shortly.
+</blockquote>
+
+<p>What happens after having trained and validated your Deep Learinig model? It may be a simple MLP or the more trending Transformer, built by Tensorflow or Pytorch, for your research/application tasks. There will generally be interests for such model to be used by others, say collegues, clients, etc. The following content will give a concise overview about the best practices in deploying your model.</p>
+
+<hr />
+
+<h3 id="deploy-the-learnt-model-as-a-rest-api">Deploy the <em>learnt</em> model as a REST API</h3>
+
+<p>Simply, the model can run with a simple call such as <code class="language-plaintext highlighter-rouge">python inference.py</code>. But the main interests lay in serving the model to the general public, as opposed to running only on your own laptop. In this spirit, we can deploy the model as a REST API, such that you can call <code class="language-plaintext highlighter-rouge">curl</code> to send request to the sever and obtain the response, which will be the results for inference. In doing so, you will probably do the following in the terminal for an example of image classification task. (Note the host name will be the relevant IP address in real cases. The <strong>localhost</strong> shown below means your own machine for illustration purpose.)</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-X</span> POST <span class="nt">-F</span> <span class="nv">image</span><span class="o">=</span>@query_image.jpg <span class="s1">'http://localhost:5000/predict'</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Well, while this works, the caveat is that the call signature seems unnecessarily arcane. Things could be more straightforward. You don’t expect everyone to be a mechanic to drive a car, right?</p>
+
+<hr />
+
+<h3 id="full-stack-web-application">Full-stack web application</h3>
+
+<p>By contrast, a user-friendly, intuitive, responsive, web application sounds much more attracting. Building a front-end for the API can save a lot of trouble for the end users. Besides, you get to integrate a lot of relevant sources at the same page to enrich the experience. The illustrative page below is taken from the <a href="http://18.169.51.60/">web application</a> I created and hosted by the AWS. Please refer to the <a href="/teaching/">page</a> for additional details.</p>
+
+<div class="row">
+    <div class="col-sm mt-3 mt-md-0">
+        <figure>
+
+  <picture>
+    
+    <source class="responsive-img-srcset" media="(max-width: 480px)" srcset="/assets/img/predict_page-480.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 800px)" srcset="/assets/img/predict_page-800.webp" />
+    <source class="responsive-img-srcset" media="(max-width: 1400px)" srcset="/assets/img/predict_page-1400.webp" />
+    
+
+    <!-- Fallback to the original file -->
+    <img src="/assets/img/predict_page.png" class="img-fluid rounded z-depth-1" width="auto" height="auto" title="example image" onerror="this.onerror=null; $('.responsive-img-srcset').remove();" />
+
+  </picture>
+
+</figure>
+
+    </div>
+</div>
+<div class="caption">
+    Two types of prediction and 4 models to choose
+</div>
+
+<hr />
+
+<h3 id="dockerize-it-">Dockerize it !</h3>
+
+<p>A tool that can largely stremline the development process is <code class="language-plaintext highlighter-rouge">Docker</code>, which serves as a platform for building, running, and shipping applications. A very practical scenario is when you want to share the application (say, still in beta stage) with other team members. You want a one-stop solution for them to quickly set up, without worrying about the operating system, the dependencies etc. <code class="language-plaintext highlighter-rouge">Docker</code> comes to the rescue. All they need are: download and run the image to build the application on their own machine.</p>
+
+<hr />
+
+<h3 id="deploy-to-production">Deploy to production</h3>
+
+<p>When deploying in production, the common practice is to use a dedicated combination of WSGI server, with a dedicated HTTP server in front of it (i.e. so-called reverse proxy). Typically, people will use <code class="language-plaintext highlighter-rouge">Gunicorn</code>, which is a pure Python WSGI server and <code class="language-plaintext highlighter-rouge">nginx</code>, which is production level HTTP server. How it works is: when serving your application with one of the WSGI servers, it’s often good practice to put a dedicated HTTP server in front of it, such that this “reverse proxy” can handle incoming requests, TLS etc. better than the WSGI server.</p>
+
+<p>More conveniently, there are a number of services (e.g. hosting platforms) to facilitate such process. Typical examples include:</p>
+
+<ul>
+    <li>PythonAnywhere</li>
+    <li>AWS Elastic Beanstalk</li>
+    <li>Google Cloud</li>
+    <li>Microsoft Azure</li>
+</ul>]]></content><author><name></name></author><category term="implementation" /><category term="web" /><category term="application" /><summary type="html"><![CDATA[Best practices in deploying Deep Learning models]]></summary></entry><entry><title type="html">Uncertainty decomposition in Deep Learning</title><link href="https://yuchenakaleslie.github.io//blog/2023/uncertainty-decomposition/" rel="alternate" type="text/html" title="Uncertainty decomposition in Deep Learning" /><published>2023-06-26T15:12:00+00:00</published><updated>2023-06-26T15:12:00+00:00</updated><id>https://yuchenakaleslie.github.io//blog/2023/uncertainty-decomposition</id><content type="html" xml:base="https://yuchenakaleslie.github.io//blog/2023/uncertainty-decomposition/"><![CDATA[<p>Advances in Deep Learning bring further investigation into credibility and robustness, especially for safety-critical applications. Trustworthy AI which aims to critically investigate the fairness (biasness), interpretability, and robustness of Deep Learning algorithms and applications, has attracted significant attention recently.</p>
+
+<blockquote>
+    All models are wrong, but models that know when they don't know are useful.
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">It is desired that Machine Leanring or Deep Learning models should know when they don't know.</code> In most cases, people create or use a neural network model in order to predict a certain quantify of interest (QoI). However, there is no gurrantee that the model prediction is correct, especially under the situations of generalization to out-of-distribution data. People would like to know the predictive distribution instead to understand the uncertainty of the prediction, and further the risks associated with the downstream decisions. This post will clarify the concepts and techniques proposed in recent years on how the Deep Learning models account for the different sources of uncertainty.</p>
+
+<hr />
+
+<h3 id="sources-of-uncertainty">sources of uncertainty</h3>
+
+<p>Different sources of uncertainty are involved within the training pipeline, which are generally classified between two categories: aleatoric and epistemic uncertainty. <strong>aleatoric</strong> is the uncertainty inherent in the data and irreducible, which may comprise measurement error, noisy labels or inherent stochasticity in the data generating process. Depending on the assumption that whether the data noise is dependent on the input features, methods vary in accounting for heteroscedastic or homoscedastic variance. <strong>epistemic</strong> uncertainty, on the other hand, refers to the model uncertainty, which is reducible with more data. That is, it reflects the fact that there may exist a set of model configurations that can explain the observed data, hence we are probably uncertain about the model parameters given the limited data. Most Deep Learning models, despite being probabilistic in some sense, do not capture model uncertainty. For example, consider a classification task, a model can still be uncertain even with a high softmax output. An example of regression can be found at <a href="https://blog.tensorflow.org/2019/03/regression-with-probabilistic-layers-in.html">Probabilistic regression</a>.</p>
+
+<hr />
+
+<h3 id="probabilistic-noise-estimation">Probabilistic noise estimation</h3>
+
+<p>Most likely the real world data contain noise. Without losing generality, consider a regression problem with gaussian noise, it is desired to account for the variance of the conditional distribution given the feature vector, which represents the <em>aleatoric</em> uncertainty. 
+That is, to estimate the second moment (variance) of the target conditional distribution in addition to the usual estimation of the first moment (mean).
+Note that such uncertainty is irreducible even with increasing data samples as the underlying data collection/measurement process is still noisy, which merely leads to increased number of noisy data. 
+Especially, efforts are pursued for modelling the input-dependent variance <em>heteroscedastic noise</em>.
+A unified structure of a neural network model, where two output units are separately mapped to the mean and variance through independent sets of weights, is constructed to simutaneously estimate the conditional distribution. 
+Under the Gaussian noise assumption, the loss objective (<em>negative log likelihood NLL</em>) is given as:</p>
+
+\[-\log p(y_{i} | \mathbf{x}_{i}) = \frac{\log \sigma^2(\mathbf{x}_{i})}{2} + \frac{(y_{i} - f_{\omega}(\mathbf{x}_{i}))^2}{2 \sigma^2(\mathbf{x}_{i})} + \frac{\log 2 \pi}{2}\]
+
+<hr />
+
+<h3 id="bayesian-inference-in-deep-learning">Bayesian inference in Deep Learning</h3>
+
+<p>Implicit in the above MLE procedure is the ignorance of model uncertainties (<em>epistemic</em> uncertainty). The model weights are themselves uncertain due to the imperfect training data. Significant uncertainties may exist on the model configurations that could have generated the data. Especially in the context of limited data, deterministic models, unless properly regularised, are prone to learn too much noise (overfitting) and become overconfident due to the unawareness of model uncertainties. Note that such uncertainty can be reduced with more data and hence referred to as <em>reducible uncertainty</em>.
+Probability theory provides a framework for reasoning with uncertainty. As such, in accounting for the model uncertainty  in neural network models, probability distributions are assigned to model parameters \(\boldsymbol{\omega}\), whereby <em>learning</em> is characterised with the transformation of the prior knowledge or belief, via the observed data \(\mathcal{D}:\{\mathbf{X}, \mathbf{Y}\}\), into the posterior knowledge.
+Particularly, by formulating such uncertainty, Bayesian models achieves a regularising effect against overfitting, which may otherwise be a serious problem in terms of limited and noisy data.</p>
+
+<p>In the training stage, given a dataset \(\mathbf{X}, \mathbf{Y}\), we then look for the <em>posterior distribution</em> over the parameter space:</p>
+
+<p>\begin{equation}
+p(\boldsymbol{\omega}|\mathbf{X}, \mathbf{Y}) = \frac{p(\mathbf{Y|\mathbf{X}, \boldsymbol{\omega}})p(\boldsymbol{\omega})}{p({\mathbf{Y}|\mathbf{X}})}
+\end{equation}</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>This distribution captures the most probable function parameters given our observed data. $$p(\mathbf{Y</td>
+      <td>\mathbf{X}, \boldsymbol{\omega}})\(is the *likelihood*, and the *evidence*,\)p({\mathbf{Y}</td>
+      <td>\mathbf{X}})$$, is given by:</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>\begin{equation}
+p({\mathbf{Y}|\mathbf{X}}) = \int{p(\mathbf{Y|\mathbf{X}, \boldsymbol{\omega}}) p(\boldsymbol{\omega}) \text{d}{\boldsymbol{\omega}}}
+\end{equation}</p>
+
+<p>In the testing stage, with the parameters the output given a new input \(\mathbf{x^*}\) can be predicted:</p>
+
+\[p(\mathbf{y^*}|\mathbf{x^*, \mathbf{X}, \mathbf{Y}}) = \int{p(\mathbf{y^*}|\mathbf{x^*, \boldsymbol{\omega}})p(\boldsymbol{\omega}|\mathbf{X}, \mathbf{Y}) \text{d}{\boldsymbol{\omega}}}\]
+
+<p>Compactly, for an i.i.d dataset of \(N\) observations \(\mathcal{D}\), the likelihood function can be compactly rewritten as:</p>
+
+<p>\begin{equation}
+p(\mathcal{D}|\boldsymbol{\omega}, \beta) = \prod_{i=1}^{N} \mathcal{N} (y_{i}|f_{\boldsymbol{\omega}}(\mathbf{x}), \beta^{-1})
+\end{equation}</p>
+
+<p>Similarly, choose a prior distribution over the weights, for example Gaussian:</p>
+
+<p>\begin{equation}
+p(\boldsymbol{\omega}|\alpha) = \mathcal{N} (\boldsymbol{\omega}|\mathbf{0}, \alpha^{-1} \mathbf{I})
+\end{equation}</p>
+
+<p>the resulting posterior distribution is then:</p>
+
+<p>\begin{equation}
+p(\boldsymbol{\omega}| \mathcal{D}, \alpha, \beta)  \propto p(\boldsymbol{\omega}|\alpha) p(\mathcal{D}|\boldsymbol{\omega}, \beta)
+\end{equation}</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Despite conceptually straightforward, the above inference problem is practically challenging to solve. The integral $$p(\mathcal{D})=\int p(\mathcal{D}</td>
+      <td>\boldsymbol{\omega}) p(\boldsymbol{\omega}) d \boldsymbol{\omega}\(is intractable due to the high dimensionality of weights\)\boldsymbol{\omega}$$.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ### predictive distribution
+
+Predictive uncertainty can be propagated from the uncertain model given the input, which may be of out-of-sample distribution.
+Two sources of uncertainty can be combined to account for the predictive uncertainty.
+Assuming Gaussian noise $$p(\mathbf{y}|\mathbf{x}, \omega) = \mathcal{N}(f_{\omega}(\mathbf{x}), \tau^{-1} \mathbf{I})$$ where the model precision estimated as $$\tau^{-1} = g_{\boldsymbol{\omega}}(\mathbf{x}^{*})$$, the model's predictive variance given a new data point can be given as:
+
+\begin{equation}
+	\text{Var}(y^{*}) = \frac{1}{T} \sum_{t=1}^{T} g_{\boldsymbol{\omega}_{t}}(\mathbf{x}^{*}) \mathbf{I} + \frac{1}{T} \sum_{t=1}^{T} f_{\omega_{t}}(\mathbf{x}^{*})^{T} f_{\omega_{t}}(\mathbf{x}^{*}) - \mathbb{E} (\mathbf{y}^{*})^{T} \mathbb{E} (\mathbf{y}^{*})
+\end{equation}
+
+With the Gaussian assumption, the predictive distribution, the integral in Eq.~(\ref{eq:testing_inference}), is indeed approximated by an ensemble of conditional gaussians for $$y^{*}$$, with each gaussian represented by a neural network model parameterised by a sample from the variational posterior.
+On the basis of this ensemble of Gaussians, a mixture of Gaussian model further approximates the estimation of mean and variance of the considered predictive distribution:
+
+\begin{aligned}
+	\mu(\mathbf{x}^{*}) &= T^{-1} \sum_{t=1}^{T} \mu_{\omega_{t}}(\mathbf{x})  \\
+	\sigma(\mathbf{x}^{*}) &= T^{-1} \sum_{t=1}^{T} [\sigma^{2}_{\omega_{t}}(\mathbf{x}^{*}) + \mu^{2}_{\omega_{t}}(\mathbf{x}^{*})] - \mu^{2}(\mathbf{x}^{*})
+\end{aligned}
+
+In addition, a further approximation of considering homoscedastic noise could be simpler to estimate, by empirical estimation from the validation set, as given below:
+
+\begin{equation}
+	\text{Var}(\mathbf{y}^{*}) \approx \tau^{-1}\mathbf{I} + \frac{1}{T} \sum_{t=1}^{T} f_{\omega_{t}}(\mathbf{x}^{*})^{T} f_{\omega_{t}}(\mathbf{x}^{*}) - \mathbb{E} (\mathbf{y}^{*})^{T} \mathbb{E} (\mathbf{y}^{*})
+\end{equation}
+
+Assuming constant, the model imprecision can be estimated as:
+
+\begin{equation}
+	\tau = \frac{(1-p) l_{i}^{2}}{2N \lambda_{i}}
+\end{equation}
+
+where the weight decay $$\lambda_{i}$$ and prior length scale $$l_{i}$$ are hyperparameters tuned from the separate validation data set. Alternatively, a naive estimate based on the sample variance of the validation set is also sometimes employed. -->]]></content><author><name></name></author><category term="theory" /><category term="uncertainty" /><category term="quantification" /><summary type="html"><![CDATA[explain the language of uncertainty in Machine Learning]]></summary></entry><entry><title type="html">Out-of-box Python decorators</title><link href="https://yuchenakaleslie.github.io//blog/2023/Python-decorator/" rel="alternate" type="text/html" title="Out-of-box Python decorators" /><published>2023-05-19T15:09:00+00:00</published><updated>2023-05-19T15:09:00+00:00</updated><id>https://yuchenakaleslie.github.io//blog/2023/Python-decorator</id><content type="html" xml:base="https://yuchenakaleslie.github.io//blog/2023/Python-decorator/"><![CDATA[<p>Decorator has always been my favorite feature of Python, not only because of the nice look of a colorful <code class="language-plaintext highlighter-rouge">@function</code> symbol, but more because of it as an elegant construct to dynamically enrich the wrapped function. In this post I would like to share some of my favorite use cases. I will also mention some real-world uses and leave interested reader to dig more. Some other common examples include the <code class="language-plaintext highlighter-rouge">@app.route()</code> decorator in Flask, etc.</p>
+
+<hr />
+
+<h3 id="1-timer">1. Timer</h3>
+
+<p>Perhaps the most simple case. But it is a definitly a frequent go-to use case where you may need to know the run time of your function or code block. Just simply wrap up the code bloack into a function and add this simple <code class="language-plaintext highlighter-rouge">@function</code> symbol, quick and elegant.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">timer</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">Print the runtime of the decorated function</span><span class="sh">"""</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper_timer</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">perf_counter</span><span class="p">()</span>    <span class="c1"># 1
+</span>        <span class="n">value</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">perf_counter</span><span class="p">()</span>      <span class="c1"># 2
+</span>        <span class="n">run_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>    <span class="c1"># 3
+</span>        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Finished </span><span class="si">{</span><span class="n">func</span><span class="p">.</span><span class="n">__name__</span><span class="si">!r}</span><span class="s"> in </span><span class="si">{</span><span class="n">run_time</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="s"> secs</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">wrapper_timer</span>
+
+<span class="nd">@timer</span>
+<span class="k">def</span> <span class="nf">waste_some_time</span><span class="p">(</span><span class="n">num_times</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">num_times</span><span class="p">):</span>
+        <span class="nf">sum</span><span class="p">([</span><span class="n">i</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">)])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>For Jupyter notebook users, you may be familiar with the <code class="language-plaintext highlighter-rouge">%%time</code> magic command, then you get the idea.</p>
+
+<hr />
+
+<h3 id="2-runtime-plot-style-change">2. Runtime plot style change</h3>
+
+<p>Customize the plotting styles when plotting with matplotlib at runtime. Note that this type of runtime changes takes precedance than stylesheets. I personally find it super useful when polishing your most fancy plot. It enables you to just focus on the style, without worrying about the data content part as it is all wrapped in the <code class="language-plaintext highlighter-rouge">plotting_function</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nd">@mpl.rc_context</span><span class="p">({</span><span class="sh">'</span><span class="s">lines.linewidth</span><span class="sh">'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="sh">'</span><span class="s">lines.linestyle</span><span class="sh">'</span><span class="p">:</span> <span class="sh">'</span><span class="s">-</span><span class="sh">'</span><span class="p">})</span>
+<span class="k">def</span> <span class="nf">plotting_function</span><span class="p">():</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="nf">plotting_function</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />
+
+<h3 id="3-tensorflow-function">3. Tensorflow <strong>Function</strong></h3>
+
+<p>This should be quite familiar with Tensorflow users. This allows the switch from <strong>eager excution</strong> to <strong>graph execution</strong>. In Tensorflow 2, computations are running eagerly by default, suggesting Tensorflow operations are executed by Python, one by one, and return results back to Python. By contrast, graph execution means the tensor computations are executed as a Tensorflow graph, represented by <code class="language-plaintext highlighter-rouge">tf.Graph</code>. Graphs are data structures that contain a set of tf.Operation objects, which represent units of computation; and tf.Tensor objects, which represent the units of data that flow between operations. They are defined in a <code class="language-plaintext highlighter-rouge">tf.Graph</code> context. Since these graphs are data structures, they can be saved, run, and restored all without the original Python code.</p>
+
+<p>Most commonly, you will use it when writing your own low-level training/test pipeline, such as</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nd">@tf.function</span>
+<span class="k">def</span> <span class="nf">test_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">val_logits</span> <span class="o">=</span> <span class="nf">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">val_acc_metric</span><span class="p">.</span><span class="nf">update_state</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">val_logits</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />]]></content><author><name></name></author><category term="implementation" /><category term="code" /><summary type="html"><![CDATA[some go-to decorator examples]]></summary></entry></feed>
