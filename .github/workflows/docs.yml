@@ -253,7 +253,7 @@ jobs:
         python-version: '3.10'
     - continue-on-error: true
       id: cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml')
           }}
@@ -279,7 +279,7 @@ jobs:
       run: python -m poetry run pip install git+https://${{ secrets.MK_DOCS_ACTIONS_TOKEN
         }}@github.com/squidfunk/mkdocs-material-insiders.git
     - continue-on-error: true
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         key: mkdocs-cards-${{ github.ref }}
         path: .cache
