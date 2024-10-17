@@ -252,7 +252,7 @@ jobs:
       run: sudo apt-get install libpcap-dev -y
     - continue-on-error: true
       name: install Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
     - continue-on-error: true
